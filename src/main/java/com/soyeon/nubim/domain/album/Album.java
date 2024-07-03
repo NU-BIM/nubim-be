@@ -27,6 +27,8 @@ public class Album extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	private String description;
+
 	@Column(nullable = false, columnDefinition = "jsonb")
 	private String photoUrls;
 

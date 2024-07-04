@@ -1,14 +1,18 @@
 package com.soyeon.nubim.domain.post;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.AlbumService;
+import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
@@ -43,6 +47,21 @@ public class PostMapper {
 			.albumId(post.getAlbum().getAlbumId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
+			.build();
+	}
+
+	private List<Long> extractCommentIds(List<Comment> comments) {
+		return comments.stream().map(Comment::getCommentId).collect(Collectors.toList());
+	}
+
+	public PostDetailResponseDto toPostDetailResponseDto(Post post) {
+		return PostDetailResponseDto.builder()
+			.postId(post.getPostId())
+			.postTitle(post.getPostTitle())
+			.postContent(post.getPostContent())
+			.userId(post.getUser().getUserId())
+			.albumId(post.getAlbum().getAlbumId())
+			.commentIds(this.extractCommentIds(post.getComments()))
 			.build();
 	}
 }

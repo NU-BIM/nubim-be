@@ -13,6 +13,7 @@ import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
@@ -62,6 +63,17 @@ public class PostMapper {
 			.userId(post.getUser().getUserId())
 			.albumId(post.getAlbum().getAlbumId())
 			.commentIds(this.extractCommentIds(post.getComments()))
+			.build();
+	}
+
+	public PostSimpleResponseDto toPostSimpleResponseDto(Post post) {
+		return PostSimpleResponseDto.builder()
+			.postId(post.getPostId())
+			.postTitle(post.getPostTitle())
+			.postContent(post.getPostContent())
+			.numberOfComments((long)post.getComments().size())
+			.userId(post.getUser().getUserId())
+			.albumId(post.getAlbum().getAlbumId())
 			.build();
 	}
 }

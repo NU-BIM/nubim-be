@@ -2,18 +2,23 @@ package com.soyeon.nubim.domain.post;
 
 import java.net.URI;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -34,14 +39,24 @@ public class PostControllerV1 {
 			.body(postMapper.toPostCreateResponseDto(savedPost));
 	}
 
-	@GetMapping
-	public ResponseEntity<PostDetailResponseDto> getPost(@RequestParam Long postId) {
+	@Operation(description = "type이 비어있을 경우: 자세한 게시글 type=simple: 미리보기")
+	@GetMapping("/{postId}")
+	public ResponseEntity<?> getPostDetail(
+		@PathVariable Long postId,
+		@RequestParam(required = false) String type) {
 		Post post = postService
 			.findById(postId)
 			.orElseThrow(() -> new PostNotFoundException(postId));
 
-		PostDetailResponseDto postDetailResponseDto = postMapper.toPostDetailResponseDto(post);
-		return ResponseEntity.ok(postDetailResponseDto);
+		if (type == null) {
+			PostDetailResponseDto postDetailResponseDto = postMapper.toPostDetailResponseDto(post);
+			return ResponseEntity.ok(postDetailResponseDto);
+		} else if (type.equals("simple")) {
+			PostSimpleResponseDto postSimpleResponseDto = postMapper.toPostSimpleResponseDto(post);
+			return ResponseEntity.ok(postSimpleResponseDto);
+		} else {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+		}
 	}
 
 }

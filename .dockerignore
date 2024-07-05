@@ -1,0 +1,47 @@
+# 기본적인 디렉토리 및 파일 제외
+target/
+build/
+
+# Maven 및 Gradle 디렉토리 제외
+.mvn/
+.gradle/
+
+# 로컬 설정 파일 제외
+**/.*.swp
+**/.*.swo
+**/.DS_Store
+**/.idea
+**/.project
+**/.classpath
+**/.settings
+**/.vscode
+
+# 운영체제별 파일 제외
+**/Thumbs.db
+**/ehthumbs.db
+**/Desktop.ini
+**/Icon?
+**/.AppleDouble
+**/.LSOverride
+
+# 로그 파일 및 임시 파일 제외
+*.log
+*.tmp
+
+# Git 및 기타 버전 관리 시스템 파일 제외
+.git
+.gitignore
+.gitattributes
+.svn
+.hg
+.github
+
+# IntelliJ IDEA 파일 제외
+.idea/
+*.iml
+
+# VSCode 파일 제외
+.vscode/
+
+# 환경 변수 제외
+*.env

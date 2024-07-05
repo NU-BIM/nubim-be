@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.common.util.aws.S3PresignedUrlGenerator;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -13,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 public class AlbumService {
 
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
-  private final AlbumRepository albumRepository;
-  
-  public Optional<Album> findById(Long id) {
+	private final AlbumRepository albumRepository;
+
+	public Optional<Album> findById(Long id) {
 		return albumRepository.findById(id);
 	}
 

@@ -37,19 +37,6 @@ public class S3PresignedUrlGenerator {
 	}
 
 	/**
-	 * S3 에 객체를 업로드하기 위한 presigned url 1개 생성하여 반환한다
-	 * @param uploadPath S3 버킷 내 업로드될 경로와 파일명
-	 * @param contentType 업로드할 객체의 MIME 타입
-	 * @return S3에 업로드할 수 있는 presigned url
-	 */
-	public String generatePresignedUrl(String uploadPath, String contentType) {
-		String fileName = getFileNameFromPath(uploadPath);
-		String s3UploadPath = UUID.randomUUID().toString().substring(0, 8) + "-" + fileName;
-
-		return preparePresignedUploadUrl(contentType, s3UploadPath);
-	}
-
-	/**
 	 * S3 에 객체를 업로드하기 위한 presigned url fileCnt만큼 생성하여 반환한다
 	 * @param contentType 업로드할 객체의 MIME 타입
 	 * @param fileCnt 업로드되는 파일의 수, 해당 수 만큼 url 생성
@@ -89,10 +76,6 @@ public class S3PresignedUrlGenerator {
 
 		PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 		return presignedRequest.url().toString();
-	}
-
-	private String getFileNameFromPath(String path) {
-		return path.substring(path.lastIndexOf('/') + 1);
 	}
 
 	/**

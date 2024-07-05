@@ -17,15 +17,6 @@ public class AlbumController {
 
 	private final AlbumService albumService;
 
-	@PostMapping("/photos/upload-url")
-	public ResponseEntity<String> getPhotoUploadUrl(
-		@RequestParam String uploadPath,
-		@RequestParam String contentType) {
-
-		String presignedUrl = albumService.handlePhotoUploadUrlGeneration(uploadPath, contentType);
-		return ResponseEntity.ok(presignedUrl);
-	}
-
 	@PostMapping("/photos/upload-urls")
 	public ResponseEntity<List<String>> getPhotoUploadUrls(
 		@RequestParam String contentType,

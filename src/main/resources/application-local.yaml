@@ -13,6 +13,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  #multipart
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
 springdoc:
   api-docs:
     enabled: true
@@ -22,3 +28,17 @@ springdoc:
 logging:
   level:
     root: info
+
+
+#aws
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: ${LOCAL_AWS_USER_ACCESS_KEY}
+      secret-key: ${LOCAL_AWS_USER_SECRET_KEY}
+    s3:
+      bucket: ${LOCAL_AWS_S3_NAME}
+    stack:
+      auto: false

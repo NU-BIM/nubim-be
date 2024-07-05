@@ -14,8 +14,8 @@ public class AlbumService {
 
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
-	public List<String> handlePhotoUploadUrlsGeneration(String contentType, int fileCnt) {
-		return s3PresignedUrlGenerator.generatePresignedUrls(contentType, fileCnt);
+	public List<String> handlePhotoUploadUrlsGeneration(List<String> contentTypes) {
+		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes);
 	}
 
 }

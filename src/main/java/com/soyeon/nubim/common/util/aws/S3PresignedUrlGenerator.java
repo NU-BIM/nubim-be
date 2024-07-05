@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Service
 public class S3PresignedUrlGenerator {
 
+	public static final int PRESIGNED_URL_DURATION_TIME = 10;
 	private final S3Presigner s3Presigner;
 	private final String bucketName;
 
@@ -37,20 +38,19 @@ public class S3PresignedUrlGenerator {
 	}
 
 	/**
-	 * S3 에 객체를 업로드하기 위한 presigned url fileCnt만큼 생성하여 반환한다
-	 * @param contentType 업로드할 객체의 MIME 타입
-	 * @param fileCnt 업로드되는 파일의 수, 해당 수 만큼 url 생성
+	 * S3 에 객체를 업로드하기 위한 presigned url을 contentTypes의 크기만큼 생성하여 반환한다
+	 * @param contentTypes 업로드할 객체의 MIME 타입을 담은 List
 	 * @return S3에 업로드할 수 있는 presigned url들을 담은 List
 	 */
-	public List<String> generatePresignedUrls(String contentType, int fileCnt) {
-		List<String> presignedUrls = new ArrayList<>(fileCnt);
+	public List<String> generatePresignedUrls(List<String> contentTypes) {
+		List<String> presignedUrls = new ArrayList<>(contentTypes.size());
 
 		String uploadDirectory = getUploadDirectory();
 
-		for (int i = 0; i < fileCnt; i++) {
-			String s3UploadPath = uploadDirectory + "img" + String.format("%02d", i);
+		for (int i = 0; i < contentTypes.size(); i++) {
+			String s3UploadPath = uploadDirectory + getFileName(i);
 
-			String presignedUrl = preparePresignedUploadUrl(contentType, s3UploadPath);
+			String presignedUrl = preparePresignedUploadUrl(contentTypes.get(i), s3UploadPath);
 			presignedUrls.add(presignedUrl);
 		}
 		return presignedUrls;
@@ -70,7 +70,7 @@ public class S3PresignedUrlGenerator {
 			.build();
 
 		PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-			.signatureDuration(Duration.ofMinutes(10)) //presigned url 유효 기간
+			.signatureDuration(Duration.ofMinutes(PRESIGNED_URL_DURATION_TIME)) //presigned url 유효 기간
 			.putObjectRequest(objectRequest)
 			.build();
 
@@ -85,5 +85,9 @@ public class S3PresignedUrlGenerator {
 	 */
 	private static String getUploadDirectory() {
 		return LocalDate.now() + "/" + UUID.randomUUID().toString().substring(0, 8) + "/";
+	}
+
+	private static String getFileName(int number) {
+		return "img" + String.format("%02d", number);
 	}
 }

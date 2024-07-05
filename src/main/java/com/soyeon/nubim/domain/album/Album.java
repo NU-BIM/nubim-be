@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.album;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.user.User;
@@ -13,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Entity
@@ -32,9 +34,7 @@ public class Album extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "jsonb")
 	private String photoUrls;
 
-	@Column(columnDefinition = "jsonb")
-	private String coordinate;
-
-	private LocalDateTime coordinateTime;
+	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY)
+	private List<Location> locations = new ArrayList<>();
 
 }

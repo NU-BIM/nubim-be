@@ -9,6 +9,7 @@ import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.user.User;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,10 +19,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Album extends BaseEntity {
 
 	@Id
@@ -38,7 +45,7 @@ public class Album extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "jsonb")
 	private String photoUrls;
 
-	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Location> locations = new ArrayList<>();
 
 }

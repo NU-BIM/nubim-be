@@ -28,16 +28,14 @@ import lombok.AllArgsConstructor;
 public class PostControllerV1 {
 
 	private PostService postService;
-	private PostMapper postMapper;
 
 	@PostMapping
 	public ResponseEntity<PostCreateResponseDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto) {
-		Post postRequest = postMapper.toEntity(postCreateRequestDto);
-		Post savedPost = postService.createPost(postRequest);
+		PostCreateResponseDto postCreateResponseDto = postService.createPost(postCreateRequestDto);
 
 		return ResponseEntity
-			.created(URI.create(String.format("/v1/posts/%d", savedPost.getPostId())))
-			.body(postMapper.toPostCreateResponseDto(savedPost));
+			.created(URI.create(String.format("/v1/posts/%d", postCreateResponseDto.getPostId())))
+			.body(postCreateResponseDto);
 	}
 
 	@Operation(description = "type이 비어있을 경우: 자세한 게시글 type=simple: 미리보기")
@@ -45,21 +43,16 @@ public class PostControllerV1 {
 	public ResponseEntity<?> getPostDetail(
 		@PathVariable Long postId,
 		@RequestParam(required = false) String type) {
-		Post post = postService
-			.findById(postId)
-			.orElseThrow(() -> new PostNotFoundException(postId));
-
 		if (type == null) {
-			PostDetailResponseDto postDetailResponseDto = postMapper.toPostDetailResponseDto(post);
-			return ResponseEntity.ok(postDetailResponseDto);
+			return ResponseEntity.ok(postService.findPostDetailById(postId));
 		} else if (type.equals("simple")) {
-			PostSimpleResponseDto postSimpleResponseDto = postMapper.toPostSimpleResponseDto(post);
-			return ResponseEntity.ok(postSimpleResponseDto);
+			return ResponseEntity.ok(postService.findPostSimpleById(postId));
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// TODO : 배포 전 soft delete로 변경 필요
 	@DeleteMapping("{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
 		postService.deleteById(postId);

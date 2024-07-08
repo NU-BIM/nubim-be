@@ -3,8 +3,11 @@ package com.soyeon.nubim.domain.album;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Type;
+
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.user.User;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +34,7 @@ public class Album extends BaseEntity {
 
 	private String description;
 
+	@Type(JsonType.class)
 	@Column(nullable = false, columnDefinition = "jsonb")
 	private String photoUrls;
 

@@ -41,6 +41,13 @@ public class AlbumController {
 		return ResponseEntity.ok(album);
 	}
 
+	@Operation(description = "사용자 id로 해당 사용자의 모든 앨범, 연관된 경로를 검색한다.")
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<List<AlbumReadResponseDto>> getUserAlbums(@PathVariable Long userId) {
+		List<AlbumReadResponseDto> albums = albumService.findAlbumsByUserId(userId);
+		return ResponseEntity.ok(albums);
+	}
+
 	@PostMapping("/photos/upload-urls")
 	public ResponseEntity<List<String>> getPhotoUploadUrls(
 		@RequestParam List<String> contentTypes) {

@@ -1,5 +1,6 @@
 package com.soyeon.nubim.domain.album;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -44,6 +45,16 @@ public class AlbumService {
 			.orElseThrow(() -> new EntityNotFoundException("Album not found, id: " + id));
 
 		return albumMapper.toAlbumReadResponseDto(album);
+	}
+
+	public List<AlbumReadResponseDto> findAlbumsByUserId(Long userId) {
+		List<Album> albums = albumRepository.findByUserUserId(userId);
+
+		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());
+		for (Album album : albums) {
+			albumReadResponseDtos.add(albumMapper.toAlbumReadResponseDto(album));
+		}
+		return albumReadResponseDtos;
 	}
 
 	public List<String> handlePhotoUploadUrlsGeneration(List<String> contentTypes) {

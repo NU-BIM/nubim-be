@@ -30,7 +30,7 @@ public class PostService {
 
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto) {
 		Post post = postMapper.toEntity(postCreateRequestDto);
-		postRepository.save(post);
+		postRepository.save(post); // TODO : 글자 수 제한 예외처리
 		return postMapper.toPostCreateResponseDto(post);
 	}
 

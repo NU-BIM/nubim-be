@@ -1,5 +1,8 @@
 package com.soyeon.nubim.domain.comment;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.user.User;
@@ -16,6 +19,8 @@ import lombok.Data;
 
 @Entity
 @Data
+@SQLDelete(sql = "UPDATE comment SET is_deleted = true WHERE comment_id = ?")
+@SQLRestriction("is_deleted = false")
 public class Comment extends BaseEntity {
 
 	@Id

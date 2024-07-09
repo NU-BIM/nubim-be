@@ -5,6 +5,8 @@ import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
@@ -12,6 +14,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE comment SET is_deleted = true WHERE comment_id = ?")
+@SQLRestriction("is_deleted = false")
 public class Comment extends BaseEntity {
 
     @Id

@@ -1,5 +1,12 @@
 package com.soyeon.nubim.domain.user;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.common.Gender;
 import com.soyeon.nubim.domain.album.Album;
@@ -16,9 +23,11 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE user_id = ?")
+@SQLRestriction("is_deleted = false")
 @Table(name = "users")
 public class User extends BaseEntity {
 

@@ -3,6 +3,9 @@ package com.soyeon.nubim.domain.post;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.comment.Comment;
@@ -29,6 +32,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE post_id = ?")
+@SQLRestriction("is_deleted = false")
 public class Post extends BaseEntity {
 
 	@Id

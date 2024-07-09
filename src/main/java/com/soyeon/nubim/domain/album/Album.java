@@ -2,6 +2,9 @@ package com.soyeon.nubim.domain.album;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.user.User;
 
@@ -17,6 +20,8 @@ import lombok.Data;
 
 @Entity
 @Data
+@SQLDelete(sql = "UPDATE album SET is_deleted = true WHERE album_id = ?")
+@SQLRestriction("is_deleted = false")
 public class Album extends BaseEntity {
 
 	@Id

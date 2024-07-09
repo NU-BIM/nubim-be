@@ -5,11 +5,11 @@ import com.soyeon.nubim.common.Gender;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
-import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -89,6 +89,7 @@ class PostControllerV1Test {
      * 정상 처리
      * 201 Created
      */
+    @DisplayName("게시글 정상 생성 테스트")
     @Test
     public void createPost_Success() throws Exception {
         //given
@@ -117,6 +118,7 @@ class PostControllerV1Test {
      * 유저 없음 에러
      * 404 Not Found
      */
+    @DisplayName("유효하지 않은 userId로 게시글 생성 시 404 에러 테스트")
     @Test
     public void createPost_UserNotFound_Error() throws Exception {
         //given
@@ -144,6 +146,7 @@ class PostControllerV1Test {
      * 앨범 없음 에러
      * 404 Not Found
      */
+    @DisplayName("유효하지 않은 albumId로 게시글 생성 시 404 에러 테스트")
     @Test
     public void createPost_AlbumNotFound_Error() throws Exception {
         //given
@@ -175,6 +178,7 @@ class PostControllerV1Test {
      * 게시글 상세 조회
      * 200 OK
      */
+    @DisplayName("게시글 정상 상세 조회 테스트")
     @Test
     public void getPostDetail_WithNullType_Success() throws Exception {
         //given
@@ -206,6 +210,7 @@ class PostControllerV1Test {
      * 게시글 미리보기
      * 200 OK
      */
+    @DisplayName("게시글 정상 미리보기 테스트")
     @Test
     public void getPostDetail_WithSimpleType_Success() throws Exception {
         //given
@@ -238,6 +243,7 @@ class PostControllerV1Test {
      * 비정상적인 type
      * 400 Bad Request
      */
+    @DisplayName("유효하지 않은 'type' 파라미터로 조회 시 400 에러 테스트")
     @Test
     public void getPostDetail_WithInvalidType_BadRequest() throws Exception {
         //given
@@ -270,6 +276,7 @@ class PostControllerV1Test {
      * 정상적인 게시글 삭제
      * 200 OK
      */
+    @DisplayName("게시글 정상 삭제 테스트")
     @Test
     public void deletePost_Success() throws Exception {
         //given
@@ -298,6 +305,7 @@ class PostControllerV1Test {
      * 존재하지 않는 Id로 삭제
      * 404 Not Found
      */
+    @DisplayName("유효하지 않은 postId로 게시글 삭제 시 404 에러 테스트")
     @Test
     public void deletePost_PostNotFound_Error() throws Exception {
         //given

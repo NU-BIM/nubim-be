@@ -13,15 +13,15 @@ import lombok.Data;
 @Data
 public abstract class BaseEntity {
 
-	@Column(nullable = false, updatable = false)
-	private String createdBy;
+	// @Column(nullable = false, updatable = false)
+	// private String createdBy;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	@Column(nullable = false)
-	private String updatedBy;
+	// @Column(nullable = false)
+	// private String updatedBy;
 
 	@UpdateTimestamp
 	@Column(nullable = false)

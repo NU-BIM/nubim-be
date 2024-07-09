@@ -1,18 +1,24 @@
 package com.soyeon.nubim.domain.post;
 
-import java.util.Optional;
-
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
 public class PostService {
-	private PostRepository postRepository;
+    private PostRepository postRepository;
 
-	public Optional<Post> findById(Long id) {
-		return postRepository.findById(id);
-	}
-	
+    public Optional<Post> findById(Long id) {
+        return postRepository.findById(id);
+    }
+
+    public Post findPostByIdOrThrow(Long id) {
+
+        return postRepository
+                .findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
+    }
+
 }

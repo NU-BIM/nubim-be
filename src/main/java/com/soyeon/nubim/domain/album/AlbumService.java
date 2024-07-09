@@ -1,13 +1,13 @@
 package com.soyeon.nubim.domain.album;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.common.util.aws.S3PresignedUrlGenerator;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
+import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
@@ -39,8 +39,11 @@ public class AlbumService {
 		return albumMapper.toAlbumCreateResponseDto(savedAlbum);
 	}
 
-	public Optional<Album> findById(Long id) {
-		return albumRepository.findById(id);
+	public AlbumReadResponseDto findByIdWithLocations(Long id) {
+		Album album = albumRepository.findByIdWithLocations(id)
+			.orElseThrow(() -> new EntityNotFoundException("Album not found, id: " + id));
+
+		return albumMapper.toAlbumReadResponseDto(album);
 	}
 
 	public List<String> handlePhotoUploadUrlsGeneration(List<String> contentTypes) {

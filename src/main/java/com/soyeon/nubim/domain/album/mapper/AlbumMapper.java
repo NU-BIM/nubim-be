@@ -12,8 +12,10 @@ import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.Location;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
+import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.LocationCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationCreateResponseDto;
+import com.soyeon.nubim.domain.album.dto.LocationReadResponseDto;
 import com.soyeon.nubim.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,25 @@ public class AlbumMapper {
 			.description(album.getDescription())
 			.photoUrls(photoUrlList)
 			.locations(locationCreateResponseDtos)
+			.createdAt(album.getCreatedAt())
+			.updatedAt(album.getUpdatedAt())
+			.build();
+	}
+
+	public AlbumReadResponseDto toAlbumReadResponseDto(Album album) {
+		String photoUrls = album.getPhotoUrls();
+		List<String> photoUrlList = convertJsonStringToPhotoUrlList(photoUrls);
+
+		List<Location> locations = album.getLocations();
+		List<LocationReadResponseDto> locationReadResponseDtos =
+			locationMapper.toLocationReadResponseDtoList(locations);
+
+		return AlbumReadResponseDto.builder()
+			.albumId(album.getAlbumId())
+			.userId(album.getUser().getUserId())
+			.description(album.getDescription())
+			.photoUrls(photoUrlList)
+			.locations(locationReadResponseDtos)
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
 			.build();

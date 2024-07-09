@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.soyeon.nubim.domain.album.Location;
 import com.soyeon.nubim.domain.album.dto.LocationCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationCreateResponseDto;
+import com.soyeon.nubim.domain.album.dto.LocationReadResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +36,17 @@ public class LocationMapper {
 			.build();
 	}
 
+	public LocationReadResponseDto toLocationReadResponseDto(Location location) {
+		return LocationReadResponseDto.builder()
+			.locationId(location.getLocationId())
+			.albumId(location.getAlbum().getAlbumId())
+			.latitude(location.getLatitude())
+			.longitude(location.getLongitude())
+			.visitedAt(location.getVisitedAt())
+			.placeName(location.getPlaceName())
+			.build();
+	}
+
 	public List<Location> toEntityList(List<LocationCreateRequestDto> locationDtos) {
 		List<Location> locations = new ArrayList<>();
 		for (LocationCreateRequestDto locationDto : locationDtos) {
@@ -49,6 +61,14 @@ public class LocationMapper {
 			locationCreateResponseDtos.add(toLocationCreateResponseDto(location));
 		}
 		return locationCreateResponseDtos;
+	}
+
+	public List<LocationReadResponseDto> toLocationReadResponseDtoList(List<Location> locations) {
+		List<LocationReadResponseDto> locationReadResponseDtos = new ArrayList<>(locations.size());
+		for (Location location : locations) {
+			locationReadResponseDtos.add(toLocationReadResponseDto(location));
+		}
+		return locationReadResponseDtos;
 	}
 
 }

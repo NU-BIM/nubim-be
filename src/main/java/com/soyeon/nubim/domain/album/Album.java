@@ -3,6 +3,8 @@ package com.soyeon.nubim.domain.album;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Type;
 
 import com.soyeon.nubim.common.BaseEntity;
@@ -21,14 +23,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE album SET is_deleted = true WHERE album_id = ?")
+@SQLRestriction("is_deleted = false")
 public class Album extends BaseEntity {
 
 	@Id

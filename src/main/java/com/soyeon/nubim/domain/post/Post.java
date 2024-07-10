@@ -26,12 +26,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+@Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE post_id = ?")
 @SQLRestriction("is_deleted = false")
 public class Post extends BaseEntity {

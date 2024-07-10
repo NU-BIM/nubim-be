@@ -48,6 +48,9 @@ public class AlbumService {
 	}
 
 	public List<AlbumReadResponseDto> findAlbumsByUserId(Long userId) {
+		userService.findById(userId)
+			.orElseThrow(() -> new EntityNotFoundException("User not found, userId: " + userId));
+
 		List<Album> albums = albumRepository.findByUserUserId(userId);
 
 		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());

@@ -27,10 +27,16 @@ public class PostService {
         return postMapper.toPostSimpleResponseDto(post);
     }
 
-    public List<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAt(Long userId) {
-        List<Post> postList = postRepository.findByUserUserId(userId);
+    public List<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAtDesc(Long userId) {
+        List<Post> postList = postRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
         return postList.stream()
-                .sorted(new CreatedAtComparator())
+                .map(post -> postMapper.toPostSimpleResponseDto(post))
+                .toList();
+    }
+
+    public List<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAtAsc(Long userId) {
+        List<Post> postList = postRepository.findByUserUserIdOrderByCreatedAtAsc(userId);
+        return postList.stream()
                 .map(post -> postMapper.toPostSimpleResponseDto(post))
                 .toList();
     }

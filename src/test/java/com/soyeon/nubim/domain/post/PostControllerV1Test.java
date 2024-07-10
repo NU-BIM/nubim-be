@@ -276,9 +276,9 @@ class PostControllerV1Test {
      */
 
 
-    @DisplayName("게시글 2개 시간 오름차순 정상 조회 테스트")
+    @DisplayName("게시글 2개 시간 내림차순 정상 조회 테스트")
     @Test
-    public void getPostsByUserId_Success() throws Exception {
+    public void getPostsByUserId_Desc_Success() throws Exception {
         //given
         Post post1 = Post.builder()
                 .postTitle("First Post")
@@ -300,6 +300,47 @@ class PostControllerV1Test {
 
         //when
         ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getUserId()));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].postId").value(post2.getPostId()))
+                .andExpect(jsonPath("$[0].postTitle").value(post2.getPostTitle()))
+                .andExpect(jsonPath("$[0].postContent").value(post2.getPostContent()))
+                .andExpect(jsonPath("$[1].postId").value(post1.getPostId()))
+                .andExpect(jsonPath("$[1].postTitle").value(post1.getPostTitle()))
+                .andExpect(jsonPath("$[1].postContent").value(post1.getPostContent()));
+
+    }
+
+    @DisplayName("게시글 2개 시간 오름차순 정상 조회 테스트")
+    @Test
+    public void getPostsByUserId_Asc_Success() throws Exception {
+        //given
+        Post post1 = Post.builder()
+                .postTitle("First Post")
+                .postContent("First Post Content")
+                .user(this.testUser)
+                .album(this.testAlbum)
+                .build();
+        post1.setCreatedAt(LocalDateTime.now().minusDays(1));
+        postRepository.save(post1);
+
+        Post post2 = Post.builder()
+                .postTitle("Second Post")
+                .postContent("Second Post Content")
+                .user(this.testUser)
+                .album(this.testAlbum)
+                .build();
+        post2.setCreatedAt(LocalDateTime.now().minusDays(2));
+        postRepository.save(post2);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get("/v1/posts/user/" + this.testUser.getUserId())
+                        .param("sort", "asc")
+        );
 
         //then
         resultActions

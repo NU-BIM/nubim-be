@@ -45,11 +45,19 @@ public class PostControllerV1 {
         }
     }
 
-    @Operation(description = "userId를 기준으로 게시글 미리보기 리스트 시간순 정렬 응답")
+    @Operation(description = "userId를 기준으로 게시글 미리보기 리스트 시간순 정렬 응답, 기본은 내림차순, orderBy=asc일경우 오름차순")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostSimpleResponseDto>> getPostsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<PostSimpleResponseDto>> getPostsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "desc") String sort) {
         userService.validateUserExists(userId);
-        return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAt(userId));
+        if (sort.equals("desc")) {
+            return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAtDesc(userId));
+        } else if (sort.equals("asc")) {
+            return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAtAsc(userId));
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 

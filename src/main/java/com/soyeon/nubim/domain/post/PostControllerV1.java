@@ -45,6 +45,7 @@ public class PostControllerV1 {
         }
     }
 
+    @Operation(description = "userId를 기준으로 게시글 미리보기 리스트 시간순 정렬 응답")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PostSimpleResponseDto>> getPostsByUserId(@PathVariable Long userId) {
         userService.validateUserExists(userId);

@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -267,6 +268,79 @@ class PostControllerV1Test {
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
+
+    /*
+    method : getPostsByUserId
+    endpoint : /v1/posts/user/{userId}
+    userId 기반 게시글 목록 조회
+     */
+
+
+    @DisplayName("게시글 2개 시간 오름차순 정상 조회 테스트")
+    @Test
+    public void getPostsByUserId_Success() throws Exception {
+        //given
+        Post post1 = Post.builder()
+                .postTitle("First Post")
+                .postContent("First Post Content")
+                .user(this.testUser)
+                .album(this.testAlbum)
+                .build();
+        post1.setCreatedAt(LocalDateTime.now().minusDays(1));
+        postRepository.save(post1);
+
+        Post post2 = Post.builder()
+                .postTitle("Second Post")
+                .postContent("Second Post Content")
+                .user(this.testUser)
+                .album(this.testAlbum)
+                .build();
+        post2.setCreatedAt(LocalDateTime.now().minusDays(2));
+        postRepository.save(post2);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getUserId()));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].postId").value(post1.getPostId()))
+                .andExpect(jsonPath("$[0].postTitle").value(post1.getPostTitle()))
+                .andExpect(jsonPath("$[0].postContent").value(post1.getPostContent()))
+                .andExpect(jsonPath("$[1].postId").value(post2.getPostId()))
+                .andExpect(jsonPath("$[1].postTitle").value(post2.getPostTitle()))
+                .andExpect(jsonPath("$[1].postContent").value(post2.getPostContent()));
+
+    }
+
+    @DisplayName("게시글이 없는 user 조회 시 빈 배열 조회 테스트")
+    @Test
+    public void getPostsByUserId_NoPosts_ReturnsEmptyList() throws Exception {
+        //given
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getUserId()));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @DisplayName("존재하지 않는 userId로 조회 시 404 에러 테스트")
+    @Test
+    public void getPostsByUserId_InvalidUserId_ThrowsUserNotFoundException() throws Exception {
+        //given
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + "-1"));
+
+        //then
+        resultActions
+                .andExpect(status().isNotFound());
+    }
+
 
     /*
     게시글 삭제

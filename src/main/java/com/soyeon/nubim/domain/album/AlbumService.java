@@ -61,6 +61,9 @@ public class AlbumService {
 	}
 
 	public void deleteAlbum(Long albumId) {
+		albumRepository.findByIdWithLocations(albumId)
+			.orElseThrow(() -> new EntityNotFoundException("Album not found with albumId: " + albumId));
+
 		albumRepository.deleteById(albumId);
 	}
 

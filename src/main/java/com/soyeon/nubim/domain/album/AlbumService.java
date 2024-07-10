@@ -40,9 +40,9 @@ public class AlbumService {
 		return albumMapper.toAlbumCreateResponseDto(savedAlbum);
 	}
 
-	public AlbumReadResponseDto findByIdWithLocations(Long id) {
-		Album album = albumRepository.findByIdWithLocations(id)
-			.orElseThrow(() -> new EntityNotFoundException("Album not found, id: " + id));
+	public AlbumReadResponseDto findByIdWithLocations(Long albumId) {
+		Album album = albumRepository.findByIdWithLocations(albumId)
+			.orElseThrow(() -> new EntityNotFoundException("Album not found, albumId: " + albumId));
 
 		return albumMapper.toAlbumReadResponseDto(album);
 	}
@@ -55,6 +55,10 @@ public class AlbumService {
 			albumReadResponseDtos.add(albumMapper.toAlbumReadResponseDto(album));
 		}
 		return albumReadResponseDtos;
+	}
+
+	public void deleteAlbum(Long albumId) {
+		albumRepository.deleteById(albumId);
 	}
 
 	public List<String> handlePhotoUploadUrlsGeneration(List<String> contentTypes) {

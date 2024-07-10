@@ -3,6 +3,7 @@ package com.soyeon.nubim.domain.album;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,6 +47,12 @@ public class AlbumController {
 	public ResponseEntity<List<AlbumReadResponseDto>> getUserAlbums(@PathVariable Long userId) {
 		List<AlbumReadResponseDto> albums = albumService.findAlbumsByUserId(userId);
 		return ResponseEntity.ok(albums);
+	}
+
+	@Operation(description = "앨범 id로 앨범을 삭제한다")
+	@DeleteMapping("/{albumId}")
+	public void deleteAlbum(@PathVariable Long albumId) {
+		albumService.deleteAlbum(albumId);
 	}
 
 	@PostMapping("/photos/upload-urls")

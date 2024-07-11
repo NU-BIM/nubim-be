@@ -1,14 +1,14 @@
 package com.soyeon.nubim.domain.post;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class PostService {
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
 
     public Optional<Post> findById(Long id) {
         return postRepository.findById(id);

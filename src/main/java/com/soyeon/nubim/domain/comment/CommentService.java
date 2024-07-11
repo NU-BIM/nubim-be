@@ -3,16 +3,16 @@ package com.soyeon.nubim.domain.comment;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class CommentService {
-    CommentRepository commentRepository;
-    CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     public CommentCreateResponseDto createComment(CommentCreateRequestDto commentCreateRequestDto) {
         Comment comment = commentMapper.toEntity(commentCreateRequestDto);

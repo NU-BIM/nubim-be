@@ -7,14 +7,14 @@ import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class CommentMapper {
     private final PostService postService;
-    private UserService userService;
+    private final UserService userService;
 
     public Comment toEntity(CommentCreateRequestDto commentCreateRequestDto) {
         User user = userService.findUserByIdOrThrow(commentCreateRequestDto.getUserId());

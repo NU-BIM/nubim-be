@@ -4,16 +4,16 @@ import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class PostService {
-    private PostRepository postRepository;
-    private PostMapper postMapper;
+    private final PostRepository postRepository;
+    private final PostMapper postMapper;
 
     public PostDetailResponseDto findPostDetailById(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
@@ -45,5 +45,18 @@ public class PostService {
             throw new PostNotFoundException(id);
         }
         postRepository.deleteById(id);
+    }
+
+    public Post findPostByIdOrThrow(Long id) {
+
+        return postRepository
+                .findById(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
+    }
+
+    public void validatePostExist(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException(postId);
+        }
     }
 }

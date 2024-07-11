@@ -5,9 +5,9 @@ import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -27,19 +27,12 @@ public class PostService {
         return postMapper.toPostSimpleResponseDto(post);
     }
 
-    public List<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAtDesc(Long userId) {
-        List<Post> postList = postRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
-        return postList.stream()
-                .map(post -> postMapper.toPostSimpleResponseDto(post))
-                .toList();
+    public Page<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAt(Long userId, Pageable pageable) {
+        Page<Post> postList = postRepository.findByUserUserId(userId, pageable);
+        return postList
+                .map(postMapper::toPostSimpleResponseDto);
     }
 
-    public List<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAtAsc(Long userId) {
-        List<Post> postList = postRepository.findByUserUserIdOrderByCreatedAtAsc(userId);
-        return postList.stream()
-                .map(post -> postMapper.toPostSimpleResponseDto(post))
-                .toList();
-    }
 
     public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto) {
         Post post = postMapper.toEntity(postCreateRequestDto);

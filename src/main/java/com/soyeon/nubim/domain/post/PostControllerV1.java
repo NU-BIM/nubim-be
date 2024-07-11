@@ -6,13 +6,15 @@ import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
-import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -45,19 +47,26 @@ public class PostControllerV1 {
         }
     }
 
-    @Operation(description = "userId를 기준으로 게시글 미리보기 리스트 시간순 정렬 응답, 기본은 내림차순, orderBy=asc일경우 오름차순")
+    @Operation(description = "userId를 기준으로 게시글 미리보기 리스트 시간순 정렬 응답, 기본은 내림차순, sort=asc일경우 오름차순")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostSimpleResponseDto>> getPostsByUserId(
+    public ResponseEntity<Page<PostSimpleResponseDto>> getPostsByUserId(
             @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") Long page,
             @RequestParam(defaultValue = "desc") String sort) {
         userService.validateUserExists(userId);
+
+        int DEFAULT_PAGE_SIZE = 10;
+        String DEFAULT_ORDER_BY = "createdAt";
+
+        PageRequest pageRequest;
         if (sort.equals("desc")) {
-            return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAtDesc(userId));
+            pageRequest = PageRequest.of(page.intValue(), DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, DEFAULT_ORDER_BY));
         } else if (sort.equals("asc")) {
-            return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAtAsc(userId));
+            pageRequest = PageRequest.of(page.intValue(), DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.ASC, DEFAULT_ORDER_BY));
         } else {
             return ResponseEntity.badRequest().build();
         }
+        return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAt(userId, pageRequest));
     }
 
 

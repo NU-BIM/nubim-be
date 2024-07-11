@@ -1,18 +1,22 @@
 package com.soyeon.nubim.domain.user;
 
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class UserService {
-	private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-	public Optional<User> findById(Long userId) {
-		return userRepository.findById(userId);
-	}
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
 
+    public User findUserByIdOrThrow(Long userId) {
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+    }
 }

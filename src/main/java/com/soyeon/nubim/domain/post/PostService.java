@@ -21,4 +21,9 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException(id));
     }
 
+    public void validatePostExist(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException(postId);
+        }
+    }
 }

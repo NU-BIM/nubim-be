@@ -304,13 +304,13 @@ class PostControllerV1Test {
         //then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].postId").value(post2.getPostId()))
-                .andExpect(jsonPath("$[0].postTitle").value(post2.getPostTitle()))
-                .andExpect(jsonPath("$[0].postContent").value(post2.getPostContent()))
-                .andExpect(jsonPath("$[1].postId").value(post1.getPostId()))
-                .andExpect(jsonPath("$[1].postTitle").value(post1.getPostTitle()))
-                .andExpect(jsonPath("$[1].postContent").value(post1.getPostContent()));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].postId").value(post2.getPostId()))
+                .andExpect(jsonPath("$.content[0].postTitle").value(post2.getPostTitle()))
+                .andExpect(jsonPath("$.content[0].postContent").value(post2.getPostContent()))
+                .andExpect(jsonPath("$.content[1].postId").value(post1.getPostId()))
+                .andExpect(jsonPath("$.content[1].postTitle").value(post1.getPostTitle()))
+                .andExpect(jsonPath("$.content[1].postContent").value(post1.getPostContent()));
 
     }
 
@@ -345,13 +345,13 @@ class PostControllerV1Test {
         //then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].postId").value(post1.getPostId()))
-                .andExpect(jsonPath("$[0].postTitle").value(post1.getPostTitle()))
-                .andExpect(jsonPath("$[0].postContent").value(post1.getPostContent()))
-                .andExpect(jsonPath("$[1].postId").value(post2.getPostId()))
-                .andExpect(jsonPath("$[1].postTitle").value(post2.getPostTitle()))
-                .andExpect(jsonPath("$[1].postContent").value(post2.getPostContent()));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].postId").value(post1.getPostId()))
+                .andExpect(jsonPath("$.content[0].postTitle").value(post1.getPostTitle()))
+                .andExpect(jsonPath("$.content[0].postContent").value(post1.getPostContent()))
+                .andExpect(jsonPath("$.content[1].postId").value(post2.getPostId()))
+                .andExpect(jsonPath("$.content[1].postTitle").value(post2.getPostTitle()))
+                .andExpect(jsonPath("$.content[1].postContent").value(post2.getPostContent()));
 
     }
 
@@ -366,7 +366,7 @@ class PostControllerV1Test {
         //then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @DisplayName("존재하지 않는 userId로 조회 시 404 에러 테스트")

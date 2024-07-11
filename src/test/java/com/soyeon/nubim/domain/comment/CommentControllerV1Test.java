@@ -22,7 +22,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +52,8 @@ class CommentControllerV1Test {
     private User testUser;
     private Post testPost;
     private Album testAlbum;
+    @Autowired
+    private CommentRepository commentRepository;
 
     /**
      * 더미 게시글 및 유저 생성
@@ -152,4 +158,75 @@ class CommentControllerV1Test {
                 .andExpect(status().isNotFound());
     }
 
+    @DisplayName("정상적으로 페이지네이션된 시간 오름차순 댓글 조회 테스트")
+    @Test
+    public void getCommentsByPostId_AscendingPaginationWorks_Success() throws Exception {
+        //given
+        Long postId = this.testPost.getPostId();
+        createCommentList(21);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/v1/comments/post/{postId}", postId)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(10)))
+                .andExpect(jsonPath("$.content[0].content").value(("Comment 1")))
+                .andExpect(jsonPath("$.content[9].content").value(("Comment 10")));
+    }
+
+    @DisplayName("정상적으로 페이지네이션된 시간 내림차순 댓글 조회 테스트")
+    @Test
+    public void getCommentsByPostId_DescendingPaginationWorks_Success() throws Exception {
+        //given
+        Long postId = this.testPost.getPostId();
+        createCommentList(31);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/v1/comments/post/{postId}", postId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("sort", "desc")
+                .param("page", "1")
+        );
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(10)))
+                .andExpect(jsonPath("$.content[0].content").value(("Comment 21")))
+                .andExpect(jsonPath("$.content[9].content").value(("Comment 12")));
+    }
+
+    private void createCommentList(int count) {
+        List<Comment> comments = new ArrayList<>();
+        for (int i = 1; i <= count; i++) {
+            Comment tempComment = Comment.builder()
+                    .commentContent("Comment " + i)
+                    .parentComment(null)
+                    .user(this.testUser)
+                    .post(this.testPost)
+                    .build();
+            tempComment.setCreatedAt(LocalDateTime.now().plusDays(i));
+            comments.add(tempComment);
+        }
+        this.commentRepository.saveAll(comments);
+    }
+
+
+    @DisplayName("존재하지 않는 postId로 조회시 404 에러 테스트")
+    @Test
+    public void getCommentsByPostId_PostNotFound_Returns404() throws Exception {
+        //given
+        Long nonExistentPostId = -1L;
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get("/api/comments/post/{postId}", nonExistentPostId)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        resultActions
+                .andExpect(status().isNotFound());
+    }
 }

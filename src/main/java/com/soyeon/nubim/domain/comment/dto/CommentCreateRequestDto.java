@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CommentCreateRequestDto {
-    private Long userId;
-    private Long postId;
-    private Long parentCommentId;
-    private String content;
+	private Long userId;
+	private Long postId;
+	private Long parentCommentId;
+	private String content;
 }

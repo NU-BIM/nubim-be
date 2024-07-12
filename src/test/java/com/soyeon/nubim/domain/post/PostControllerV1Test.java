@@ -75,7 +75,6 @@ class PostControllerV1Test {
         testAlbum = Album.builder()
                 .user(testUser)
                 .description("User One's Album")
-                .coordinate(null)
                 .photoUrls("[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
                 .build();
         albumRepository.save(testAlbum);

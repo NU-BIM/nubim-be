@@ -48,10 +48,8 @@ class CommentControllerV1Test {
     @Autowired
     private AlbumRepository albumRepository;
 
-
     private User testUser;
     private Post testPost;
-    private Album testAlbum;
     @Autowired
     private CommentRepository commentRepository;
 
@@ -73,18 +71,16 @@ class CommentControllerV1Test {
                 .build();
         userRepository.save(testUser);
 
-        testAlbum = Album.builder()
+        Album tempAlbum = Album.builder()
                 .user(testUser)
                 .description("Test User's Album")
                 .photoUrls("[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
-                .coordinate(null)
-                .coordinateTime(LocalDateTime.now())
                 .build();
-        albumRepository.save(testAlbum);
+        albumRepository.save(tempAlbum);
 
         testPost = Post.builder()
                 .user(testUser)
-                .album(testAlbum)
+                .album(tempAlbum)
                 .postTitle("Test Post")
                 .postContent("This is the content of test post")
                 .build();
@@ -213,7 +209,6 @@ class CommentControllerV1Test {
         }
         this.commentRepository.saveAll(comments);
     }
-
 
     @DisplayName("존재하지 않는 postId로 조회시 404 에러 테스트")
     @Test

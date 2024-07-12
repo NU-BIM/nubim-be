@@ -14,6 +14,11 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
+    public void validateUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+    }
     public User findUserByIdOrThrow(Long userId) {
         return userRepository
                 .findById(userId)

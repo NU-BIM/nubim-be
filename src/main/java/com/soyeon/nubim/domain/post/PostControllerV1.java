@@ -5,7 +5,7 @@ import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,13 +16,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/posts")
 public class PostControllerV1 {
 
-    private PostService postService;
-    private UserService userService;
+    private final PostService postService;
+    private final UserService userService;
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final String DEFAULT_ORDER_BY = "createdAt";
 
     @PostMapping
     public ResponseEntity<PostCreateResponseDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto) {
@@ -54,9 +57,6 @@ public class PostControllerV1 {
             @RequestParam(defaultValue = "0") Long page,
             @RequestParam(defaultValue = "desc") String sort) {
         userService.validateUserExists(userId);
-
-        int DEFAULT_PAGE_SIZE = 10;
-        String DEFAULT_ORDER_BY = "createdAt";
 
         PageRequest pageRequest;
         if (sort.equals("desc")) {

@@ -10,7 +10,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -44,11 +43,4 @@ public class Post extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
-}
-
-class CreatedAtComparator implements Comparator<Post> {
-    @Override
-    public int compare(Post o1, Post o2) {
-        return o1.getCreatedAt().compareTo(o2.getCreatedAt());
-    }
 }

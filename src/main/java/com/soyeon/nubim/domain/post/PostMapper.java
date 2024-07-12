@@ -1,7 +1,6 @@
 package com.soyeon.nubim.domain.post;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -18,26 +17,28 @@ import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PostMapper {
-	private UserService userService;
-	private AlbumService albumService;
+	private final UserService userService;
+	private final AlbumService albumService;
 
 	public Post toEntity(PostCreateRequestDto postCreateRequestDto) {
-		Optional<User> authorUser = userService.findById(postCreateRequestDto.getUserId());
-		authorUser.orElseThrow(() -> new UserNotFoundException(postCreateRequestDto.getUserId()));
+		User authorUser = userService
+			.findById(postCreateRequestDto.getUserId())
+			.orElseThrow(() -> new UserNotFoundException(postCreateRequestDto.getUserId()));
 
-		Optional<Album> linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId());
-		linkedAlbum.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
+		Album linkedAlbum = albumService
+			.findById(postCreateRequestDto.getAlbumId())
+			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
 
 		return Post.builder()
 			.postTitle(postCreateRequestDto.getPostTitle())
 			.postContent(postCreateRequestDto.getPostContent())
-			.album(linkedAlbum.get())
-			.user(authorUser.get())
+			.album(linkedAlbum)
+			.user(authorUser)
 			.build();
 	}
 

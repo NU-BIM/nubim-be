@@ -8,7 +8,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.soyeon.nubim.common.BaseEntity;
-import com.soyeon.nubim.common.Gender;
+import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.post.Post;
@@ -24,6 +25,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,6 +67,10 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	private Role role;
+
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private List<Album> albums = new ArrayList<>();
 
@@ -79,5 +85,16 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "followee", fetch = FetchType.LAZY)
 	private List<UserFollow> followees = new ArrayList<>();
+
+	public User update(String name, String email, String profileImageUrl) {
+		this.username = name;
+		this.email = email;
+		this.profileImageUrl = profileImageUrl;
+		return this;
+	}
+
+	public String getRoleKey() {
+		return this.role.getKey();
+	}
 
 }

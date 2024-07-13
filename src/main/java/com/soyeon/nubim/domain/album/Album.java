@@ -37,21 +37,21 @@ import lombok.Setter;
 @SQLRestriction("is_deleted = false")
 public class Album extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long albumId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long albumId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    private String description;
+	private String description;
 
-    @Type(JsonType.class)
-    @Column(nullable = false, columnDefinition = "jsonb")
-    private String photoUrls;
+	@Type(JsonType.class)
+	@Column(nullable = false, columnDefinition = "jsonb")
+	private String photoUrls;
 
-    @OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Location> locations = new ArrayList<>();
+	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Location> locations = new ArrayList<>();
 
 }

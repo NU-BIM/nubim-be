@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CommentCreateResponseDto {
-    private Long commentId;
-    private Long userId;
-    private Long postId;
-    private Long parentCommentId;
-    private String content;
+	private Long commentId;
+	private Long userId;
+	private Long postId;
+	private Long parentCommentId;
+	private String content;
 }

@@ -1,5 +1,5 @@
 name: Pull Request Test
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name: "Build and Test: Trigger by ${{ github.actor }}"
 
 on:
   pull_request:
@@ -24,7 +24,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.LOCAL_DB_USERNAME }}
           POSTGRES_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
         options: >-
-          --health-cmd "pg_isready -U ${{ secrets.LOCAL_DB_USERNAME }} -d ${{ secrets.LOCAL_DB_NAME }}"
+          --health-cmd "pg_isready"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -48,10 +48,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Run tests
-      - name: Run tests
-        run: ./gradlew test
+      # Cache Gradle dependencies
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+
+      # Run build and test
+      - name: Run tests and build
+        run: ./gradlew build
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.LOCAL_DB_HOST }}:5432/${{ secrets.LOCAL_DB_NAME }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.LOCAL_DB_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
+          LOCAL_DB_HOST: ${{ secrets.LOCAL_DB_HOST }}
+          LOCAL_DB_NAME: ${{ secrets.LOCAL_DB_NAME }}
+          LOCAL_DB_USERNAME: ${{ secrets.LOCAL_DB_USERNAME }}
+          LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
+          LOCAL_AWS_S3_NAME: ${{ secrets.LOCAL_AWS_S3_NAME }}
+          LOCAL_AWS_USER_ACCESS_KEY: ${{ secrets.LOCAL_AWS_USER_ACCESS_KEY }}
+          LOCAL_AWS_USER_SECRET_KEY: ${{ secrets.LOCAL_AWS_USER_SECRET_KEY }}

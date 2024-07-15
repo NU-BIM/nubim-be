@@ -1,6 +1,10 @@
 package com.soyeon.nubim.security.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -11,7 +15,10 @@ import org.springframework.stereotype.Component;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -22,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
+
+	public static final String ASIA_SEOUL = "Asia/Seoul";
 
 	@Value("${jwt.secret}")
 	private String jwtSecret;
@@ -78,13 +87,12 @@ public class JwtTokenProvider {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 			return true;
 		} catch (
-			io.jsonwebtoken.security.SecurityException |
-			io.jsonwebtoken.MalformedJwtException |
-			io.jsonwebtoken.ExpiredJwtException |
-			io.jsonwebtoken.UnsupportedJwtException |
-			IllegalArgumentException e) {
-			log.info("token: {}", token);
-			log.info("jwt error: {}", e.getMessage());
+			SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+			logTokenValidationError(token, e.getMessage());
+			return false;
+		} catch (ExpiredJwtException e) {
+			String errorMessage = createJwtExpirationErrorMessage(e);
+			logTokenValidationError(token, errorMessage);
 			return false;
 		}
 	}
@@ -102,6 +110,28 @@ public class JwtTokenProvider {
 			return generateAccessToken(user);
 		}
 		throw new InvalidKeyException("Invalid refresh token");
+	}
+
+	private void logTokenValidationError(String token, String e) {
+		log.info("token: {}", token);
+		log.info("jwt error: {}", e);
+	}
+
+	private String createJwtExpirationErrorMessage(ExpiredJwtException e) {
+		ZoneId seoulZone = ZoneId.of(ASIA_SEOUL);
+		ZonedDateTime expirationTime = ZonedDateTime.ofInstant(e.getClaims().getExpiration().toInstant(), seoulZone);
+		ZonedDateTime currentTime = ZonedDateTime.now(seoulZone);
+
+		long differenceMillis = ChronoUnit.MILLIS.between(expirationTime, currentTime);
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
+		return String.format(
+			"JWT expired at %s. Current time: %s, a difference of %d milliseconds. Allowed clock skew: 0 milliseconds.",
+			formatter.format(expirationTime),
+			formatter.format(currentTime),
+			differenceMillis
+		);
 	}
 
 }

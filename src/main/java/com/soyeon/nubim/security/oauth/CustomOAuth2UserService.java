@@ -82,7 +82,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		return userService.saveUser(user);
 	}
 
-	private void saveRefreshToken(String email, String refreshToken) {
+	protected void saveRefreshToken(String email, String refreshToken) {
 		RefreshToken refreshTokenEntity;
 		try {
 			refreshTokenEntity = refreshTokenService.findByEmail(email);

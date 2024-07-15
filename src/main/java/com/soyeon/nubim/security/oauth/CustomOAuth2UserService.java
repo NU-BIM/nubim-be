@@ -19,21 +19,24 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
-import com.soyeon.nubim.security.jwt.RefreshToken;
-import com.soyeon.nubim.security.jwt.RefreshTokenRepository;
+import com.soyeon.nubim.security.refreshtoken.RefreshToken;
+import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-	private final UserRepository userRepository;
+	private final UserService userService;
 	private final JwtTokenProvider jwtTokenProvider;
-	private final RefreshTokenRepository refreshTokenRepository;
+	private final RefreshTokenService refreshTokenService;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -68,25 +71,29 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	}
 
 	private User saveOrUpdate(OAuthAttributes attributes) {
-		User user = userRepository.findByEmail(attributes.getEmail())
-			.map(existingUser -> existingUser.update(
-				attributes.getName(),
-				attributes.getEmail(),
-				attributes.getProfileImageUrl()))
-			.orElse(attributes.toEntity());
+		User user;
+		try {
+			user = userService.findByEmail(attributes.getEmail());
+			user.update(attributes.getName(), attributes.getEmail(), attributes.getProfileImageUrl());
+		} catch (EntityNotFoundException e) {
+			user = attributes.toEntity();
+		}
 
-		return userRepository.save(user);
+		return userService.saveUser(user);
 	}
 
 	private void saveRefreshToken(String email, String refreshToken) {
-		RefreshToken refreshTokenEntity = refreshTokenRepository.findByEmail(email)
-			.map(token -> {
-				token.updateToken(refreshToken);
-				return token;
-			})
-			.orElse(new RefreshToken(refreshToken, email, LocalDateTime.now().plusDays(7)));
+		RefreshToken refreshTokenEntity;
+		try {
+			refreshTokenEntity = refreshTokenService.findByEmail(email);
+			refreshTokenEntity.updateToken(refreshToken);
+			log.info("Exist refresh token found, update: {}", refreshTokenEntity.getToken());
+		} catch (EntityNotFoundException e) {
+			refreshTokenEntity = new RefreshToken(refreshToken, email, LocalDateTime.now().plusDays(7));
+			log.info("No Exist refresh token found, create: {}", refreshTokenEntity.getToken());
+		}
 
-		refreshTokenRepository.save(refreshTokenEntity);
+		refreshTokenService.saveRefreshToken(refreshTokenEntity);
 	}
 
 	private void setTokenInResponse(String accessToken) {
@@ -116,9 +123,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 	}
 
 	public User processOAuth2User(String email, OAuth2User oAuth2User) {
-		User user = userRepository.findByEmail(email)
-			.orElseGet(() -> createNewUser(email, oAuth2User));
-		return userRepository.save(user);
+		User user;
+		try {
+			user = userService.findByEmail(email);
+		} catch (EntityNotFoundException e) {
+			user = createNewUser(email, oAuth2User);
+		}
+		return userService.saveUser(user);
 	}
 
 	private User createNewUser(String email, OAuth2User oAuth2User) {

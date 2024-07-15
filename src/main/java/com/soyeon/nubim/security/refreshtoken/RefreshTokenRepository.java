@@ -1,4 +1,4 @@
-package com.soyeon.nubim.security.jwt;
+package com.soyeon.nubim.security.refreshtoken;
 
 import java.util.Optional;
 

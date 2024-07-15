@@ -5,12 +5,12 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserService {
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
 	public Optional<User> findById(Long userId) {
 		return userRepository.findById(userId);

@@ -94,7 +94,7 @@ public class JwtTokenProvider {
 	}
 
 	// refresh 토큰 검증 및 새로운 jwt 토큰 발급 로직
-	public String refreshAccessToken(String refreshToken) {
+	public String generateNewAccessToken(String refreshToken) {
 		if (validateToken(refreshToken)) {
 			String userEmail = getUserEmailFromToken(refreshToken);
 

@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.soyeon.nubim.security.refreshtoken.RefreshToken;
+import com.soyeon.nubim.security.refreshtoken.RefreshTokenRepository;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -118,7 +121,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		log.info("-------- refresh token is equals storedRefreshToken");
-		String newAccessToken = jwtTokenProvider.refreshAccessToken(refreshToken);
+		String newAccessToken = jwtTokenProvider.generateNewAccessToken(refreshToken);
 		response.setHeader("Authorization", "Bearer " + newAccessToken);
 		// setAuthentication(request, userEmail);
 	}

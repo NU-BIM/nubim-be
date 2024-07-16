@@ -19,4 +19,9 @@ public class RefreshTokenService {
 	public RefreshToken saveRefreshToken(RefreshToken refreshToken) {
 		return refreshTokenRepository.save(refreshToken);
 	}
+
+	public void deleteRefreshToken(String token) {
+		refreshTokenRepository.deleteByToken(token)
+			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, token: " + token));
+	}
 }

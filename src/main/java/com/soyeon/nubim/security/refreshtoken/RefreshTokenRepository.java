@@ -10,4 +10,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
 	Optional<RefreshToken> findByEmail(String email);
 
+	Optional<RefreshToken> deleteByToken(String token);
+
 }

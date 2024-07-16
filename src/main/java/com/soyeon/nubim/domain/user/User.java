@@ -71,6 +71,7 @@ public class User extends BaseEntity {
 	@NotNull
 	private Role role;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private List<Album> albums = new ArrayList<>();
 

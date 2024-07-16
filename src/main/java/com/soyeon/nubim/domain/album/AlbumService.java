@@ -2,6 +2,7 @@ package com.soyeon.nubim.domain.album;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,10 @@ public class AlbumService {
 	private final AlbumRepository albumRepository;
 	private final AlbumMapper albumMapper;
 	private final UserService userService;
+
+	public Optional<Album> findById(Long id) {
+		return albumRepository.findById(id);
+	}
 
 	public AlbumCreateResponseDto createAlbum(AlbumCreateRequestDto albumCreateRequestDto) {
 		User user = userService.findById(albumCreateRequestDto.getUserId())

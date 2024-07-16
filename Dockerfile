@@ -1,12 +1,16 @@
-FROM eclipse-temurin:17
+FROM eclipse-temurin:17 as build
 
 WORKDIR /app
 
 COPY . .
 
-RUN ./gradlew clean build
+RUN ./gradlew clean build -x test
 
-RUN cp ./build/libs/nubim-0.0.1-SNAPSHOT.jar ./app.jar
+FROM eclipse-temurin:17-jre-jammy
+
+COPY --from=build /app/build/libs/nubim-0.0.1-SNAPSHOT.jar ./app.jar
+
+COPY ./docker-entrypoint.sh .
 
 EXPOSE 8080
 

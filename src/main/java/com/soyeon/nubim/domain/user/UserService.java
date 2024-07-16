@@ -6,10 +6,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
+import lombok.RequiredArgsConstructor;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -43,4 +43,14 @@ public class UserService {
 			.build();
 	}
 
+	public void validateUserExists(Long userId) {
+		if (!userRepository.existsById(userId)) {
+			throw new UserNotFoundException(userId);
+		}
+	}
+
+	public User findUserByIdOrThrow(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new UserNotFoundException(userId));
+	}
 }

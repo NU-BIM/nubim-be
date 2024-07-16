@@ -18,6 +18,7 @@ import lombok.Data;
 @Data
 public abstract class BaseEntity {
 
+	// TODO: 추후 주석 제거
 	// @Column(nullable = false, updatable = false)
 	// private String createdBy;
 
@@ -25,6 +26,7 @@ public abstract class BaseEntity {
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
+	// TODO : 추후 주석 제거
 	// @Column(nullable = false)
 	// private String updatedBy;
 

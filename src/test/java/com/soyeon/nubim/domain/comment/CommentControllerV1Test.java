@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.comment;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -18,9 +19,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
@@ -28,6 +32,7 @@ import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostRepository;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
 import jakarta.transaction.Transactional;
 
@@ -53,6 +58,11 @@ class CommentControllerV1Test {
 	@Autowired
 	private CommentRepository commentRepository;
 
+	@Autowired
+	private WebApplicationContext webApplicationContext;
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
+
 	/**
 	 * 더미 게시글 및 유저 생성
 	 */
@@ -68,6 +78,7 @@ class CommentControllerV1Test {
 			.phoneNumber("123-456-7890")
 			.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 			.gender(Gender.MALE)
+			.role(Role.USER)
 			.build();
 		userRepository.save(testUser);
 
@@ -86,6 +97,14 @@ class CommentControllerV1Test {
 			.build();
 
 		postRepository.save(testPost);
+
+		String accessToken = jwtTokenProvider.generateAccessToken(testUser);
+
+		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+			.apply(springSecurity())
+			.defaultRequest(get("/")
+				.header("Authorization", "Bearer " + accessToken))
+			.build();
 	}
 
 	@DisplayName("댓글 정상 생성 테스트")

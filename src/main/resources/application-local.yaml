@@ -29,6 +29,10 @@ spring:
               # - https://www.googleapis.com/auth/user.birthday.read
               # - https://www.googleapis.com/auth/user.gender.read
               # - https://www.googleapis.com/auth/user.phonenumbers.read
+        provider:
+          google:
+            # 사용자에게 항상 로그인할 계정을 선택하게 함
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth?prompt=select_account
 
   #multipart
   servlet:

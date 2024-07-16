@@ -37,7 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/favicon.ico",
 		"/login",
 		"/logout",
-		"/oauth2");
+		"/oauth2",
+		"/v1/users/login");
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {

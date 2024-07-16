@@ -74,7 +74,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		User user;
 		try {
 			user = userService.findByEmail(attributes.getEmail());
-			user.update(attributes.getName(), attributes.getEmail(), attributes.getProfileImageUrl());
+			user = user.updateNameFromOAuthProfile(attributes.getName());
 		} catch (EntityNotFoundException e) {
 			user = attributes.toEntity();
 		}

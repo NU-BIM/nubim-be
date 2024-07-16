@@ -86,10 +86,8 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "followee", fetch = FetchType.LAZY)
 	private List<UserFollow> followees = new ArrayList<>();
 
-	public User update(String name, String email, String profileImageUrl) {
+	public User updateNameFromOAuthProfile(String name) {
 		this.username = name;
-		this.email = email;
-		this.profileImageUrl = profileImageUrl;
 		return this;
 	}
 

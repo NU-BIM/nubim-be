@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soyeon.nubim.common.Gender;
+import com.soyeon.nubim.common.enums.Gender;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;

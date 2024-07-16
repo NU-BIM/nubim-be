@@ -51,6 +51,7 @@ public class Album extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "jsonb")
 	private String photoUrls;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Location> locations = new ArrayList<>();
 

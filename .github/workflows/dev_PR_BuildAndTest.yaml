@@ -73,4 +73,4 @@ jobs:
           LOCAL_AWS_USER_SECRET_KEY: ${{ secrets.LOCAL_AWS_USER_SECRET_KEY }}
           GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
           GOOGLE_OAUTH_SECRET: ${{ secrets.GOOGLE_OAUTH_SECRET }}
-          DEV_JWT_SECRET_KEY: ${{ secrets.DEV_JWT_SECRET_KEY }}
+          LOCAL_JWT_SECRET_KEY: ${{ secrets.LOCAL_JWT_SECRET_KEY }}

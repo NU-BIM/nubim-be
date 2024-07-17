@@ -3,13 +3,14 @@ package com.soyeon.nubim.domain.user;
 import java.util.Optional;
 
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
-import lombok.RequiredArgsConstructor;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -52,5 +53,23 @@ public class UserService {
 	public User findUserByIdOrThrow(Long userId) {
 		return userRepository.findById(userId)
 			.orElseThrow(() -> new UserNotFoundException(userId));
+	}
+
+	public String getCurrentUserEmail() {
+		return SecurityContextHolder.getContext().getAuthentication().getName();
+	}
+
+	public User getCurrentUser() {
+		String currentUserEmail = getCurrentUserEmail();
+
+		return userRepository.findByEmail(currentUserEmail)
+			.orElseThrow(() -> new EntityNotFoundException("User with email " + currentUserEmail + " not found"));
+	}
+
+	public Long getCurrentUserId() {
+		String currentUserEmail = getCurrentUserEmail();
+
+		return userRepository.findUserIdByEmail(currentUserEmail)
+			.orElseThrow(() -> new EntityNotFoundException("User with email " + currentUserEmail + " not found"));
 	}
 }

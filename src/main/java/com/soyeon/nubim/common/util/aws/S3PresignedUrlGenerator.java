@@ -25,10 +25,10 @@ public class S3PresignedUrlGenerator {
 	private final String bucketName;
 
 	public S3PresignedUrlGenerator(
-		@Value("${cloud.aws.credentials.access-key}") String accessKey,
-		@Value("${cloud.aws.credentials.secret-key}") String secretKey,
-		@Value("${cloud.aws.region.static}") String region,
-		@Value("${cloud.aws.s3.bucket}") String bucketName) {
+		@Value("${spring.cloud.aws.credentials.access-key}") String accessKey,
+		@Value("${spring.cloud.aws.credentials.secret-key}") String secretKey,
+		@Value("${spring.cloud.aws.region.static}") String region,
+		@Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
 		AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 		this.s3Presigner = S3Presigner.builder()
 			.region(Region.of(region))

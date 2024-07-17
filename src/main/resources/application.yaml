@@ -34,18 +34,18 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
-#aws
-cloud:
-  aws:
-    region:
-      static: ap-northeast-2
-    credentials:
-      access-key: ${AWS_USER_ACCESS_KEY}
-      secret-key: ${AWS_USER_SECRET_KEY}
-    s3:
-      bucket: ${AWS_S3_NAME}
-    stack:
-      auto: false
+  #aws
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: ${AWS_USER_ACCESS_KEY}
+        secret-key: ${AWS_USER_SECRET_KEY}
+      s3:
+        bucket: ${AWS_S3_NAME}
+      stack:
+        auto: false
 
 #jwt
 jwt:

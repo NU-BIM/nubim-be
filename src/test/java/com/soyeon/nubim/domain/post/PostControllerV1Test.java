@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.post;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -18,14 +19,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soyeon.nubim.common.Gender;
+import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
 import jakarta.transaction.Transactional;
 
@@ -45,11 +50,15 @@ class PostControllerV1Test {
 	private AlbumRepository albumRepository;
 	@Autowired
 	private PostRepository postRepository;
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
 
 	private User testUser;
 	private Album testAlbum;
 	private Long testUserId;
 	private Long testAlbumId;
+	@Autowired
+	private WebApplicationContext webApplicationContext;
 
 	/**
 	 * 게시글 생성에 필요한 더미 유저, 앨범 생성
@@ -66,6 +75,7 @@ class PostControllerV1Test {
 			.phoneNumber("123-456-7890")
 			.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 			.gender(Gender.MALE)
+			.role(Role.USER)
 			.build();
 		userRepository.save(testUser);
 		testUserId = testUser.getUserId();
@@ -78,6 +88,14 @@ class PostControllerV1Test {
 			.build();
 		albumRepository.save(testAlbum);
 		testAlbumId = testAlbum.getAlbumId();
+
+		String accessToken = jwtTokenProvider.generateAccessToken(testUser);
+
+		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+			.apply(springSecurity())
+			.defaultRequest(get("/")
+				.header("Authorization", "Bearer " + accessToken))
+			.build();
 	}
 
     /*

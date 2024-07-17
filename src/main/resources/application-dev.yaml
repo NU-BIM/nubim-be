@@ -29,6 +29,7 @@ spring:
               # - https://www.googleapis.com/auth/user.birthday.read
               # - https://www.googleapis.com/auth/user.gender.read
               # - https://www.googleapis.com/auth/user.phonenumbers.read
+            redirect-uri: ${DEV_OAUTH_REDIRECT_URI}
         provider:
           google:
             # 사용자에게 항상 로그인할 계정을 선택하게 함

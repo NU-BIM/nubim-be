@@ -64,6 +64,8 @@ jobs:
       - name: Run tests and build
         run: ./gradlew build
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DB_NAME: ${{ secrets.DB_NAME_GITHUB_ACTIONS }}
           DB_USER: ${{ secrets.DB_USER_GITHUB_ACTIONS }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD_GITHUB_ACTIONS }}

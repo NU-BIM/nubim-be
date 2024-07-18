@@ -36,7 +36,7 @@ public class SecurityConfig {
 			.headers(headerConfig -> headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(authorizeRequest -> authorizeRequest
-				.requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
+				.requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/error",
 					"/login/**", "/logout/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**")
 				.permitAll()
 				.requestMatchers("/api/albums/**")

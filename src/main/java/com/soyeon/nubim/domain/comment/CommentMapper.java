@@ -18,8 +18,7 @@ public class CommentMapper {
 	private final PostService postService;
 	private final UserService userService;
 
-	public Comment toEntity(CommentCreateRequestDto commentCreateRequestDto) {
-		User user = userService.findUserByIdOrThrow(commentCreateRequestDto.getUserId());
+	public Comment toEntity(CommentCreateRequestDto commentCreateRequestDto, User user) {
 		Post post = postService.findPostByIdOrThrow(commentCreateRequestDto.getPostId());
 
 		return Comment.builder()

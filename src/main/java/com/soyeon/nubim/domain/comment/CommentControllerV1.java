@@ -19,6 +19,8 @@ import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.PostService;
+import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -29,14 +31,17 @@ import lombok.AllArgsConstructor;
 public class CommentControllerV1 {
 	CommentService commentService;
 	PostService postService;
+	UserService userService;
 
 	@PostMapping
 	public ResponseEntity<CommentCreateResponseDto> createComment(
 		@RequestBody CommentCreateRequestDto commentCreateRequestDto) {
-		CommentCreateResponseDto commentCreateResponseDto = commentService.createComment(commentCreateRequestDto);
+		User authorUser = userService.getCurrentUser();
+		CommentCreateResponseDto commentCreateResponseDto = commentService.createComment(commentCreateRequestDto,
+			authorUser);
 
 		return ResponseEntity
-			.created(URI.create("")) // TODO : 조회 api 로 연결
+			.created(URI.create("/v1/posts/" + commentCreateResponseDto.getPostId()))
 			.body(commentCreateResponseDto);
 	}
 

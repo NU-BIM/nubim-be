@@ -12,6 +12,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +34,7 @@ import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostRepository;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
 import jakarta.transaction.Transactional;
@@ -62,6 +65,9 @@ class CommentControllerV1Test {
 	private WebApplicationContext webApplicationContext;
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
+
+	@Mock
+	private UserService userService;
 
 	/**
 	 * 더미 게시글 및 유저 생성
@@ -112,12 +118,12 @@ class CommentControllerV1Test {
 	void createComment_Success() throws Exception {
 		//given
 		CommentCreateRequestDto commentCreateRequestDto = CommentCreateRequestDto.builder()
-			.userId(testUser.getUserId())
 			.postId(testPost.getPostId())
 			.content("Test Comment")
 			.build();
 
 		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/comments")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(commentCreateRequestDto)));
@@ -131,34 +137,12 @@ class CommentControllerV1Test {
 			.andExpect(jsonPath("$.content").value("Test Comment"));
 	}
 
-	@DisplayName("유효하지 않은 userId로 댓글 생성 시 404 에러 테스트")
-	@Test
-	void createComment_UserNotFound() throws Exception {
-		//given
-		Long invalidUserId = -1L; // 존재하지 않는 userId
-		CommentCreateRequestDto commentCreateRequestDto = CommentCreateRequestDto.builder()
-			.userId(invalidUserId)
-			.postId(testPost.getPostId())
-			.content("Test Comment")
-			.build();
-
-		//when
-		ResultActions resultActions = mockMvc.perform(post("/v1/comments")
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(commentCreateRequestDto)));
-
-		//then
-		resultActions
-			.andExpect(status().isNotFound());
-	}
-
 	@DisplayName("유효하지 않은 postId로 댓글 생성 시 404 에러 테스트")
 	@Test
 	void createComment_PostNotFound() throws Exception {
 		//given
 		Long invalidPostId = -1L; // 존재하지 않는 postId
 		CommentCreateRequestDto commentCreateRequestDto = CommentCreateRequestDto.builder()
-			.userId(testUser.getUserId())
 			.postId(invalidPostId) // 유효하지 않은 postId 사용
 			.content("Test Comment")
 			.build();
@@ -175,7 +159,7 @@ class CommentControllerV1Test {
 
 	@DisplayName("정상적으로 페이지네이션된 시간 오름차순 댓글 조회 테스트")
 	@Test
-	public void getCommentsByPostId_AscendingPaginationWorks_Success() throws Exception {
+	void getCommentsByPostId_AscendingPaginationWorks_Success() throws Exception {
 		//given
 		Long postId = this.testPost.getPostId();
 		createCommentList(21);
@@ -194,7 +178,7 @@ class CommentControllerV1Test {
 
 	@DisplayName("정상적으로 페이지네이션된 시간 내림차순 댓글 조회 테스트")
 	@Test
-	public void getCommentsByPostId_DescendingPaginationWorks_Success() throws Exception {
+	void getCommentsByPostId_DescendingPaginationWorks_Success() throws Exception {
 		//given
 		Long postId = this.testPost.getPostId();
 		createCommentList(31);
@@ -231,7 +215,7 @@ class CommentControllerV1Test {
 
 	@DisplayName("존재하지 않는 postId로 조회시 404 에러 테스트")
 	@Test
-	public void getCommentsByPostId_PostNotFound_Returns404() throws Exception {
+	void getCommentsByPostId_PostNotFound_Returns404() throws Exception {
 		//given
 		Long nonExistentPostId = -1L;
 

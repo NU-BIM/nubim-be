@@ -15,6 +15,7 @@ jobs:
 
     permissions:
       contents: read
+      id-token: write
 
     steps:
       # Make short commit sha
@@ -35,9 +36,8 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: arn:aws:iam::381492281776:role/github-actions_be
 
       # AWS ECR 로그인
       - name: Login to Amazon ECR

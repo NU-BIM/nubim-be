@@ -9,9 +9,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -25,14 +24,10 @@ public class S3PresignedUrlGenerator {
 	private final String bucketName;
 
 	public S3PresignedUrlGenerator(
-		@Value("${spring.cloud.aws.credentials.access-key}") String accessKey,
-		@Value("${spring.cloud.aws.credentials.secret-key}") String secretKey,
-		@Value("${spring.cloud.aws.region.static}") String region,
 		@Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
-		AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 		this.s3Presigner = S3Presigner.builder()
-			.region(Region.of(region))
-			.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
+			.region(DefaultAwsRegionProviderChain.builder().build().getRegion())
+			.credentialsProvider(DefaultCredentialsProvider.create())
 			.build();
 		this.bucketName = bucketName;
 	}

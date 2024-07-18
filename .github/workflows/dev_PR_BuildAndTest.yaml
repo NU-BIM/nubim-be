@@ -20,9 +20,9 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: ${{ secrets.LOCAL_DB_NAME }}
-          POSTGRES_USER: ${{ secrets.LOCAL_DB_USERNAME }}
-          POSTGRES_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME_GITHUB_ACTIONS }}
+          POSTGRES_USER: ${{ secrets.DB_USER_GITHUB_ACTIONS }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD_GITHUB_ACTIONS }}
         options: >-
           --health-cmd "pg_isready"
           --health-interval 10s
@@ -64,13 +64,9 @@ jobs:
       - name: Run tests and build
         run: ./gradlew build
         env:
-          LOCAL_DB_HOST: ${{ secrets.LOCAL_DB_HOST }}
-          LOCAL_DB_NAME: ${{ secrets.LOCAL_DB_NAME }}
-          LOCAL_DB_USERNAME: ${{ secrets.LOCAL_DB_USERNAME }}
-          LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
-          LOCAL_AWS_S3_NAME: ${{ secrets.LOCAL_AWS_S3_NAME }}
-          LOCAL_AWS_USER_ACCESS_KEY: ${{ secrets.LOCAL_AWS_USER_ACCESS_KEY }}
-          LOCAL_AWS_USER_SECRET_KEY: ${{ secrets.LOCAL_AWS_USER_SECRET_KEY }}
-          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
-          GOOGLE_OAUTH_SECRET: ${{ secrets.GOOGLE_OAUTH_SECRET }}
-          LOCAL_JWT_SECRET_KEY: ${{ secrets.LOCAL_JWT_SECRET_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          DB_NAME: ${{ secrets.DB_NAME_GITHUB_ACTIONS }}
+          DB_USER: ${{ secrets.DB_USER_GITHUB_ACTIONS }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD_GITHUB_ACTIONS }}

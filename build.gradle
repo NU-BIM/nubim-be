@@ -54,6 +54,9 @@ dependencies {
 
     // Spring Security 테스트를 위한 의존성 추가
     testImplementation 'org.springframework.security:spring-security-test'
+
+    //AWS Parameter Store
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
 }
 
 tasks.named('test') {

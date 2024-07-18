@@ -42,7 +42,7 @@ public class CommentControllerV1 {
 			authorUser);
 
 		return ResponseEntity
-			.created(URI.create("/v1/posts/" + commentCreateResponseDto.getPostId()))
+			.created(URI.create("/v1/comments/post/" + commentCreateResponseDto.getPostId()))
 			.body(commentCreateResponseDto);
 	}
 

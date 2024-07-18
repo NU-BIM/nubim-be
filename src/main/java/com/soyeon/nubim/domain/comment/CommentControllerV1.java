@@ -23,6 +23,7 @@ import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -35,7 +36,7 @@ public class CommentControllerV1 {
 
 	@PostMapping
 	public ResponseEntity<CommentCreateResponseDto> createComment(
-		@RequestBody CommentCreateRequestDto commentCreateRequestDto) {
+		@Valid @RequestBody CommentCreateRequestDto commentCreateRequestDto) {
 		User authorUser = userService.getCurrentUser();
 		CommentCreateResponseDto commentCreateResponseDto = commentService.createComment(commentCreateRequestDto,
 			authorUser);

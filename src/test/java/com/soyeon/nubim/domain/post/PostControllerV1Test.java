@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -142,7 +141,6 @@ class PostControllerV1Test {
 			.build();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -171,7 +169,6 @@ class PostControllerV1Test {
 			.build();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -214,7 +211,6 @@ class PostControllerV1Test {
 			.build();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -244,7 +240,6 @@ class PostControllerV1Test {
 			.build();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -495,7 +490,6 @@ class PostControllerV1Test {
 		entityManager.clear();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(delete("/v1/posts/{postId}", post.getPostId())
 			.contentType(MediaType.APPLICATION_JSON)
 			.accept(MediaType.APPLICATION_JSON)
@@ -557,7 +551,6 @@ class PostControllerV1Test {
 		entityManager.clear();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser); // 다른 유저 로그인 됨
 		ResultActions resultActions = mockMvc.perform(delete("/v1/posts/{postId}", post.getPostId())
 			.contentType(MediaType.APPLICATION_JSON)
 			.accept(MediaType.APPLICATION_JSON)

@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/albums")
 @RequiredArgsConstructor
-public class AlbumController {
+public class AlbumControllerV1 {
 
 	private final AlbumService albumService;
 

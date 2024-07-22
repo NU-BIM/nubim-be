@@ -12,9 +12,9 @@ import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,7 +32,7 @@ public class AlbumService {
 
 	public AlbumCreateResponseDto createAlbum(AlbumCreateRequestDto albumCreateRequestDto) {
 		User user = userService.findById(albumCreateRequestDto.getUserId())
-			.orElseThrow(() -> new EntityNotFoundException("User not found, id: " + albumCreateRequestDto.getUserId()));
+			.orElseThrow(() -> new UserNotFoundException(albumCreateRequestDto.getUserId()));
 
 		Album album = albumMapper.toEntity(albumCreateRequestDto, user);
 		List<Location> locations = album.getLocations();
@@ -47,14 +47,14 @@ public class AlbumService {
 
 	public AlbumReadResponseDto findByIdWithLocations(Long albumId) {
 		Album album = albumRepository.findByIdWithLocations(albumId)
-			.orElseThrow(() -> new EntityNotFoundException("Album not found, albumId: " + albumId));
+			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		return albumMapper.toAlbumReadResponseDto(album);
 	}
 
 	public List<AlbumReadResponseDto> findAlbumsByUserId(Long userId) {
 		userService.findById(userId)
-			.orElseThrow(() -> new EntityNotFoundException("User not found, userId: " + userId));
+			.orElseThrow(() -> new UserNotFoundException(userId));
 
 		List<Album> albums = albumRepository.findByUserUserId(userId);
 
@@ -80,7 +80,7 @@ public class AlbumService {
 
 	public void deleteAlbum(Long albumId) {
 		albumRepository.findByIdWithLocations(albumId)
-			.orElseThrow(() -> new EntityNotFoundException("Album not found with albumId: " + albumId));
+			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		albumRepository.deleteById(albumId);
 	}

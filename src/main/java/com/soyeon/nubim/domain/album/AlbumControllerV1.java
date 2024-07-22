@@ -20,9 +20,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/albums")
+@RequestMapping("/v1/albums")
 @RequiredArgsConstructor
-public class AlbumController {
+public class AlbumControllerV1 {
 
 	private final AlbumService albumService;
 

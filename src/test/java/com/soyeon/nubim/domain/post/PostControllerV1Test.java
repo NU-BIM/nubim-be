@@ -8,10 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,8 +33,10 @@ import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
@@ -54,17 +59,24 @@ class PostControllerV1Test {
 	private JwtTokenProvider jwtTokenProvider;
 
 	private User testUser;
+	private User testUser2;
 	private Album testAlbum;
 	private Long testUserId;
 	private Long testAlbumId;
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
+	@Mock
+	private UserService userService;
+
+	@Autowired
+	private EntityManager entityManager;
+
 	/**
 	 * 게시글 생성에 필요한 더미 유저, 앨범 생성
 	 */
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		// 사용자 더미 데이터 생성 및 저장
 		testUser = User.builder()
 			.username("user1")
@@ -79,6 +91,19 @@ class PostControllerV1Test {
 			.build();
 		userRepository.save(testUser);
 		testUserId = testUser.getUserId();
+
+		testUser2 = User.builder()
+			.username("user2")
+			.nickname("User Two")
+			.email("user2@example.com")
+			.profileImageUrl("https://example.com/user2.jpg")
+			.profileIntroduction("Hello, I'm user two!")
+			.phoneNumber("123-456-7891")
+			.birthDate(LocalDateTime.of(1991, 1, 1, 0, 0))
+			.gender(Gender.FEMALE)
+			.role(Role.USER)
+			.build();
+		userRepository.save(testUser2);
 
 		// 앨범 더미 데이터 생성 및 저장
 		testAlbum = Album.builder()
@@ -108,16 +133,16 @@ class PostControllerV1Test {
 	 */
 	@DisplayName("게시글 정상 생성 테스트")
 	@Test
-	public void createPost_Success() throws Exception {
+	void createPost_Success() throws Exception {
 		//given
 		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
-			.userId(testUserId)
 			.albumId(testAlbumId)
 			.postTitle("Test Title")
 			.postContent("Test Content")
 			.build();
 
 		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -132,49 +157,21 @@ class PostControllerV1Test {
 	}
 
 	/**
-	 * 유저 없음 에러
-	 * 404 Not Found
-	 */
-	@DisplayName("유효하지 않은 userId로 게시글 생성 시 404 에러 테스트")
-	@Test
-	public void createPost_UserNotFound_Error() throws Exception {
-		//given
-		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
-			.userId(-1L) // 존재하지 않는 userId
-			.albumId(testAlbumId)
-			.postTitle("Test Title")
-			.postContent("Test Content")
-			.build();
-
-		//when
-		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(postCreateRequestDto))
-			.accept(MediaType.APPLICATION_JSON)
-		);
-
-		//then
-		resultActions
-			.andExpect(status().isNotFound())
-			.andDo(print());
-	}
-
-	/**
 	 * 앨범 없음 에러
 	 * 404 Not Found
 	 */
 	@DisplayName("유효하지 않은 albumId로 게시글 생성 시 404 에러 테스트")
 	@Test
-	public void createPost_AlbumNotFound_Error() throws Exception {
+	void createPost_AlbumNotFound_Error() throws Exception {
 		//given
 		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
-			.userId(testUserId)
 			.albumId(-1L) // 존재하지 않는 albumId
 			.postTitle("Test Title")
 			.postContent("Test Content")
 			.build();
 
 		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -186,6 +183,81 @@ class PostControllerV1Test {
 			.andExpect(status().isNotFound())
 			.andDo(print());
 	}
+
+	String generateRandomString(int length) {
+		Random random = new Random();
+		// 사용할 문자들 정의 (알파벳 대소문자)
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+		StringBuilder sb = new StringBuilder(length);
+
+		for (int i = 0; i < length; i++) {
+			sb.append(characters.charAt(random.nextInt(characters.length())));
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * 게시글 제목 글자 수 제한 에러
+	 * 400 Bad Request
+	 */
+	@DisplayName("게시글 제목 101자 작성 에러 테스트")
+	@Test
+	void createPost_Over101CharatersInTitle_Error() throws Exception {
+		//given
+		final String TEST_TITLE = generateRandomString(101);
+
+		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
+			.albumId(testAlbumId)
+			.postTitle(TEST_TITLE)
+			.postContent("Test Content")
+			.build();
+
+		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
+		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(postCreateRequestDto))
+			.accept(MediaType.APPLICATION_JSON)
+		);
+
+		//then
+		resultActions
+			.andExpect(status().isBadRequest())
+			.andDo(print());
+	}
+
+	/**
+	 * 게시글 제목 글자 수 제한 에러
+	 * 400 Bad Request
+	 */
+	@DisplayName("게시글 본문 2201자 작성 에러 테스트")
+	@Test
+	void createPost_Over2201CharatersInContent_Error() throws Exception {
+		//given
+		final String TEST_CONTENT = generateRandomString(2201);
+
+		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
+			.albumId(testAlbumId)
+			.postTitle("Test Title")
+			.postContent(TEST_CONTENT)
+			.build();
+
+		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
+		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(postCreateRequestDto))
+			.accept(MediaType.APPLICATION_JSON)
+		);
+
+		//then
+		resultActions
+			.andExpect(status().isBadRequest())
+			.andDo(print());
+	}
+
+
 
     /*
     게시글 조회
@@ -197,7 +269,7 @@ class PostControllerV1Test {
 	 */
 	@DisplayName("게시글 정상 상세 조회 테스트")
 	@Test
-	public void getPostDetail_WithNullType_Success() throws Exception {
+	void getPostDetail_WithNullType_Success() throws Exception {
 		//given
 		Post post = Post.builder()
 			.album(testAlbum)
@@ -229,7 +301,7 @@ class PostControllerV1Test {
 	 */
 	@DisplayName("게시글 정상 미리보기 테스트")
 	@Test
-	public void getPostDetail_WithSimpleType_Success() throws Exception {
+	void getPostDetail_WithSimpleType_Success() throws Exception {
 		//given
 		Post post = Post.builder()
 			.album(testAlbum)
@@ -262,7 +334,7 @@ class PostControllerV1Test {
 	 */
 	@DisplayName("유효하지 않은 'type' 파라미터로 조회 시 400 에러 테스트")
 	@Test
-	public void getPostDetail_WithInvalidType_BadRequest() throws Exception {
+	void getPostDetail_WithInvalidType_BadRequest() throws Exception {
 		//given
 		Post post = Post.builder()
 			.album(testAlbum)
@@ -293,7 +365,7 @@ class PostControllerV1Test {
 
 	@DisplayName("게시글 2개 시간 내림차순 정상 조회 테스트")
 	@Test
-	public void getPostsByUserId_Desc_Success() throws Exception {
+	void getPostsByUserId_Desc_Success() throws Exception {
 		//given
 		Post post1 = Post.builder()
 			.postTitle("First Post")
@@ -331,7 +403,7 @@ class PostControllerV1Test {
 
 	@DisplayName("게시글 2개 시간 오름차순 정상 조회 테스트")
 	@Test
-	public void getPostsByUserId_Asc_Success() throws Exception {
+	void getPostsByUserId_Asc_Success() throws Exception {
 		//given
 		Post post1 = Post.builder()
 			.postTitle("First Post")
@@ -372,7 +444,7 @@ class PostControllerV1Test {
 
 	@DisplayName("게시글이 없는 user 조회 시 빈 배열 조회 테스트")
 	@Test
-	public void getPostsByUserId_NoPosts_ReturnsEmptyList() throws Exception {
+	void getPostsByUserId_NoPosts_ReturnsEmptyList() throws Exception {
 		//given
 
 		//when
@@ -386,7 +458,7 @@ class PostControllerV1Test {
 
 	@DisplayName("존재하지 않는 userId로 조회 시 404 에러 테스트")
 	@Test
-	public void getPostsByUserId_InvalidUserId_ThrowsUserNotFoundException() throws Exception {
+	void getPostsByUserId_InvalidUserId_ThrowsUserNotFoundException() throws Exception {
 		//given
 
 		//when
@@ -408,7 +480,7 @@ class PostControllerV1Test {
 	 */
 	@DisplayName("게시글 정상 삭제 테스트")
 	@Test
-	public void deletePost_Success() throws Exception {
+	void deletePost_Success() throws Exception {
 		//given
 		Post post = Post.builder()
 			.album(testAlbum)
@@ -419,7 +491,11 @@ class PostControllerV1Test {
 			.build();
 		postRepository.save(post);
 
+		entityManager.flush();
+		entityManager.clear();
+
 		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(delete("/v1/posts/{postId}", post.getPostId())
 			.contentType(MediaType.APPLICATION_JSON)
 			.accept(MediaType.APPLICATION_JSON)
@@ -437,7 +513,7 @@ class PostControllerV1Test {
 	 */
 	@DisplayName("유효하지 않은 postId로 게시글 삭제 시 404 에러 테스트")
 	@Test
-	public void deletePost_PostNotFound_Error() throws Exception {
+	void deletePost_PostNotFound_Error() throws Exception {
 		//given
 		Post post = Post.builder()
 			.album(testAlbum)
@@ -457,6 +533,39 @@ class PostControllerV1Test {
 		//then
 		resultActions
 			.andExpect(status().isNotFound())
+			.andDo(print());
+	}
+
+	/**
+	 * 소유하지 않은 post를 삭제
+	 * 403 Forbidden
+	 */
+	@DisplayName("본인의 게시글이 아닌 다른 유저의 게시글을 삭제 시 403 Forbidden")
+	@Test
+	void deletePost_Forbidden_Error() throws Exception {
+		//given
+		Post post = Post.builder()
+			.album(testAlbum)
+			.user(testUser2)
+			.postTitle("Test Title")
+			.postContent("Test Content")
+			.comments(List.of())
+			.build();
+		postRepository.save(post);
+
+		entityManager.flush();
+		entityManager.clear();
+
+		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser); // 다른 유저 로그인 됨
+		ResultActions resultActions = mockMvc.perform(delete("/v1/posts/{postId}", post.getPostId())
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
+		);
+
+		//then
+		resultActions
+			.andExpect(status().isForbidden())
 			.andDo(print());
 	}
 }

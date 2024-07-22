@@ -1,4 +1,4 @@
-package com.soyeon.nubim.domain.post;
+package com.soyeon.nubim.domain.post.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;

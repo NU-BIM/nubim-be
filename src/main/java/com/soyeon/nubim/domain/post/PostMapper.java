@@ -14,7 +14,6 @@ import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,11 +24,7 @@ public class PostMapper {
 	private final UserService userService;
 	private final AlbumService albumService;
 
-	public Post toEntity(PostCreateRequestDto postCreateRequestDto) {
-		User authorUser = userService
-			.findById(postCreateRequestDto.getUserId())
-			.orElseThrow(() -> new UserNotFoundException(postCreateRequestDto.getUserId()));
-
+	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser) {
 		Album linkedAlbum = albumService
 			.findById(postCreateRequestDto.getAlbumId())
 			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));

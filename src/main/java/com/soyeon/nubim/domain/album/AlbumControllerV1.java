@@ -49,6 +49,13 @@ public class AlbumControllerV1 {
 		return ResponseEntity.ok(albums);
 	}
 
+	@Operation(description = "요청을 보낸 사용자 자신의 모든 앨범을 가져온다.")
+	@GetMapping("/my-albums")
+	public ResponseEntity<List<AlbumReadResponseDto>> getMyAlbums() {
+		List<AlbumReadResponseDto> albums = albumService.findAlbumsByCurrentUser();
+		return ResponseEntity.ok(albums);
+	}
+
 	@Operation(description = "앨범 id로 앨범을 삭제한다")
 	@DeleteMapping("/{albumId}")
 	public void deleteAlbum(@PathVariable Long albumId) {

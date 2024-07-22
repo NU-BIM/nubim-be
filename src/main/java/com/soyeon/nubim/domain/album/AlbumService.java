@@ -65,6 +65,19 @@ public class AlbumService {
 		return albumReadResponseDtos;
 	}
 
+	public List<AlbumReadResponseDto> findAlbumsByCurrentUser() {
+		String currentUserEmail = userService.getCurrentUserEmail();
+
+		List<Album> albums = albumRepository.findAlbumsByEmail(currentUserEmail);
+
+		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());
+		for (Album album : albums) {
+			albumReadResponseDtos.add(albumMapper.toAlbumReadResponseDto(album));
+		}
+
+		return albumReadResponseDtos;
+	}
+
 	public void deleteAlbum(Long albumId) {
 		albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));

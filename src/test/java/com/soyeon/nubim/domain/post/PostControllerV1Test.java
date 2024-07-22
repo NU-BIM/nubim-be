@@ -8,10 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +33,7 @@ import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
 import jakarta.transaction.Transactional;
@@ -59,6 +63,9 @@ class PostControllerV1Test {
 	private Long testAlbumId;
 	@Autowired
 	private WebApplicationContext webApplicationContext;
+
+	@Mock
+	private UserService userService;
 
 	/**
 	 * 게시글 생성에 필요한 더미 유저, 앨범 생성
@@ -111,13 +118,13 @@ class PostControllerV1Test {
 	public void createPost_Success() throws Exception {
 		//given
 		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
-			.userId(testUserId)
 			.albumId(testAlbumId)
 			.postTitle("Test Title")
 			.postContent("Test Content")
 			.build();
 
 		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -132,34 +139,6 @@ class PostControllerV1Test {
 	}
 
 	/**
-	 * 유저 없음 에러
-	 * 404 Not Found
-	 */
-	@DisplayName("유효하지 않은 userId로 게시글 생성 시 404 에러 테스트")
-	@Test
-	public void createPost_UserNotFound_Error() throws Exception {
-		//given
-		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
-			.userId(-1L) // 존재하지 않는 userId
-			.albumId(testAlbumId)
-			.postTitle("Test Title")
-			.postContent("Test Content")
-			.build();
-
-		//when
-		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(postCreateRequestDto))
-			.accept(MediaType.APPLICATION_JSON)
-		);
-
-		//then
-		resultActions
-			.andExpect(status().isNotFound())
-			.andDo(print());
-	}
-
-	/**
 	 * 앨범 없음 에러
 	 * 404 Not Found
 	 */
@@ -168,13 +147,13 @@ class PostControllerV1Test {
 	public void createPost_AlbumNotFound_Error() throws Exception {
 		//given
 		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
-			.userId(testUserId)
 			.albumId(-1L) // 존재하지 않는 albumId
 			.postTitle("Test Title")
 			.postContent("Test Content")
 			.build();
 
 		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(postCreateRequestDto))
@@ -186,6 +165,81 @@ class PostControllerV1Test {
 			.andExpect(status().isNotFound())
 			.andDo(print());
 	}
+
+	String generateRandomString(int length) {
+		Random random = new Random();
+		// 사용할 문자들 정의 (알파벳 대소문자)
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+		StringBuilder sb = new StringBuilder(length);
+
+		for (int i = 0; i < length; i++) {
+			sb.append(characters.charAt(random.nextInt(characters.length())));
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * 게시글 제목 글자 수 제한 에러
+	 * 400 Bad Request
+	 */
+	@DisplayName("게시글 제목 101자 작성 에러 테스트")
+	@Test
+	void createPost_Over101CharatersInTitle_Error() throws Exception {
+		//given
+		final String TEST_TITLE = generateRandomString(101);
+
+		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
+			.albumId(testAlbumId)
+			.postTitle(TEST_TITLE)
+			.postContent("Test Content")
+			.build();
+
+		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
+		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(postCreateRequestDto))
+			.accept(MediaType.APPLICATION_JSON)
+		);
+
+		//then
+		resultActions
+			.andExpect(status().isBadRequest())
+			.andDo(print());
+	}
+
+	/**
+	 * 게시글 제목 글자 수 제한 에러
+	 * 400 Bad Request
+	 */
+	@DisplayName("게시글 본문 2201자 작성 에러 테스트")
+	@Test
+	void createPost_Over2201CharatersInContent_Error() throws Exception {
+		//given
+		final String TEST_CONTENT = generateRandomString(2201);
+
+		PostCreateRequestDto postCreateRequestDto = PostCreateRequestDto.builder()
+			.albumId(testAlbumId)
+			.postTitle("Test Title")
+			.postContent(TEST_CONTENT)
+			.build();
+
+		//when
+		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
+		ResultActions resultActions = mockMvc.perform(post("/v1/posts")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(postCreateRequestDto))
+			.accept(MediaType.APPLICATION_JSON)
+		);
+
+		//then
+		resultActions
+			.andExpect(status().isBadRequest())
+			.andDo(print());
+	}
+
+
 
     /*
     게시글 조회

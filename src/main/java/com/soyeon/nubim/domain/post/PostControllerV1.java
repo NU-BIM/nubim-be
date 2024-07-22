@@ -20,9 +20,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -37,8 +39,10 @@ public class PostControllerV1 {
 	private static final String DEFAULT_ORDER_BY = "createdAt";
 
 	@PostMapping
-	public ResponseEntity<PostCreateResponseDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto) {
-		PostCreateResponseDto postCreateResponseDto = postService.createPost(postCreateRequestDto);
+	public ResponseEntity<PostCreateResponseDto> createPost(
+		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto) {
+		User authorUser = userService.getCurrentUser();
+		PostCreateResponseDto postCreateResponseDto = postService.createPost(postCreateRequestDto, authorUser);
 
 		return ResponseEntity
 			.created(URI.create(String.format("/v1/posts/%d", postCreateResponseDto.getPostId())))
@@ -79,8 +83,7 @@ public class PostControllerV1 {
 		}
 		return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAt(userId, pageRequest));
 	}
-
-	// TODO : 배포 전 soft delete로 변경 필요
+	
 	@DeleteMapping("{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
 		postService.deleteById(postId);

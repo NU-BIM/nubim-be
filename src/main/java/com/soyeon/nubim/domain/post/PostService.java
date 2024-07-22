@@ -8,6 +8,7 @@ import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,9 +36,9 @@ public class PostService {
 			.map(postMapper::toPostSimpleResponseDto);
 	}
 
-	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto) {
-		Post post = postMapper.toEntity(postCreateRequestDto);
-		postRepository.save(post); // TODO : 글자 수 제한 예외처리
+	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
+		Post post = postMapper.toEntity(postCreateRequestDto, authorUser);
+		postRepository.save(post);
 		return postMapper.toPostCreateResponseDto(post);
 	}
 

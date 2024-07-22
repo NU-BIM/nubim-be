@@ -83,10 +83,14 @@ public class PostControllerV1 {
 		}
 		return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAt(userId, pageRequest));
 	}
-	
+
 	@DeleteMapping("{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+		postService.validatePostExist(postId);
+		postService.validatePostOwner(postId, userService.getCurrentUser());
+
 		postService.deleteById(postId);
+
 		return ResponseEntity.ok().build();
 	}
 

@@ -8,6 +8,8 @@ import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.post.exceptions.PostNotFoundException;
+import com.soyeon.nubim.domain.post.exceptions.UnauthorizedAccessException;
 import com.soyeon.nubim.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
@@ -43,9 +45,6 @@ public class PostService {
 	}
 
 	public void deleteById(Long id) {
-		if (!postRepository.existsById(id)) {
-			throw new PostNotFoundException(id);
-		}
 		postRepository.deleteById(id);
 	}
 
@@ -59,6 +58,14 @@ public class PostService {
 	public void validatePostExist(Long postId) {
 		if (!postRepository.existsById(postId)) {
 			throw new PostNotFoundException(postId);
+		}
+	}
+
+	public void validatePostOwner(Long postId, User author) {
+		Post post = this.findPostByIdOrThrow(postId);
+
+		if (!author.getPosts().contains(post)) {
+			throw new UnauthorizedAccessException(postId);
 		}
 	}
 }

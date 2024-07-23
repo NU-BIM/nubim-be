@@ -56,7 +56,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 		User user = saveOrUpdate(attributes);
 
-		String accessToken = jwtTokenProvider.generateAccessToken(user);
+		String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getRole().name());
 		String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
 		saveRefreshToken(user.getEmail(), refreshToken);

@@ -84,12 +84,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 	protected void saveRefreshToken(String email, String refreshToken) {
 		RefreshToken refreshTokenEntity;
+		LocalDateTime expiresAt = LocalDateTime.now().plusDays(7);
 		try {
 			refreshTokenEntity = refreshTokenService.findByEmail(email);
-			refreshTokenEntity.updateToken(refreshToken);
+			refreshTokenEntity.updateToken(refreshToken, expiresAt);
 			log.info("Exist refresh token found, update: {}", refreshTokenEntity.getToken());
 		} catch (EntityNotFoundException e) {
-			refreshTokenEntity = new RefreshToken(refreshToken, email, LocalDateTime.now().plusDays(7));
+			refreshTokenEntity = new RefreshToken(refreshToken, email, expiresAt);
 			log.info("No Exist refresh token found, create: {}", refreshTokenEntity.getToken());
 		}
 

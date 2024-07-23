@@ -34,7 +34,8 @@ public class RefreshToken {
 		this.expiresAt = expiresAt;
 	}
 
-	public void updateToken(String token) {
+	public void updateToken(String token, LocalDateTime expiresAt) {
 		this.token = token;
+		this.expiresAt = expiresAt;
 	}
 }

@@ -104,7 +104,7 @@ class CommentControllerV1Test {
 
 		postRepository.save(testPost);
 
-		String accessToken = jwtTokenProvider.generateAccessToken(testUser);
+		String accessToken = jwtTokenProvider.generateAccessToken(testUser.getEmail(), testUser.getRole().name());
 
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
 			.apply(springSecurity())

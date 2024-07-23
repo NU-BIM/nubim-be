@@ -113,7 +113,7 @@ class PostControllerV1Test {
 		albumRepository.save(testAlbum);
 		testAlbumId = testAlbum.getAlbumId();
 
-		String accessToken = jwtTokenProvider.generateAccessToken(testUser);
+		String accessToken = jwtTokenProvider.generateAccessToken(testUser.getEmail(), testUser.getRole().name());
 
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
 			.apply(springSecurity())

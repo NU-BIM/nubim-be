@@ -50,14 +50,13 @@ public class JwtTokenProvider {
 		this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public String generateAccessToken(User user) {
+	public String generateAccessToken(String email, String role) {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
 		String accessToken = Jwts.builder()
-			.setSubject(user.getEmail())
-			.claim("userId", user.getUserId())
-			.claim("role", user.getRole().name())
+			.setSubject(email)
+			.claim("role", role)
 			.setIssuedAt(now)
 			.setExpiration(expiryDate)
 			.signWith(key)
@@ -107,7 +106,7 @@ public class JwtTokenProvider {
 			String userEmail = getUserEmailFromToken(refreshToken);
 
 			User user = userService.findByEmail(userEmail);
-			return generateAccessToken(user);
+			return generateAccessToken(user.getEmail(), user.getRole().name());
 		}
 		throw new InvalidKeyException("Invalid refresh token");
 	}

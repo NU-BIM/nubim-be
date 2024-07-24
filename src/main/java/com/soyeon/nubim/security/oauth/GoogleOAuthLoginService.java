@@ -87,14 +87,16 @@ public class GoogleOAuthLoginService {
 	}
 
 	private HttpHeaders createAccessTokenHeader(User user) {
-		String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail(), user.getRole().name());
+		String accessToken =
+			jwtTokenProvider.generateAccessToken(user.getUserId().toString(), user.getEmail(), user.getRole().name());
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", "Bearer " + accessToken);
 		return headers;
 	}
 
 	private ResponseCookie createRefreshTokenCookie(User user) {
-		String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
+		String refreshToken =
+			jwtTokenProvider.generateRefreshToken(user.getUserId().toString(), user.getEmail(), user.getRole().name());
 
 		upsertRefreshTokenEntity(refreshToken, user.getEmail());
 

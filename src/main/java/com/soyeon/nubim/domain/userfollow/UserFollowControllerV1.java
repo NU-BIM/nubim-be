@@ -58,7 +58,7 @@ public class UserFollowControllerV1 {
 	}
 
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<Void> unfollowUser(@PathVariable Long userId) {
+	public ResponseEntity<FollowUserResponseDto> unfollowUser(@PathVariable Long userId) {
 		userService.validateUserExists(userId);
 
 		User follower = userService.getCurrentUser();
@@ -69,6 +69,14 @@ public class UserFollowControllerV1 {
 		}
 		userFollowService.deleteUserFollow(follower, followee);
 
-		return ResponseEntity.ok().build();
+		FollowUserResponseDto followUserResponseDto = FollowUserResponseDto.builder()
+			.followerId(follower.getUserId())
+			.followeeId(followee.getUserId())
+			.message("Successfully unfollowed")
+			.build();
+
+		return ResponseEntity
+			.ok()
+			.body(followUserResponseDto);
 	}
 }

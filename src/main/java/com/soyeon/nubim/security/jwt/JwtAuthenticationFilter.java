@@ -32,19 +32,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final RefreshTokenRepository refreshTokenRepository;
 
 	private static final List<String> EXCLUDED = List.of(
-		"/v3/api-docs",
-		"/error",
-		"/favicon.ico",
-		"/login",
-		"/logout",
-		"/oauth2",
+		"/css", "/js", "/images", "/favicon.ico", "/error",
+		"/login", "/logout", "/oauth2", "/swagger-ui", "/v3/api-docs",
 		"/v1/users/login");
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		return (path.startsWith("/swagger-ui/") && !path.startsWith("/swagger-ui/index.html")) ||
-			EXCLUDED.stream().anyMatch(path::startsWith);
+		return EXCLUDED.stream().anyMatch(path::startsWith);
 	}
 
 	@Override

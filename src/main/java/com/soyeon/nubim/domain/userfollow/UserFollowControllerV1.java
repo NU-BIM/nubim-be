@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,5 +55,20 @@ public class UserFollowControllerV1 {
 		if (userService.getCurrentUserId().equals(followee)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot follow yourself");
 		}
+	}
+
+	@DeleteMapping("/{userId}")
+	public ResponseEntity<Void> unfollowUser(@PathVariable Long userId) {
+		userService.validateUserExists(userId);
+
+		User follower = userService.getCurrentUser();
+		User followee = userService.findUserByIdOrThrow(userId);
+
+		if (!userFollowService.isFollowing(follower, followee)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not following");
+		}
+		userFollowService.deleteUserFollow(follower, followee);
+
+		return ResponseEntity.ok().build();
 	}
 }

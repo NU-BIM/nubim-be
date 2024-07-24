@@ -29,4 +29,10 @@ public class UserFollowService {
 			return false;
 		}
 	}
+
+	public void deleteUserFollow(User follower, User followee) {
+		UserFollow userFollowToDelete = userFollowRepository.findByFollowerAndFollowee(follower, followee)
+			.orElseThrow();
+		userFollowRepository.delete(userFollowToDelete);
+	}
 }

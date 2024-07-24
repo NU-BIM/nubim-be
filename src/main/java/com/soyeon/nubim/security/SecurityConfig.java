@@ -12,8 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.soyeon.nubim.security.jwt.JwtAuthenticationFilter;
-import com.soyeon.nubim.security.oauth.CustomOAuth2UserService;
-import com.soyeon.nubim.security.oauth.OAuth2LoginSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,8 +21,6 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
@@ -42,10 +38,6 @@ public class SecurityConfig {
 				.permitAll()
 				.anyRequest()
 				.authenticated()
-			)
-			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-				.successHandler(oAuth2LoginSuccessHandler)
 			)
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

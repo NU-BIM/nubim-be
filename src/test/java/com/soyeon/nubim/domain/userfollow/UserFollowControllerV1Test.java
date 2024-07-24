@@ -185,4 +185,81 @@ class UserFollowControllerV1Test {
 			.andExpect(status().isBadRequest())
 			.andExpect(status().reason("You are already following"));
 	}
+
+	/**
+	 * 팔로우 정상 취소 테스트
+	 * 200 OK
+	 */
+	@DisplayName("팔로우 정상 취소 테스트")
+	@Test
+	void unfollowUser_Success() throws Exception {
+		// given
+		String requestPath = "/v1/follows/" + testUser2.getUserId();
+		UserFollow userFollow = UserFollow.builder()
+			.follower(testUser1)
+			.followee(testUser2)
+			.build();
+		userFollowRepository.save(userFollow);
+		entityManager.flush();
+		entityManager.clear();
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			delete(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.message").value("Successfully unfollowed"));
+
+	}
+
+	/**
+	 * 존재하지 않는 userId 취소 테스트
+	 * 404 Not Found
+	 */
+	@DisplayName("팔로우 정상 취소 테스트")
+	@Test
+	void unfollowUser_InvalidUserId_Error() throws Exception {
+		// given
+		Long notFoundUserId = Long.MAX_VALUE;
+		String requestPath = "/v1/follows/" + notFoundUserId;
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			delete(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isNotFound());
+	}
+
+	/**
+	 * 팔로우 하지 않은 유저 팔로우 취소 테스트
+	 * 400 Bad Request
+	 */
+	@DisplayName("팔로우 정상 취소 테스트")
+	@Test
+	void unfollowUser_UserNotFollowed_Error() throws Exception {
+		// given
+		String requestPath = "/v1/follows/" + testUser2.getUserId();
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			delete(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isBadRequest())
+			.andExpect(status().reason("You are not following"));
+	}
 }

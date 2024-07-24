@@ -1,0 +1,188 @@
+package com.soyeon.nubim.domain.userfollow;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Role;
+import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserRepository;
+import com.soyeon.nubim.security.jwt.JwtTokenProvider;
+
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+@ActiveProfiles("local")
+class UserFollowControllerV1Test {
+	@Autowired
+	private MockMvc mockMvc;
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private UserFollowRepository userFollowRepository;
+
+	@Autowired
+	private WebApplicationContext webApplicationContext;
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
+	@Autowired
+	private EntityManager entityManager;
+
+	private User testUser1;
+	private User testUser2;
+
+	@BeforeEach
+	void setup() {
+		// 사용자 더미 데이터 생성 및 저장
+		testUser1 = User.builder()
+			.username("user1")
+			.nickname("User One")
+			.email("user1@example.com")
+			.profileImageUrl("https://example.com/user1.jpg")
+			.profileIntroduction("Hello, I'm user one!")
+			.phoneNumber("123-456-7890")
+			.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
+			.gender(Gender.MALE)
+			.role(Role.USER)
+			.build();
+		userRepository.save(testUser1);
+
+		testUser2 = User.builder()
+			.username("user2")
+			.nickname("User Two")
+			.email("user2@example.com")
+			.profileImageUrl("https://example.com/user2.jpg")
+			.profileIntroduction("Hello, I'm user two!")
+			.phoneNumber("123-456-7891")
+			.birthDate(LocalDateTime.of(1991, 1, 1, 0, 0))
+			.gender(Gender.FEMALE)
+			.role(Role.USER)
+			.build();
+		userRepository.save(testUser2);
+
+		// jwt 인증
+		String accessToken = jwtTokenProvider.generateAccessToken(testUser1);
+
+		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+			.apply(springSecurity())
+			.defaultRequest(get("/")
+				.header("Authorization", "Bearer " + accessToken))
+			.build();
+	}
+
+	/**
+	 * 한 유저가 다른 유저를 정상적으로 팔로우하는 테스트
+	 * 201 Created
+	 */
+	@DisplayName("정상 유저 팔로우 테스트")
+	@Test
+	void followUser_Success() throws Exception {
+		// given
+		String requestPath = "/v1/follows/" + testUser2.getUserId();
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			post(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isCreated());
+	}
+
+	/**
+	 * 자기 자신을 팔로우 시 에러 테스트
+	 * 400 Bad Request
+	 */
+	@DisplayName("자기 자신 팔로우 에러 테스트")
+	@Test
+	void followUser_FollowMyself_Error() throws Exception {
+		// given
+		String requestPath = "/v1/follows/" + testUser1.getUserId();
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			post(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isBadRequest());
+	}
+
+	/**
+	 * 존재하지 않는 유저 팔로우 에러 테스트
+	 * 404 Not Found
+	 */
+	@DisplayName("존재하지 않는 유저 팔로우 에러 테스트")
+	@Test
+	void followUser_NotFoundUser_Error() throws Exception {
+		// given
+		Long notFoundUserId = Long.MAX_VALUE;
+		String requestPath = "/v1/follows/" + notFoundUserId;
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			post(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isNotFound());
+	}
+
+	/**
+	 * 이미 팔로우한 유저 팔로우 시도 에러 테스트
+	 * 400 Bad Request
+	 */
+	@DisplayName("이미 팔로우한 유저 팔로우 시도 에러 테스트")
+	@Test
+	void followUser_FollowRepetition_Error() throws Exception {
+		// given
+		String requestPath = "/v1/follows/" + testUser2.getUserId();
+		UserFollow userFollow = UserFollow.builder()
+			.follower(testUser1)
+			.followee(testUser2)
+			.build();
+		userFollowRepository.save(userFollow);
+		entityManager.flush();
+		entityManager.clear();
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			post(requestPath)
+				.contentType(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isBadRequest())
+			.andExpect(status().reason("You are already following"));
+	}
+}

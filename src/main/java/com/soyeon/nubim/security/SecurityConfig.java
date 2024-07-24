@@ -36,11 +36,10 @@ public class SecurityConfig {
 			.headers(headerConfig -> headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(authorizeRequest -> authorizeRequest
-				.requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/error",
-					"/login/**", "/logout/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**")
+				.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/error",
+					"/login", "/logout", "/oauth2/**", "/swagger-ui", "/swagger-ui/**",
+					"/swagger-ui.html", "/v3/api-docs/**", "/v1/users/login")
 				.permitAll()
-				.requestMatchers("/api/albums/**")
-				.authenticated()
 				.anyRequest()
 				.authenticated()
 			)

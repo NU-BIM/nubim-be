@@ -37,7 +37,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@EqualsAndHashCode(of = {"userId"})
+@EqualsAndHashCode(of = {"userId"}, callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE user_id = ?")
@@ -86,11 +86,11 @@ public class User extends BaseEntity {
 	private List<Comment> comments = new ArrayList<>();
 
 	@Builder.Default
-	@OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "followee", fetch = FetchType.LAZY)
 	private List<UserFollow> followers = new ArrayList<>();
 
 	@Builder.Default
-	@OneToMany(mappedBy = "followee", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
 	private List<UserFollow> followees = new ArrayList<>();
 
 	public User updateNameFromOAuthProfile(String name) {

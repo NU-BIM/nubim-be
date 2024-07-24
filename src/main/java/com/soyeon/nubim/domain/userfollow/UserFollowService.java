@@ -18,12 +18,12 @@ public class UserFollowService {
 			.build();
 
 		userFollowRepository.save(userFollow);
-		follower.getFollowers().add(userFollow);
-		followee.getFollowees().add(userFollow);
+		follower.getFollowees().add(userFollow);
+		followee.getFollowers().add(userFollow);
 	}
 
 	public boolean isFollowing(User follower, User followee) {
-		if (follower.getFollowers().stream().anyMatch(userFollow -> userFollow.getFollowee().equals(followee))) {
+		if (follower.getFollowees().stream().anyMatch(userFollow -> userFollow.getFollowee().equals(followee))) {
 			return true;
 		} else {
 			return false;

@@ -221,7 +221,7 @@ class UserFollowControllerV1Test {
 	 * 존재하지 않는 userId 취소 테스트
 	 * 404 Not Found
 	 */
-	@DisplayName("팔로우 정상 취소 테스트")
+	@DisplayName("존재하지 않는 유저 팔로우 취소 에러 테스트")
 	@Test
 	void unfollowUser_InvalidUserId_Error() throws Exception {
 		// given
@@ -244,7 +244,7 @@ class UserFollowControllerV1Test {
 	 * 팔로우 하지 않은 유저 팔로우 취소 테스트
 	 * 400 Bad Request
 	 */
-	@DisplayName("팔로우 정상 취소 테스트")
+	@DisplayName("팔로우 하지 않은 유저 팔로우 취소 테스트")
 	@Test
 	void unfollowUser_UserNotFollowed_Error() throws Exception {
 		// given

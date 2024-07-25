@@ -21,6 +21,10 @@ public class RefreshTokenService {
 			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, email: " + email));
 	}
 
+	public boolean isRefreshTokenExist(String token) {
+		return refreshTokenRepository.existsByToken(token);
+	}
+
 	public RefreshToken saveRefreshToken(RefreshToken refreshToken) {
 		return refreshTokenRepository.save(refreshToken);
 	}
@@ -31,6 +35,10 @@ public class RefreshTokenService {
 	}
 
 	public ResponseEntity<String> generateNewAccessToken(String refreshToken) {
+		if (!isRefreshTokenExist(refreshToken)) {
+			throw new EntityNotFoundException("Refresh Token not found in database, refreshToken: " + refreshToken);
+		}
+
 		String newAccessToken = jwtTokenProvider.generateNewAccessToken(refreshToken);
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", "Bearer " + newAccessToken);

@@ -17,4 +17,6 @@ public interface UserFollowRepository extends JpaRepository<UserFollow, Long> {
 	Optional<UserFollow> findByFollowerAndFollowee(User follower, User followee);
 
 	Page<UserFollow> findByFollowee(User followee, Pageable pageable);
+
+	Page<UserFollow> findByFollower(User follower, Pageable pageable);
 }

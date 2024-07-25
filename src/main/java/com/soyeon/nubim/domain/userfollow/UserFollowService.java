@@ -54,4 +54,20 @@ public class UserFollowService {
 
 		return followers;
 	}
+
+	public Page<UserSimpleResponseDto> getFollowees(User follower, Pageable pageable) {
+		Page<UserFollow> filteredUserFollows = userFollowRepository.findByFollower(follower, pageable);
+
+		Page<UserSimpleResponseDto> followees = filteredUserFollows.map(userFollow -> {
+			User followee = userFollow.getFollowee();
+			return UserSimpleResponseDto.builder()
+				.userId(followee.getUserId())
+				.username(followee.getUsername())
+				.nickname(followee.getNickname())
+				.profileImageUrl(followee.getProfileImageUrl())
+				.build();
+		});
+
+		return followees;
+	}
 }

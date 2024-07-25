@@ -104,4 +104,22 @@ public class UserFollowControllerV1 {
 		}
 		return ResponseEntity.ok(userFollowService.getFollowers(user, pageable));
 	}
+
+	@GetMapping("/followees")
+	public ResponseEntity<Page<UserSimpleResponseDto>> getFollowees(
+		@RequestParam(defaultValue = "0") Long page,
+		@RequestParam(defaultValue = "desc") String sort,
+		@RequestParam(defaultValue = "20") Long pageSize) {
+		User user = userService.getCurrentUser();
+
+		Pageable pageable;
+		if (sort.equalsIgnoreCase("asc")) {
+			pageable = PageRequest.of(page.intValue(), pageSize.intValue(), Sort.by(Sort.Direction.ASC, "createdAt"));
+		} else if (sort.equalsIgnoreCase("desc")) {
+			pageable = PageRequest.of(page.intValue(), pageSize.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"));
+		} else {
+			return ResponseEntity.badRequest().build();
+		}
+		return ResponseEntity.ok(userFollowService.getFollowees(user, pageable));
+	}
 }

@@ -87,7 +87,8 @@ public class UserFollowControllerV1 {
 	@GetMapping("/followers")
 	public ResponseEntity<Page<UserSimpleResponseDto>> getFollowers(
 		@RequestParam(defaultValue = "0") Long page,
-		@RequestParam(defaultValue = "desc") String sort) {
+		@RequestParam(defaultValue = "desc") String sort,
+		@RequestParam(defaultValue = "20") Long pageSize) {
 
 		throw new RuntimeException("Not implemented");
 	}

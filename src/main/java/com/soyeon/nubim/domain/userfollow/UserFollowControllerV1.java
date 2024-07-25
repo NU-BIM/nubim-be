@@ -3,6 +3,9 @@ package com.soyeon.nubim.domain.userfollow;
 import java.net.URI;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,13 +27,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/follows")
+@RequestMapping("/v1")
 public class UserFollowControllerV1 {
 	final UserFollowService userFollowService;
 	final UserService userService;
 
 	@Operation(description = "로그인된 유저가 해당 userId를 팔로우")
-	@PostMapping("/{userId}")
+	@PostMapping("/follows/{userId}")
 	public ResponseEntity<FollowUserResponseDto> followUser(@PathVariable Long userId) {
 		userService.validateUserExists(userId);
 		this.validateFollowNotMyself(userId);
@@ -61,7 +64,7 @@ public class UserFollowControllerV1 {
 		}
 	}
 
-	@DeleteMapping("/{userId}")
+	@DeleteMapping("/follows/{userId}")
 	public ResponseEntity<FollowUserResponseDto> unfollowUser(@PathVariable Long userId) {
 		userService.validateUserExists(userId);
 
@@ -89,7 +92,16 @@ public class UserFollowControllerV1 {
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "desc") String sort,
 		@RequestParam(defaultValue = "20") Long pageSize) {
+		User user = userService.getCurrentUser();
 
-		throw new RuntimeException("Not implemented");
+		Pageable pageable;
+		if (sort.equalsIgnoreCase("asc")) {
+			pageable = PageRequest.of(page.intValue(), pageSize.intValue(), Sort.by(Sort.Direction.ASC, "createdAt"));
+		} else if (sort.equalsIgnoreCase("desc")) {
+			pageable = PageRequest.of(page.intValue(), pageSize.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"));
+		} else {
+			return ResponseEntity.badRequest().build();
+		}
+		return ResponseEntity.ok(userFollowService.getFollowers(user, pageable));
 	}
 }

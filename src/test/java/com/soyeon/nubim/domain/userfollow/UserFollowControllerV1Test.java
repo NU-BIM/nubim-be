@@ -334,7 +334,7 @@ class UserFollowControllerV1Test {
 	 * 3개의 페이지 사이즈로 2번째 페이지 조회
 	 * 배열 뒤에서부터 조회하여 6,5,4 유저 반환(9,8,7 건너 뜀)
 	 */
-	@DisplayName("페이징된 여러 유저 시간 내림차순 결과 반환")
+	@DisplayName("페이징된 여러 팔로워 시간 내림차순 결과 반환")
 	@Test
 	void getFollowers_PagedUsers_Success() throws Exception {
 		// given
@@ -384,5 +384,113 @@ class UserFollowControllerV1Test {
 		entityManager.clear();
 
 		return testFollowers;
+	}
+
+
+	/*
+	-----------------------------------------------------------------------------------------------
+	팔로이 조회 API
+	-----------------------------------------------------------------------------------------------
+	 */
+
+	@DisplayName("팔로이가 한명일 때 조회 테스트")
+	@Test
+	void getFollowees_OneUser_Success() throws Exception {
+		// given
+		UserFollow dummyUserFollow = UserFollow.builder()
+			.follower(testUser1)
+			.followee(testUser2)
+			.build();
+		userFollowRepository.save(dummyUserFollow);
+		entityManager.flush();
+		entityManager.clear();
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			get("/v1/followees")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.content", hasSize(1)))
+			.andExpect(jsonPath("$.content[0].userId").value(testUser2.getUserId()));
+	}
+
+	@DisplayName("팔로이가 없을 때 조회 테스트")
+	@Test
+	void getFollowees_NoUser_Success() throws Exception {
+		// given
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			get("/v1/followees")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.content", hasSize(0)));
+	}
+
+	/**
+	 * 10명의 테스트 팔로이 생성 (testUser1가 팔로우함)
+	 * 3개의 페이지 사이즈로 2번째 페이지 조회
+	 * 배열 뒤에서부터 조회하여 6,5,4 유저 반환(9,8,7 건너 뜀)
+	 */
+	@DisplayName("페이징된 여러 팔로이 시간 내림차순 결과 반환")
+	@Test
+	void getFollowees_PagedUsers_Success() throws Exception {
+		// given
+		List<User> testFollowees = generateTestFollowees(testUser1, 10);
+
+		// when
+		ResultActions resultActions = mockMvc.perform(
+			get("/v1/followees")
+				.queryParam("page", "1")
+				.queryParam("pageSize", "3")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		// then
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.content", hasSize(3)))
+			.andExpect(jsonPath("$.content[0].userId").value(testFollowees.get(6).getUserId()))
+			.andExpect(jsonPath("$.content[1].userId").value(testFollowees.get(5).getUserId()))
+			.andExpect(jsonPath("$.content[2].userId").value(testFollowees.get(4).getUserId()));
+	}
+
+	private List<User> generateTestFollowees(User follower, int length) {
+		List<User> testFollowees = new ArrayList<>();
+		for (int i = 0; i < length; i++) {
+			User user = User.builder()
+				.username("followee" + i)
+				.nickname("followee" + i)
+				.email("followee" + i + "@example.com")
+				.profileImageUrl("https://example.com/followee" + i + ".jpg")
+				.profileIntroduction("Hello, I'm followee " + i + "!")
+				.phoneNumber("123-456-7890")
+				.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
+				.gender(Gender.MALE)
+				.role(Role.USER)
+				.build();
+			userRepository.save(user);
+			UserFollow userFollow = UserFollow.builder()
+				.follower(follower)
+				.followee(user)
+				.build();
+			testFollowees.add(user);
+			userFollowRepository.save(userFollow);
+		}
+		entityManager.flush();
+		entityManager.clear();
+
+		return testFollowees;
 	}
 }

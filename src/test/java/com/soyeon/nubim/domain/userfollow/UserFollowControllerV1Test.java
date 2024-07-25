@@ -308,7 +308,7 @@ class UserFollowControllerV1Test {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(1)))
-			.andExpect(jsonPath("$.content[0].userId", is(testUser2.getUserId())));
+			.andExpect(jsonPath("$.content[0].userId").value(testUser2.getUserId()));
 	}
 
 	@DisplayName("팔로워가 없을 때 조회 테스트")
@@ -353,20 +353,20 @@ class UserFollowControllerV1Test {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(3)))
-			.andExpect(jsonPath("$.content[0].userId", is(testFollowers.get(6).getUserId())))
-			.andExpect(jsonPath("$.content[1].userId", is(testFollowers.get(5).getUserId())))
-			.andExpect(jsonPath("$.content[2].userId", is(testFollowers.get(4).getUserId())));
+			.andExpect(jsonPath("$.content[0].userId").value(testFollowers.get(6).getUserId()))
+			.andExpect(jsonPath("$.content[1].userId").value(testFollowers.get(5).getUserId()))
+			.andExpect(jsonPath("$.content[2].userId").value(testFollowers.get(4).getUserId()));
 	}
 
 	private List<User> generateTestFollowers(User followee, int length) {
 		List<User> testFollowers = new ArrayList<>();
 		for (int i = 0; i < length; i++) {
 			User user = User.builder()
-				.username("user" + i)
-				.nickname("User" + i)
-				.email("user" + i + "@example.com")
-				.profileImageUrl("https://example.com/user" + i + ".jpg")
-				.profileIntroduction("Hello, I'm user " + i + "!")
+				.username("follower" + i)
+				.nickname("follower" + i)
+				.email("follower" + i + "@example.com")
+				.profileImageUrl("https://example.com/follower" + i + ".jpg")
+				.profileIntroduction("Hello, I'm follower " + i + "!")
 				.phoneNumber("123-456-7890")
 				.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 				.gender(Gender.MALE)

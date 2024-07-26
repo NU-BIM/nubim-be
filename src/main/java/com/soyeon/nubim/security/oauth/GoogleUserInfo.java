@@ -25,7 +25,7 @@ public class GoogleUserInfo {
 	public User toUserEntity() {
 		return User.builder()
 			.username(name)
-			.nickname(UUID.randomUUID().toString())
+			.nickname(UUID.randomUUID().toString()) // TODO : 랜덤 닉네임 생성 로직으로 변경 필요
 			.email(email)
 			.profileImageUrl(picture)
 			.role(Role.USER)

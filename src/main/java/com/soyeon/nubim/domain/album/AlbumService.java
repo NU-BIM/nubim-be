@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.soyeon.nubim.common.util.aws.S3PresignedUrlGenerator;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
@@ -30,18 +31,13 @@ public class AlbumService {
 		return albumRepository.findById(id);
 	}
 
+	@Transactional
 	public AlbumCreateResponseDto createAlbum(AlbumCreateRequestDto albumCreateRequestDto) {
-		User user = userService.findById(albumCreateRequestDto.getUserId())
-			.orElseThrow(() -> new UserNotFoundException(albumCreateRequestDto.getUserId()));
+		User currentUser = userService.getCurrentUser();
 
-		Album album = albumMapper.toEntity(albumCreateRequestDto, user);
-		List<Location> locations = album.getLocations();
-		for (Location location : locations) {
-			location.setAlbum(album);
-		}
+		Album album = albumMapper.toEntity(albumCreateRequestDto, currentUser);
 
 		Album savedAlbum = albumRepository.save(album);
-
 		return albumMapper.toAlbumCreateResponseDto(savedAlbum);
 	}
 

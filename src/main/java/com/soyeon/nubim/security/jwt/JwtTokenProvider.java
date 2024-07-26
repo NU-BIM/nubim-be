@@ -12,9 +12,6 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserService;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -43,21 +40,19 @@ public class JwtTokenProvider {
 
 	private SecretKey key;
 
-	private final UserService userService;
-
 	@PostConstruct
 	public void init() {
 		this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public String generateAccessToken(User user) {
+	public String generateAccessToken(String id, String email, String role) {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
 		String accessToken = Jwts.builder()
-			.setSubject(user.getEmail())
-			.claim("userId", user.getUserId())
-			.claim("role", user.getRole().name())
+			.setSubject(id)
+			.claim("email", email)
+			.claim("role", role)
 			.setIssuedAt(now)
 			.setExpiration(expiryDate)
 			.signWith(key)
@@ -67,12 +62,14 @@ public class JwtTokenProvider {
 		return accessToken;
 	}
 
-	public String generateRefreshToken(String email) {
+	public String generateRefreshToken(String id, String email, String role) {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + refreshTokenExpirationMs);
 
 		String refreshToken = Jwts.builder()
-			.setSubject(email)
+			.setSubject(id)
+			.claim("email", email)
+			.claim("role", role)
 			.setIssuedAt(now)
 			.setExpiration(expiryDate)
 			.signWith(key)
@@ -97,17 +94,36 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public String getUserEmailFromToken(String token) {
+	public String getUserIdFromToken(String token) {
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+	}
+
+	public String getUserEmailFromToken(String token) {
+		return Jwts.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(token)
+			.getBody()
+			.get("email", String.class);
+	}
+
+	public String getUserRoleNameFromToken(String token) {
+		return Jwts.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(token)
+			.getBody()
+			.get("role", String.class);
 	}
 
 	// refresh 토큰 검증 및 새로운 jwt 토큰 발급 로직
 	public String generateNewAccessToken(String refreshToken) {
 		if (validateToken(refreshToken)) {
+			String userId = getUserIdFromToken(refreshToken);
 			String userEmail = getUserEmailFromToken(refreshToken);
+			String userRole = getUserRoleNameFromToken(refreshToken);
 
-			User user = userService.findByEmail(userEmail);
-			return generateAccessToken(user);
+			return generateAccessToken(userId, userEmail, userRole);
 		}
 		throw new InvalidKeyException("Invalid refresh token");
 	}

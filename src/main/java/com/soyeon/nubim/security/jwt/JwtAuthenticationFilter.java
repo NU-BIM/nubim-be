@@ -1,9 +1,11 @@
 package com.soyeon.nubim.security.jwt;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -11,12 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.soyeon.nubim.security.refreshtoken.RefreshToken;
-import com.soyeon.nubim.security.refreshtoken.RefreshTokenRepository;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,23 +26,16 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
-	private final CustomUserDetailsService userDetailsService;
-	private final RefreshTokenRepository refreshTokenRepository;
 
 	private static final List<String> EXCLUDED = List.of(
-		"/v3/api-docs",
-		"/error",
-		"/favicon.ico",
-		"/login",
-		"/logout",
-		"/oauth2",
-		"/v1/users/login");
+		"/css", "/js", "/images", "/favicon.ico", "/error",
+		"/login", "/logout", "/oauth2", "/swagger-ui", "/v3/api-docs",
+		"/v1/users/login", "/v1/refresh-tokens/new-access-token");
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		return (path.startsWith("/swagger-ui/") && !path.startsWith("/swagger-ui/index.html")) ||
-			EXCLUDED.stream().anyMatch(path::startsWith);
+		return EXCLUDED.stream().anyMatch(path::startsWith);
 	}
 
 	@Override
@@ -53,87 +44,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		log.info("JWT filter start");
+		log.debug("JWT filter started");
 		try {
 			processJwtAuthentication(request, response);
 		} catch (Exception e) {
-			log.error("Could not set user authentication in security context", e);
+			log.error("Failed to set user authentication in security context", e);
 		}
 		filterChain.doFilter(request, response);
-		log.info("JWT filter end");
+		log.debug("JWT filter completed");
 	}
 
-	private void processJwtAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void processJwtAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		String jwt = getJwtFromRequest(request);
-		log.info("-- JWT token: {}", jwt);
+		log.debug("-- Extracted JWT token: {}", jwt);
 
-		if (!StringUtils.hasText(jwt)) {
-			log.info("---- JWT token is empty");
-			setResponseUnAuthorized(response, "jwt token not found");
-			return;
-		}
-		if (jwtTokenProvider.validateToken(jwt)) {
-			String userEmail = jwtTokenProvider.getUserEmailFromToken(jwt);
-			log.info("---- JWT found & Valid, user Email: {}", userEmail);
-			setAuthentication(request, userEmail);
+		if (!isValidJwtToken(jwt)) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 
-		log.info("---- JWT found, but Invalid");
-		processInvalidJwt(request, response);
+		String userEmail = jwtTokenProvider.getUserEmailFromToken(jwt);
+		log.debug("---- JWT token is valid, user email: {}", userEmail);
+		setAuthentication(request, jwt);
 	}
 
-	private void processInvalidJwt(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String refreshToken = getRefreshTokenFromCookie(request);
-
-		if (!StringUtils.hasText(refreshToken)) {
-			log.info("------ refresh token not found");
-			setResponseUnAuthorized(response, "refresh token not found");
-			return;
+	private boolean isValidJwtToken(String jwt) {
+		if (!StringUtils.hasText(jwt) || jwt.equals("null")) {
+			log.debug("---- JWT token is empty");
+			return false;
 		}
-		if (!jwtTokenProvider.validateToken(refreshToken)) {
-			log.info("------ refresh token Invalid");
-			setResponseUnAuthorized(response, "refresh token is invalid");
-			return;
+		if (!jwtTokenProvider.validateToken(jwt)) {
+			log.debug("---- JWT token is invalid");
+			return false;
 		}
-
-		log.info("------ refresh token is valid, refresh token: {}", refreshToken);
-		processRefreshTokenAuthentication(request, response, refreshToken);
+		return true;
 	}
 
-	public void processRefreshTokenAuthentication(
-		HttpServletRequest request,
-		HttpServletResponse response,
-		String refreshToken) throws IOException {
-		String userEmail = jwtTokenProvider.getUserEmailFromToken(refreshToken);
-		RefreshToken storedRefreshToken = refreshTokenRepository.findByEmail(userEmail)
-			.orElseThrow(() -> new RuntimeException("Stored Refresh token not found"));
+	private void setAuthentication(HttpServletRequest request, String jwt) {
+		String id = jwtTokenProvider.getUserIdFromToken(jwt);
+		String email = jwtTokenProvider.getUserEmailFromToken(jwt);
+		String role = jwtTokenProvider.getUserRoleNameFromToken(jwt);
 
-		if (!StringUtils.hasText(storedRefreshToken.getToken())) {
-			log.info("-------- refresh token is not stored");
-			setResponseUnAuthorized(response, "stored token not found");
-			return;
-		}
-
-		if (!storedRefreshToken.getToken().equals(refreshToken)) {
-			log.info("-------- refresh token is not equals storedRefreshToken");
-			setResponseUnAuthorized(response, "Refresh token is invalid or expired.");
-			return;
-		}
-
-		log.info("-------- refresh token is equals storedRefreshToken");
-		String newAccessToken = jwtTokenProvider.generateNewAccessToken(refreshToken);
-		response.setHeader("Authorization", "Bearer " + newAccessToken);
-		// setAuthentication(request, userEmail);
-	}
-
-	private void setResponseUnAuthorized(HttpServletResponse response, String s) throws IOException {
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.getWriter().write(s);
-	}
-
-	private void setAuthentication(HttpServletRequest request, String userEmail) {
-		UserDetails userDetails = userDetailsService.loadUserByEmail(userEmail);
+		UserDetails userDetails = generateUserDetails(id, email, role);
 
 		UsernamePasswordAuthenticationToken authentication =
 			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -149,15 +101,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		return null;
 	}
 
-	private String getRefreshTokenFromCookie(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if ("refresh_token".equals(cookie.getName())) {
-					return cookie.getValue();
-				}
-			}
-		}
-		return null;
+	private UserDetails generateUserDetails(String id, String email, String role) {
+		return org.springframework.security.core.userdetails.User.builder()
+			.username(email)
+			.password("")
+			.authorities(Arrays.asList(
+				new SimpleGrantedAuthority("ROLE_" + role),
+				new SimpleGrantedAuthority("ID_" + id)))
+			.build();
 	}
+
 }

@@ -1,6 +1,10 @@
 package com.soyeon.nubim.security.refreshtoken;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +14,15 @@ import lombok.RequiredArgsConstructor;
 public class RefreshTokenService {
 
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	public RefreshToken findByEmail(String email) {
 		return refreshTokenRepository.findByEmail(email)
 			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, email: " + email));
+	}
+
+	public boolean isRefreshTokenExist(String token) {
+		return refreshTokenRepository.existsByToken(token);
 	}
 
 	public RefreshToken saveRefreshToken(RefreshToken refreshToken) {
@@ -23,5 +32,19 @@ public class RefreshTokenService {
 	public void deleteRefreshToken(String token) {
 		refreshTokenRepository.deleteByToken(token)
 			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, token: " + token));
+	}
+
+	public ResponseEntity<String> generateNewAccessToken(String refreshToken) {
+		if (!isRefreshTokenExist(refreshToken)) {
+			throw new EntityNotFoundException("Refresh Token not found in database, refreshToken: " + refreshToken);
+		}
+
+		String newAccessToken = jwtTokenProvider.generateNewAccessToken(refreshToken);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer " + newAccessToken);
+
+		return ResponseEntity.ok()
+			.headers(headers)
+			.body("created new access token");
 	}
 }

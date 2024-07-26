@@ -3,12 +3,12 @@ package com.soyeon.nubim.domain.user;
 import java.util.Optional;
 
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +24,7 @@ public class UserService {
 
 	public User findByEmail(String email) {
 		return userRepository.findByEmail(email)
-			.orElseThrow(() -> new EntityNotFoundException(String.format("User with email " + email + " not found")));
+			.orElseThrow(() -> new UserNotFoundException(email));
 	}
 
 	public User saveUser(User user) {
@@ -63,13 +63,23 @@ public class UserService {
 		String currentUserEmail = getCurrentUserEmail();
 
 		return userRepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> new EntityNotFoundException("User with email " + currentUserEmail + " not found"));
+			.orElseThrow(() -> new UserNotFoundException(currentUserEmail));
 	}
 
 	public Long getCurrentUserId() {
-		String currentUserEmail = getCurrentUserEmail();
+		return Long.parseLong(parseAuthority("ID_"));
+	}
 
-		return userRepository.findUserIdByEmail(currentUserEmail)
-			.orElseThrow(() -> new EntityNotFoundException("User with email " + currentUserEmail + " not found"));
+	public String getCurrentUserRole() {
+		return parseAuthority("ROLE_");
+	}
+
+	private String parseAuthority(String prefix) {
+		return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.filter(authority -> authority.startsWith(prefix))
+			.findFirst()
+			.map(authority -> authority.substring(prefix.length()))
+			.orElse(null);
 	}
 }

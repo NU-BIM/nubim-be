@@ -10,10 +10,9 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.soyeon.nubim.security.jwt.JwtAuthenticationFilter;
-import com.soyeon.nubim.security.oauth.CustomOAuth2UserService;
-import com.soyeon.nubim.security.oauth.OAuth2LoginSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,30 +22,24 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final CorsConfigurationSource corsConfigurationSource;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws
 		Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)
-			.cors(AbstractHttpConfigurer::disable)
+			.cors(cors -> cors.configurationSource(corsConfigurationSource))
 			.headers(headerConfig -> headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(authorizeRequest -> authorizeRequest
-				.requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/error",
-					"/login/**", "/logout/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**")
+				.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/error",
+					"/login", "/logout", "/oauth2/**", "/swagger-ui", "/swagger-ui/**",
+					"/swagger-ui.html", "/v3/api-docs/**", "/v1/users/login", "/v1/refresh-tokens/new-access-token")
 				.permitAll()
-				.requestMatchers("/api/albums/**")
-				.authenticated()
 				.anyRequest()
 				.authenticated()
-			)
-			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-				.successHandler(oAuth2LoginSuccessHandler)
 			)
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

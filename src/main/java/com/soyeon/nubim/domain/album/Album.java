@@ -55,4 +55,10 @@ public class Album extends BaseEntity {
 	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Location> locations = new ArrayList<>();
 
+	public void bindLocations() {
+		for (Location location : locations) {
+			location.setAlbum(this);
+		}
+	}
+
 }

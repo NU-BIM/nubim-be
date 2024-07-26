@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AlbumCreateRequestDto {
-	private Long userId;
 	private String description;
 	private List<String> photoUrls;
 	private List<LocationCreateRequestDto> locations;

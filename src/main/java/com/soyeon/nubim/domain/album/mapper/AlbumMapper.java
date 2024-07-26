@@ -36,12 +36,16 @@ public class AlbumMapper {
 		List<LocationCreateRequestDto> locationDtos = albumCreateRequestDto.getLocations();
 		List<Location> locations = locationMapper.toEntityList(locationDtos);
 
-		return Album.builder()
+		Album album = Album.builder()
 			.user(user)
 			.description(albumCreateRequestDto.getDescription())
 			.photoUrls(photoUrlsToJsonString)
 			.locations(locations)
 			.build();
+
+		album.bindLocations();
+
+		return album;
 	}
 
 	public AlbumCreateResponseDto toAlbumCreateResponseDto(Album album) {

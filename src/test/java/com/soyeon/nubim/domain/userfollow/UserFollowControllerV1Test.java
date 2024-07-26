@@ -87,7 +87,10 @@ class UserFollowControllerV1Test {
 		userRepository.save(testUser2);
 
 		// jwt 인증
-		String accessToken = jwtTokenProvider.generateAccessToken(testUser1);
+		String accessToken = jwtTokenProvider.generateAccessToken(
+			testUser1.getUserId().toString(),
+			testUser1.getEmail(),
+			testUser1.getRole().name());
 
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
 			.apply(springSecurity())

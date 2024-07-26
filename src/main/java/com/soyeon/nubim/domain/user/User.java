@@ -28,6 +28,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +37,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@EqualsAndHashCode(of = {"userId"}, callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE user_id = ?")
@@ -84,11 +86,11 @@ public class User extends BaseEntity {
 	private List<Comment> comments = new ArrayList<>();
 
 	@Builder.Default
-	@OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "followee", fetch = FetchType.LAZY)
 	private List<UserFollow> followers = new ArrayList<>();
 
 	@Builder.Default
-	@OneToMany(mappedBy = "followee", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
 	private List<UserFollow> followees = new ArrayList<>();
 
 	public User updateNameFromOAuthProfile(String name) {
@@ -100,4 +102,19 @@ public class User extends BaseEntity {
 		return this.role.getKey();
 	}
 
+	public void addFollower(UserFollow userFollow) {
+		this.followers.add(userFollow);
+	}
+
+	public void addFollowee(UserFollow userFollow) {
+		this.followees.add(userFollow);
+	}
+
+	public void deleteFollower(UserFollow userFollow) {
+		this.followers.remove(userFollow);
+	}
+
+	public void deleteFollowee(UserFollow userFollow) {
+		this.followees.remove(userFollow);
+	}
 }

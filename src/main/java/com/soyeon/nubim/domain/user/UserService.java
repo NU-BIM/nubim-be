@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.soyeon.nubim.domain.userfollow.UserFollow;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import jakarta.transaction.Transactional;
@@ -81,5 +82,21 @@ public class UserService {
 			.findFirst()
 			.map(authority -> authority.substring(prefix.length()))
 			.orElse(null);
+	}
+
+	public void addFollowerAndFolloweeByUserFollow(UserFollow userFollow) {
+		User follower = userFollow.getFollower();
+		User followee = userFollow.getFollowee();
+
+		follower.addFollowee(userFollow);
+		followee.addFollower(userFollow);
+	}
+
+	public void deleteFollowerAndFolloweeByUserFollow(UserFollow userFollow) {
+		User follower = userFollow.getFollower();
+		User followee = userFollow.getFollowee();
+
+		follower.deleteFollowee(userFollow);
+		followee.deleteFollower(userFollow);
 	}
 }

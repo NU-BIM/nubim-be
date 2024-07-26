@@ -6,6 +6,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.soyeon.nubim.domain.userfollow.UserFollow;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -71,5 +72,21 @@ public class UserService {
 
 		return userRepository.findUserIdByEmail(currentUserEmail)
 			.orElseThrow(() -> new EntityNotFoundException("User with email " + currentUserEmail + " not found"));
+	}
+
+	public void addFollowerAndFolloweeByUserFollow(UserFollow userFollow) {
+		User follower = userFollow.getFollower();
+		User followee = userFollow.getFollowee();
+
+		follower.addFollowee(userFollow);
+		followee.addFollower(userFollow);
+	}
+
+	public void deleteFollowerAndFolloweeByUserFollow(UserFollow userFollow) {
+		User follower = userFollow.getFollower();
+		User followee = userFollow.getFollowee();
+
+		follower.deleteFollowee(userFollow);
+		followee.deleteFollower(userFollow);
 	}
 }

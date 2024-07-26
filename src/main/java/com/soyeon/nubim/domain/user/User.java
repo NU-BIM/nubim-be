@@ -102,4 +102,19 @@ public class User extends BaseEntity {
 		return this.role.getKey();
 	}
 
+	public void addFollower(UserFollow userFollow) {
+		this.followers.add(userFollow);
+	}
+
+	public void addFollowee(UserFollow userFollow) {
+		this.followees.add(userFollow);
+	}
+
+	public void deleteFollower(UserFollow userFollow) {
+		this.followers.remove(userFollow);
+	}
+
+	public void deleteFollowee(UserFollow userFollow) {
+		this.followees.remove(userFollow);
+	}
 }

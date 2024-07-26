@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class UserFollowService {
 	private final UserFollowRepository userFollowRepository;
+	private final UserService userService;
 
 	public void createFollow(User follower, User followee) {
 		UserFollow userFollow = UserFollow.builder()
@@ -21,8 +23,7 @@ public class UserFollowService {
 			.build();
 
 		userFollowRepository.save(userFollow);
-		follower.getFollowees().add(userFollow);
-		followee.getFollowers().add(userFollow);
+		userService.addFollowerAndFolloweeByUserFollow(userFollow);
 	}
 
 	public boolean isFollowing(User follower, User followee) {
@@ -37,6 +38,7 @@ public class UserFollowService {
 		UserFollow userFollowToDelete = userFollowRepository.findByFollowerAndFollowee(follower, followee)
 			.orElseThrow();
 		userFollowRepository.delete(userFollowToDelete);
+		userService.deleteFollowerAndFolloweeByUserFollow(userFollowToDelete);
 	}
 
 	public Page<UserSimpleResponseDto> getFollowers(User followee, Pageable pageable) {

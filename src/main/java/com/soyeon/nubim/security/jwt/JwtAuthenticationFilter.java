@@ -44,19 +44,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		log.info("JWT filter started");
+		log.debug("JWT filter started");
 		try {
 			processJwtAuthentication(request, response);
 		} catch (Exception e) {
 			log.error("Failed to set user authentication in security context", e);
 		}
 		filterChain.doFilter(request, response);
-		log.info("JWT filter completed");
+		log.debug("JWT filter completed");
 	}
 
 	private void processJwtAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		String jwt = getJwtFromRequest(request);
-		log.info("-- Extracted JWT token: {}", jwt);
+		log.debug("-- Extracted JWT token: {}", jwt);
 
 		if (!isValidJwtToken(jwt)) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -64,17 +64,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		String userEmail = jwtTokenProvider.getUserEmailFromToken(jwt);
-		log.info("---- JWT token is valid, user email: {}", userEmail);
+		log.debug("---- JWT token is valid, user email: {}", userEmail);
 		setAuthentication(request, jwt);
 	}
 
 	private boolean isValidJwtToken(String jwt) {
 		if (!StringUtils.hasText(jwt) || jwt.equals("null")) {
-			log.info("---- JWT token is empty");
+			log.debug("---- JWT token is empty");
 			return false;
 		}
 		if (!jwtTokenProvider.validateToken(jwt)) {
-			log.info("---- JWT token is invalid");
+			log.debug("---- JWT token is invalid");
 			return false;
 		}
 		return true;

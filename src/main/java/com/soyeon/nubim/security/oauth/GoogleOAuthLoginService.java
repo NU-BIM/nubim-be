@@ -13,7 +13,7 @@ import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
-import com.soyeon.nubim.security.jwt.JwtTokenResponseDto;
+import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.refreshtoken.RefreshToken;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 

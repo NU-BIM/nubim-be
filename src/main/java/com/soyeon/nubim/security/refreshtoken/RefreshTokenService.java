@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
-import com.soyeon.nubim.security.jwt.JwtTokenResponseDto;
+import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -16,7 +16,7 @@ public class RefreshTokenControllerV1 {
 	private final RefreshTokenService refreshTokenService;
 
 	@PostMapping("/new-access-token")
-	public ResponseEntity<String> generateNewAccessToken(@CookieValue("refresh_token") String refreshToken) {
-		return refreshTokenService.generateNewAccessToken(refreshToken);
+	public ResponseEntity<String> getNewAccessToken(@CookieValue("refresh_token") String refreshToken) {
+		return refreshTokenService.renewAccessToken(refreshToken);
 	}
 }

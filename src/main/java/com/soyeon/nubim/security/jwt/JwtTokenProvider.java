@@ -16,7 +16,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -116,16 +115,12 @@ public class JwtTokenProvider {
 			.get("role", String.class);
 	}
 
-	// refresh 토큰 검증 및 새로운 jwt 토큰 발급 로직
-	public String generateNewAccessToken(String refreshToken) {
-		if (validateToken(refreshToken)) {
-			String userId = getUserIdFromToken(refreshToken);
-			String userEmail = getUserEmailFromToken(refreshToken);
-			String userRole = getUserRoleNameFromToken(refreshToken);
+	public String generateAccessTokenFromRefreshToken(String refreshToken) {
+		String userId = getUserIdFromToken(refreshToken);
+		String userEmail = getUserEmailFromToken(refreshToken);
+		String userRole = getUserRoleNameFromToken(refreshToken);
 
-			return generateAccessToken(userId, userEmail, userRole);
-		}
-		throw new InvalidKeyException("Invalid refresh token");
+		return generateAccessToken(userId, userEmail, userRole);
 	}
 
 	private void logTokenValidationError(String token, String e) {

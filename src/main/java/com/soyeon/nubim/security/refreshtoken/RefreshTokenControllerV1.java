@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soyeon.nubim.security.jwt.JwtTokenResponseDto;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -16,7 +18,7 @@ public class RefreshTokenControllerV1 {
 	private final RefreshTokenService refreshTokenService;
 
 	@PostMapping("/new-access-token")
-	public ResponseEntity<String> getNewAccessToken(@CookieValue("refresh_token") String refreshToken) {
+	public ResponseEntity<JwtTokenResponseDto> getNewAccessToken(@CookieValue("refresh_token") String refreshToken) {
 		return refreshTokenService.renewAccessToken(refreshToken);
 	}
 }

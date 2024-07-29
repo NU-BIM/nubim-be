@@ -1,10 +1,10 @@
 package com.soyeon.nubim.security.refreshtoken;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
+import com.soyeon.nubim.security.jwt.JwtTokenResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,16 +34,14 @@ public class RefreshTokenService {
 			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, token: " + token));
 	}
 
-	public ResponseEntity<String> renewAccessToken(String refreshToken) {
+	public ResponseEntity<JwtTokenResponseDto> renewAccessToken(String refreshToken) {
 		validateRefreshToken(refreshToken);
 
 		String newAccessToken = jwtTokenProvider.generateAccessTokenFromRefreshToken(refreshToken);
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Bearer " + newAccessToken);
+		JwtTokenResponseDto jwtTokenResponseDto = new JwtTokenResponseDto(newAccessToken, refreshToken);
 
 		return ResponseEntity.ok()
-			.headers(headers)
-			.body("created new access token");
+			.body(jwtTokenResponseDto);
 	}
 
 	private void validateRefreshToken(String refreshToken) {

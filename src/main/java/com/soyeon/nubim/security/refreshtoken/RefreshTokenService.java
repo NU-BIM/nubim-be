@@ -1,10 +1,12 @@
 package com.soyeon.nubim.security.refreshtoken;
 
-import org.springframework.http.HttpHeaders;
+import java.time.LocalDateTime;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
+import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
+	private static final int REFRESH_TOKEN_MAX_AGE_SECONDS = 604800; //60 * 60 * 24 * 7
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 
@@ -34,17 +37,44 @@ public class RefreshTokenService {
 			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, token: " + token));
 	}
 
-	public ResponseEntity<String> generateNewAccessToken(String refreshToken) {
+	public ResponseEntity<JwtTokenResponseDto> renewAccessToken(String refreshToken) {
+		validateRefreshToken(refreshToken);
+
+		String newAccessToken = jwtTokenProvider.generateAccessTokenFromRefreshToken(refreshToken);
+		String newRefreshToken = renewRefreshToken(refreshToken);
+
+		return ResponseEntity.ok()
+			.body(new JwtTokenResponseDto(newAccessToken, newRefreshToken));
+	}
+
+	private void validateRefreshToken(String refreshToken) {
+		if (!jwtTokenProvider.validateToken(refreshToken)) {
+			throw new IllegalArgumentException("Refresh Token is invalid, refreshToken: " + refreshToken);
+		}
 		if (!isRefreshTokenExist(refreshToken)) {
 			throw new EntityNotFoundException("Refresh Token not found in database, refreshToken: " + refreshToken);
 		}
+	}
 
-		String newAccessToken = jwtTokenProvider.generateNewAccessToken(refreshToken);
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Bearer " + newAccessToken);
+	private String renewRefreshToken(String refreshToken) {
+		if(jwtTokenProvider.checkRefreshTokenExpiration(refreshToken)){
+			String newRefreshToken = jwtTokenProvider.generateRefreshTokenFromRefreshToken(refreshToken);
+			upsertRefreshTokenEntity(newRefreshToken, jwtTokenProvider.getUserEmailFromToken(newRefreshToken));
+			return newRefreshToken;
+		}
+		return refreshToken;
+	}
 
-		return ResponseEntity.ok()
-			.headers(headers)
-			.body("created new access token");
+	public void upsertRefreshTokenEntity(String refreshToken, String userEmail) {
+		RefreshToken refreshTokenEntity;
+		LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(REFRESH_TOKEN_MAX_AGE_SECONDS);
+		try {
+			refreshTokenEntity = findByEmail(userEmail);
+			refreshTokenEntity.updateToken(refreshToken, expiresAt);
+		} catch (EntityNotFoundException e) {
+
+			refreshTokenEntity = new RefreshToken(refreshToken, userEmail, expiresAt);
+		}
+		saveRefreshToken(refreshTokenEntity);
 	}
 }

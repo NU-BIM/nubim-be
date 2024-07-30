@@ -1,8 +1,8 @@
 package com.soyeon.nubim.domain.user;
 
+import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,16 +33,11 @@ public class UserService {
 	}
 
 	@Transactional
-	public ResponseCookie logout(String token) {
+	public Map<String, String> logout(String token) {
 		refreshTokenService.deleteRefreshToken(token);
 
-		return ResponseCookie.from("refresh_token", "")
-			.httpOnly(true)
-			.secure(true)
-			.path("/")
-			.maxAge(0)
-			.sameSite("Strict")
-			.build();
+		return Map.of("status", "success",
+			"message", "your refresh token deleted");
 	}
 
 	public void validateUserExists(Long userId) {

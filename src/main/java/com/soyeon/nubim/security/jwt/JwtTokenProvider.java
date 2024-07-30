@@ -1,6 +1,7 @@
 package com.soyeon.nubim.security.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,7 +17,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -116,16 +116,34 @@ public class JwtTokenProvider {
 			.get("role", String.class);
 	}
 
-	// refresh 토큰 검증 및 새로운 jwt 토큰 발급 로직
-	public String generateNewAccessToken(String refreshToken) {
-		if (validateToken(refreshToken)) {
-			String userId = getUserIdFromToken(refreshToken);
-			String userEmail = getUserEmailFromToken(refreshToken);
-			String userRole = getUserRoleNameFromToken(refreshToken);
+	public String generateAccessTokenFromRefreshToken(String refreshToken) {
+		String userId = getUserIdFromToken(refreshToken);
+		String userEmail = getUserEmailFromToken(refreshToken);
+		String userRole = getUserRoleNameFromToken(refreshToken);
 
-			return generateAccessToken(userId, userEmail, userRole);
-		}
-		throw new InvalidKeyException("Invalid refresh token");
+		return generateAccessToken(userId, userEmail, userRole);
+	}
+
+	public String generateRefreshTokenFromRefreshToken(String refreshToken) {
+		String userId = getUserIdFromToken(refreshToken);
+		String userEmail = getUserEmailFromToken(refreshToken);
+		String userRole = getUserRoleNameFromToken(refreshToken);
+
+		return generateRefreshToken(userId, userEmail, userRole);
+	}
+
+	public boolean checkRefreshTokenExpiration(String refreshToken) {
+		Date expiration = Jwts.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(refreshToken)
+			.getBody()
+			.getExpiration();
+		Date now = new Date();
+
+		long remainingTime = expiration.getTime() - now.getTime();
+
+		return remainingTime <= Duration.ofDays(2).toMillis();
 	}
 
 	private void logTokenValidationError(String token, String e) {

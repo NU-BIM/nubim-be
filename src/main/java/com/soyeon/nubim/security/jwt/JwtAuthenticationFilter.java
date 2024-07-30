@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private static final List<String> EXCLUDED = List.of(
 		"/css", "/js", "/images", "/favicon.ico", "/error",
 		"/login", "/logout", "/oauth2", "/swagger-ui", "/v3/api-docs",
-		"/v1/users/login", "/v1/refresh-tokens/new-access-token");
+		"/v1/users/login", "/v1/users/logout", "/v1/refresh-tokens/new-access-token");
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {

@@ -1,6 +1,7 @@
 package com.soyeon.nubim.security.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -121,6 +122,20 @@ public class JwtTokenProvider {
 		String userRole = getUserRoleNameFromToken(refreshToken);
 
 		return generateAccessToken(userId, userEmail, userRole);
+	}
+
+	public boolean checkRefreshTokenExpiration(String refreshToken) {
+		Date expiration = Jwts.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(refreshToken)
+			.getBody()
+			.getExpiration();
+		Date now = new Date();
+
+		long remainingTime = expiration.getTime() - now.getTime();
+
+		return remainingTime <= Duration.ofDays(2).toMillis();
 	}
 
 	private void logTokenValidationError(String token, String e) {

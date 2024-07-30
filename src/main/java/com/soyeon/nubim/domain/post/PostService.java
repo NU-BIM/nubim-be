@@ -1,5 +1,7 @@
 package com.soyeon.nubim.domain.post;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -67,5 +69,12 @@ public class PostService {
 		if (!author.getPosts().contains(post)) {
 			throw new UnauthorizedAccessException(postId);
 		}
+	}
+
+	public Page<PostSimpleResponseDto> findRecentPostsOfFollowees(
+		User user, Pageable pageable, int recentCriteriaDays) {
+		return postRepository.findRecentPostsByFollowees(user, LocalDateTime.now().minusDays(recentCriteriaDays),
+				pageable)
+			.map(postMapper::toPostSimpleResponseDto);
 	}
 }

@@ -15,6 +15,7 @@ import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
+import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -63,13 +64,21 @@ public class PostMapper {
 	}
 
 	public PostSimpleResponseDto toPostSimpleResponseDto(Post post) {
+		UserSimpleResponseDto userSimpleResponseDto = UserSimpleResponseDto.builder()
+			.userId(post.getUser().getUserId())
+			.profileImageUrl(post.getUser().getProfileImageUrl())
+			.nickname(post.getUser().getNickname())
+			.build();
+
 		return PostSimpleResponseDto.builder()
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
 			.numberOfComments((long)post.getComments().size())
-			.userId(post.getUser().getUserId())
+			.user(userSimpleResponseDto)
 			.albumId(post.getAlbum().getAlbumId())
+			.createdAt(post.getCreatedAt())
+			.updatedAt(post.getUpdatedAt())
 			.build();
 	}
 }

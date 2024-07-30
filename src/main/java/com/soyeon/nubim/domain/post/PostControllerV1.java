@@ -22,6 +22,7 @@ import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
+import com.soyeon.nubim.domain.userfollow.UserFollowService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -34,9 +35,11 @@ public class PostControllerV1 {
 
 	private final PostService postService;
 	private final UserService userService;
+	private final UserFollowService userFollowService;
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
 	private static final String DEFAULT_ORDER_BY = "createdAt";
+	private static final int DEFAULT_RECENT_CRITERIA_DAYS = 3;
 
 	@PostMapping
 	public ResponseEntity<PostCreateResponseDto> createPost(
@@ -94,4 +97,13 @@ public class PostControllerV1 {
 		return ResponseEntity.ok().build();
 	}
 
+	@Operation(description = "메인 화면에서 노출되는 게시글 조회")
+	@GetMapping("/main-posts")
+	public ResponseEntity<Page<PostSimpleResponseDto>> getMainPosts(@RequestParam(defaultValue = "0") Long page) {
+		User user = userService.getCurrentUser();
+		PageRequest pageRequest = PageRequest.of(page.intValue(), DEFAULT_PAGE_SIZE,
+			Sort.by(Sort.Direction.DESC, DEFAULT_ORDER_BY));
+		return ResponseEntity.ok(
+			postService.findRecentPostsOfFollowees(user, pageRequest, DEFAULT_RECENT_CRITERIA_DAYS));
+	}
 }

@@ -1,5 +1,7 @@
 package com.soyeon.nubim.security.refreshtoken;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
+	private static final int REFRESH_TOKEN_MAX_AGE_SECONDS = 604800; //60 * 60 * 24 * 7
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 
@@ -51,5 +54,18 @@ public class RefreshTokenService {
 		if (!isRefreshTokenExist(refreshToken)) {
 			throw new EntityNotFoundException("Refresh Token not found in database, refreshToken: " + refreshToken);
 		}
+	}
+
+	public void upsertRefreshTokenEntity(String refreshToken, String userEmail) {
+		RefreshToken refreshTokenEntity;
+		LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(REFRESH_TOKEN_MAX_AGE_SECONDS);
+		try {
+			refreshTokenEntity = findByEmail(userEmail);
+			refreshTokenEntity.updateToken(refreshToken, expiresAt);
+		} catch (EntityNotFoundException e) {
+
+			refreshTokenEntity = new RefreshToken(refreshToken, userEmail, expiresAt);
+		}
+		saveRefreshToken(refreshTokenEntity);
 	}
 }

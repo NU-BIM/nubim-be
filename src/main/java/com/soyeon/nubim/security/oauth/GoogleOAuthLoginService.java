@@ -1,7 +1,5 @@
 package com.soyeon.nubim.security.oauth;
 
-import java.time.LocalDateTime;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,10 +12,8 @@ import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
-import com.soyeon.nubim.security.refreshtoken.RefreshToken;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class GoogleOAuthLoginService {
 
 	private static final String USER_INFO_ENDPOINT = "https://www.googleapis.com/oauth2/v3/userinfo";
-	private static final int REFRESH_TOKEN_MAX_AGE_SECONDS = 604800; //60 * 60 * 24 * 7
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	private final UserService userService;
@@ -90,22 +85,9 @@ public class GoogleOAuthLoginService {
 
 		String accessToken = jwtTokenProvider.generateAccessToken(userId, userEmail, userRole);
 		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, userEmail, userRole);
-		upsertRefreshTokenEntity(refreshToken, userEmail);
+		refreshTokenService.upsertRefreshTokenEntity(refreshToken, userEmail);
 
 		return new JwtTokenResponseDto(accessToken, refreshToken);
-	}
-
-	private void upsertRefreshTokenEntity(String refreshToken, String userEmail) {
-		RefreshToken refreshTokenEntity;
-		LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(REFRESH_TOKEN_MAX_AGE_SECONDS);
-		try {
-			refreshTokenEntity = refreshTokenService.findByEmail(userEmail);
-			refreshTokenEntity.updateToken(refreshToken, expiresAt);
-		} catch (EntityNotFoundException e) {
-
-			refreshTokenEntity = new RefreshToken(refreshToken, userEmail, expiresAt);
-		}
-		refreshTokenService.saveRefreshToken(refreshTokenEntity);
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.post;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+
+	private static final Random random = new Random();
 
 	public PostDetailResponseDto findPostDetailById(Long id) {
 		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
@@ -76,5 +79,23 @@ public class PostService {
 		return postRepository.findRecentPostsByFollowees(user, LocalDateTime.now().minusDays(recentCriteriaDays),
 				pageable)
 			.map(postMapper::toPostSimpleResponseDto);
+	}
+
+	public Page<PostSimpleResponseDto> findRandomPosts(Pageable pageable, Float randomSeed, User user) {
+		float seed = getOrGenerateRandomSeed(randomSeed);
+		postRepository.setSeed(seed);
+
+		CustomPageImpl<PostSimpleResponseDto> customPage = new CustomPageImpl<>(
+			postRepository.findRandomPostsExceptMine(pageable, user).map(postMapper::toPostSimpleResponseDto));
+		customPage.setRandomSeed(seed);
+
+		return customPage;
+	}
+
+	private Float getOrGenerateRandomSeed(Float seed) {
+		if (seed == null) {
+			return random.nextFloat();
+		}
+		return seed;
 	}
 }

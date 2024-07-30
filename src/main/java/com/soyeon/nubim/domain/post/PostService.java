@@ -4,6 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.soyeon.nubim.domain.album.Album;
+import com.soyeon.nubim.domain.album.AlbumNotFoundException;
+import com.soyeon.nubim.domain.album.AlbumService;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
@@ -14,11 +17,13 @@ import com.soyeon.nubim.domain.user.User;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+
 @Service
+@RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final AlbumService albumService;
 
 	public PostDetailResponseDto findPostDetailById(Long id) {
 		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
@@ -39,7 +44,9 @@ public class PostService {
 	}
 
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
-		Post post = postMapper.toEntity(postCreateRequestDto, authorUser);
+		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId())
+			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
+		Post post = postMapper.toEntity(postCreateRequestDto, linkedAlbum, authorUser);
 		postRepository.save(post);
 		return postMapper.toPostCreateResponseDto(post);
 	}

@@ -41,10 +41,10 @@ public class RefreshTokenService {
 		validateRefreshToken(refreshToken);
 
 		String newAccessToken = jwtTokenProvider.generateAccessTokenFromRefreshToken(refreshToken);
-		JwtTokenResponseDto jwtTokenResponseDto = new JwtTokenResponseDto(newAccessToken, refreshToken);
+		String newRefreshToken = renewRefreshToken(refreshToken);
 
 		return ResponseEntity.ok()
-			.body(jwtTokenResponseDto);
+			.body(new JwtTokenResponseDto(newAccessToken, newRefreshToken));
 	}
 
 	private void validateRefreshToken(String refreshToken) {
@@ -54,6 +54,15 @@ public class RefreshTokenService {
 		if (!isRefreshTokenExist(refreshToken)) {
 			throw new EntityNotFoundException("Refresh Token not found in database, refreshToken: " + refreshToken);
 		}
+	}
+
+	private String renewRefreshToken(String refreshToken) {
+		if(jwtTokenProvider.checkRefreshTokenExpiration(refreshToken)){
+			String newRefreshToken = jwtTokenProvider.generateRefreshTokenFromRefreshToken(refreshToken);
+			upsertRefreshTokenEntity(newRefreshToken, jwtTokenProvider.getUserEmailFromToken(newRefreshToken));
+			return newRefreshToken;
+		}
+		return refreshToken;
 	}
 
 	public void upsertRefreshTokenEntity(String refreshToken, String userEmail) {

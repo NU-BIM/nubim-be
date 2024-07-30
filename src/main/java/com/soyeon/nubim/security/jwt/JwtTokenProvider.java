@@ -124,6 +124,14 @@ public class JwtTokenProvider {
 		return generateAccessToken(userId, userEmail, userRole);
 	}
 
+	public String generateRefreshTokenFromRefreshToken(String refreshToken) {
+		String userId = getUserIdFromToken(refreshToken);
+		String userEmail = getUserEmailFromToken(refreshToken);
+		String userRole = getUserRoleNameFromToken(refreshToken);
+
+		return generateRefreshToken(userId, userEmail, userRole);
+	}
+
 	public boolean checkRefreshTokenExpiration(String refreshToken) {
 		Date expiration = Jwts.parserBuilder()
 			.setSigningKey(key)

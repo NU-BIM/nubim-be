@@ -1,5 +1,6 @@
 package com.soyeon.nubim.domain.album.mapper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,6 +85,14 @@ public class AlbumMapper {
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
 			.build();
+	}
+
+	public List<AlbumReadResponseDto> toAlbumReadResponseDtoList(List<Album> albums) {
+		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());
+		for (Album album : albums) {
+			albumReadResponseDtos.add(toAlbumReadResponseDto(album));
+		}
+		return albumReadResponseDtos;
 	}
 
 	private String convertPhotoUrlListToJsonString(List<String> photoUrls) {

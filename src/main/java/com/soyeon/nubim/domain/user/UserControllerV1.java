@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.jwt.dto.TokenDeleteRequestDto;
 import com.soyeon.nubim.security.oauth.GoogleOAuthLoginService;
@@ -23,6 +24,14 @@ public class UserControllerV1 {
 
 	private final UserService userService;
 	private final GoogleOAuthLoginService googleOAuthLoginService;
+
+	@GetMapping("/me")
+	public ResponseEntity<UserProfileResponseDto> getCurrentUserProfile() {
+		UserProfileResponseDto currentUserProfile = userService.getCurrentUserProfile();
+
+		return ResponseEntity.ok()
+			.body(currentUserProfile);
+	}
 
 	@GetMapping("/login")
 	public ResponseEntity<JwtTokenResponseDto> login(@RequestHeader("Authorization") String oauthAccessToken) {

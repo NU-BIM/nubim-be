@@ -1,5 +1,6 @@
 package com.soyeon.nubim.domain.post;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,5 +63,13 @@ public class PostMapper {
 			.userId(post.getUser().getUserId())
 			.albumId(post.getAlbum().getAlbumId())
 			.build();
+	}
+
+	public List<PostDetailResponseDto> toPostDetailResponseDtos(List<Post> posts) {
+		List<PostDetailResponseDto> postDetailResponseDtos = new ArrayList<>(posts.size());
+		for (Post post : posts) {
+			postDetailResponseDtos.add(toPostDetailResponseDto(post));
+		}
+		return postDetailResponseDtos;
 	}
 }

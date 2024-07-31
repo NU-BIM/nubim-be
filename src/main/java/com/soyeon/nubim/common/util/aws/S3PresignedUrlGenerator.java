@@ -42,10 +42,10 @@ public class S3PresignedUrlGenerator {
 
 		String uploadDirectory = getUploadDirectory();
 
-		for (int i = 0; i < contentTypes.size(); i++) {
-			String s3UploadPath = uploadDirectory + getFileName(i);
+		for (String contentType : contentTypes) {
+			String s3UploadPath = uploadDirectory + getFileName();
 
-			String presignedUrl = preparePresignedUploadUrl(contentTypes.get(i), s3UploadPath);
+			String presignedUrl = preparePresignedUploadUrl(contentType, s3UploadPath);
 			presignedUrls.add(presignedUrl);
 		}
 		return presignedUrls;
@@ -82,7 +82,12 @@ public class S3PresignedUrlGenerator {
 		return LocalDate.now() + "/" + UUID.randomUUID().toString().substring(0, 8) + "/";
 	}
 
-	private static String getFileName(int number) {
-		return "img" + String.format("%02d", number);
+	/**
+	 * 사진 업로드 경로 생성
+	 * UUID 10자리를 이용해 충돌 가능성이 낮은 경로를 생성한다
+	 * @return 사진 업로드 경로 반환
+	 */
+	private static String getFileName() {
+		return UUID.randomUUID().toString().substring(0, 8) + UUID.randomUUID().toString().substring(9, 11);
 	}
 }

@@ -1,15 +1,17 @@
 package com.soyeon.nubim.domain.user;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
+import com.soyeon.nubim.security.jwt.dto.TokenDeleteRequestDto;
 import com.soyeon.nubim.security.oauth.GoogleOAuthLoginService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,17 +25,15 @@ public class UserControllerV1 {
 	private final GoogleOAuthLoginService googleOAuthLoginService;
 
 	@GetMapping("/login")
-	public ResponseEntity<?> login(@RequestHeader("Authorization") String oauthAccessToken) {
+	public ResponseEntity<JwtTokenResponseDto> login(@RequestHeader("Authorization") String oauthAccessToken) {
 		return googleOAuthLoginService.authenticateWithGoogleToken(oauthAccessToken);
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<?> logout(@CookieValue(name = "refresh_token") String token) {
-		ResponseCookie responseCookie = userService.logout(token);
+	public ResponseEntity<?> logout(@RequestBody TokenDeleteRequestDto tokenDeleteRequestDto) {
+		Map<String, String> logoutResult = userService.logout(tokenDeleteRequestDto.getRefreshToken());
 
-		return ResponseEntity.ok()
-			.header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-			.build();
+		return ResponseEntity.ok().body(logoutResult);
 	}
 
 }

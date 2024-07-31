@@ -26,8 +26,8 @@ import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
@@ -56,10 +56,10 @@ public class PostService {
 	}
 
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
-		Album linkedAlbum = albumService
-			.findById(postCreateRequestDto.getAlbumId())
+		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId())
 			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
 		Post post = postMapper.toEntity(postCreateRequestDto, authorUser, linkedAlbum);
+
 		postRepository.save(post);
 		return postMapper.toPostCreateResponseDto(post);
 	}

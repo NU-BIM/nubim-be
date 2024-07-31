@@ -1,5 +1,6 @@
 package com.soyeon.nubim.domain.post;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
-	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 
+	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 		return Post.builder()
 			.postTitle(postCreateRequestDto.getPostTitle())
 			.postContent(postCreateRequestDto.getPostContent())
@@ -93,5 +94,13 @@ public class PostMapper {
 			.createdAt(post.getCreatedAt())
 			.updatedAt(post.getUpdatedAt())
 			.build();
+	}
+
+	public List<PostDetailResponseDto> toPostDetailResponseDtos(List<Post> posts) {
+		List<PostDetailResponseDto> postDetailResponseDtos = new ArrayList<>(posts.size());
+		for (Post post : posts) {
+			postDetailResponseDtos.add(toPostDetailResponseDto(post));
+		}
+		return postDetailResponseDtos;
 	}
 }

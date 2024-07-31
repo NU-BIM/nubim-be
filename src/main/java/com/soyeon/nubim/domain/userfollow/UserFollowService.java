@@ -40,7 +40,7 @@ public class UserFollowService {
 			.build();
 
 		userFollowRepository.save(userFollow);
-		userService.addFollowerAndFolloweeByUserFollow(userFollow);
+		userFollow.addFollowerAndFolloweeByUserFollow();
 
 		return FollowUserResponseDto.builder()
 			.followerId(userFollow.getFollower().getUserId())
@@ -69,7 +69,7 @@ public class UserFollowService {
 		UserFollow userFollowToDelete = userFollowRepository.findByFollowerAndFollowee(follower, followee)
 			.orElseThrow();
 		userFollowRepository.delete(userFollowToDelete);
-		userService.deleteFollowerAndFolloweeByUserFollow(userFollowToDelete);
+		userFollowToDelete.deleteFollowerAndFolloweeByUserFollow();
 
 		return FollowUserResponseDto.builder()
 			.followerId(follower.getUserId())

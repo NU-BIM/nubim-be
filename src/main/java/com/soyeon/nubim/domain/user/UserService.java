@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.soyeon.nubim.domain.userfollow.UserFollow;
+import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import jakarta.transaction.Transactional;
@@ -18,6 +18,13 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	private final RefreshTokenService refreshTokenService;
+	private final UserMapper userMapper;
+
+	public UserProfileResponseDto getCurrentUserProfile() {
+		User currentUser = getCurrentUser();
+
+		return userMapper.toUserProfileResponseDto(currentUser);
+	}
 
 	public Optional<User> findById(Long userId) {
 		return userRepository.findById(userId);
@@ -79,19 +86,4 @@ public class UserService {
 			.orElse(null);
 	}
 
-	public void addFollowerAndFolloweeByUserFollow(UserFollow userFollow) {
-		User follower = userFollow.getFollower();
-		User followee = userFollow.getFollowee();
-
-		follower.addFollowee(userFollow);
-		followee.addFollower(userFollow);
-	}
-
-	public void deleteFollowerAndFolloweeByUserFollow(UserFollow userFollow) {
-		User follower = userFollow.getFollower();
-		User followee = userFollow.getFollowee();
-
-		follower.deleteFollowee(userFollow);
-		followee.deleteFollower(userFollow);
-	}
 }

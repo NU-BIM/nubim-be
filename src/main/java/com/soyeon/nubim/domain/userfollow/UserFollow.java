@@ -40,4 +40,19 @@ public class UserFollow extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "followee_id", nullable = false)
 	private User followee;
+
+	public void addFollowerAndFolloweeByUserFollow() {
+		User follower = this.getFollower();
+		User followee = this.getFollowee();
+
+		follower.addFollowee(this);
+		followee.addFollower(this);
+	}
+	public void deleteFollowerAndFolloweeByUserFollow(){
+		User follower = this.getFollower();
+		User followee = this.getFollowee();
+
+		follower.deleteFollowee(this);
+		followee.deleteFollower(this);
+	}
 }

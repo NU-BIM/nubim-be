@@ -6,21 +6,15 @@ import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.Post;
-import com.soyeon.nubim.domain.post.PostService;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserService;
+import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
 public class CommentMapper {
-	private final PostService postService;
-	private final UserService userService;
-
-	public Comment toEntity(CommentCreateRequestDto commentCreateRequestDto, User user) {
-		Post post = postService.findPostByIdOrThrow(commentCreateRequestDto.getPostId());
-
+	public Comment toEntity(CommentCreateRequestDto commentCreateRequestDto, User user, Post post) {
 		return Comment.builder()
 			.user(user)
 			.post(post)
@@ -39,10 +33,10 @@ public class CommentMapper {
 			.build();
 	}
 
-	public CommentResponseDto toCommentResponseDto(Comment comment) {
+	public CommentResponseDto toCommentResponseDto(Comment comment, UserSimpleResponseDto userSimpleResponseDto) {
 		return CommentResponseDto.builder()
 			.commentId(comment.getCommentId())
-			.userId(comment.getUser().getUserId())
+			.user(userSimpleResponseDto)
 			.postId(comment.getPost().getPostId())
 			.parentCommentId(null) // TODO : 대댓글 구현 시 수정
 			.content(comment.getCommentContent())

@@ -6,15 +6,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.soyeon.nubim.domain.album.Album;
-import com.soyeon.nubim.domain.album.AlbumNotFoundException;
-import com.soyeon.nubim.domain.album.AlbumService;
 import com.soyeon.nubim.domain.comment.Comment;
+import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -22,13 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
-	private final UserService userService;
-	private final AlbumService albumService;
-
-	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser) {
-		Album linkedAlbum = albumService
-			.findById(postCreateRequestDto.getAlbumId())
-			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
+	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 
 		return Post.builder()
 			.postTitle(postCreateRequestDto.getPostTitle())
@@ -75,6 +68,26 @@ public class PostMapper {
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
 			.numberOfComments((long)post.getComments().size())
+			.user(userSimpleResponseDto)
+			.albumId(post.getAlbum().getAlbumId())
+			.createdAt(post.getCreatedAt())
+			.updatedAt(post.getUpdatedAt())
+			.build();
+	}
+
+	public PostMainResponseDto toPostMainResponseDto(Post post, CommentResponseDto representativeComment) {
+		UserSimpleResponseDto userSimpleResponseDto = UserSimpleResponseDto.builder()
+			.userId(post.getUser().getUserId())
+			.profileImageUrl(post.getUser().getProfileImageUrl())
+			.nickname(post.getUser().getNickname())
+			.build();
+
+		return PostMainResponseDto.builder()
+			.postId(post.getPostId())
+			.postTitle(post.getPostTitle())
+			.postContent(post.getPostContent())
+			.numberOfComments((long)post.getComments().size())
+			.representativeComment(representativeComment)
 			.user(userSimpleResponseDto)
 			.albumId(post.getAlbum().getAlbumId())
 			.createdAt(post.getCreatedAt())

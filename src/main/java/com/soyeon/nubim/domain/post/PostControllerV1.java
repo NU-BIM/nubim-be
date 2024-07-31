@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
@@ -99,7 +100,7 @@ public class PostControllerV1 {
 
 	@Operation(description = "메인 화면에서 노출되는 게시글 조회")
 	@GetMapping("/main-posts")
-	public ResponseEntity<Page<PostSimpleResponseDto>> getMainPosts(
+	public ResponseEntity<Page<PostMainResponseDto>> getMainPosts(
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "follow") @Parameter(description = "[ follow, random ]") String type,
 		@RequestParam(required = false) Float randomSeed) {

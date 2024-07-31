@@ -7,13 +7,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.soyeon.nubim.domain.album.Album;
+import com.soyeon.nubim.domain.album.AlbumNotFoundException;
+import com.soyeon.nubim.domain.album.AlbumService;
+import com.soyeon.nubim.domain.comment.Comment;
+import com.soyeon.nubim.domain.comment.CommentMapper;
+import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post.exceptions.PostNotFoundException;
 import com.soyeon.nubim.domain.post.exceptions.UnauthorizedAccessException;
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserMapper;
+import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,8 +31,11 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final AlbumService albumService;
 
 	private static final Random random = new Random();
+	private final CommentMapper commentMapper;
+	private final UserMapper userMapper;
 
 	public PostDetailResponseDto findPostDetailById(Long id) {
 		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
@@ -44,7 +56,10 @@ public class PostService {
 	}
 
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
-		Post post = postMapper.toEntity(postCreateRequestDto, authorUser);
+		Album linkedAlbum = albumService
+			.findById(postCreateRequestDto.getAlbumId())
+			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
+		Post post = postMapper.toEntity(postCreateRequestDto, authorUser, linkedAlbum);
 		postRepository.save(post);
 		return postMapper.toPostCreateResponseDto(post);
 	}
@@ -74,19 +89,21 @@ public class PostService {
 		}
 	}
 
-	public Page<PostSimpleResponseDto> findRecentPostsOfFollowees(
+	public Page<PostMainResponseDto> findRecentPostsOfFollowees(
 		User user, Pageable pageable, int recentCriteriaDays) {
 		return postRepository.findRecentPostsByFollowees(user, LocalDateTime.now().minusDays(recentCriteriaDays),
 				pageable)
-			.map(postMapper::toPostSimpleResponseDto);
+			.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)));
 	}
 
-	public Page<PostSimpleResponseDto> findRandomPosts(Pageable pageable, Float randomSeed, User user) {
+	public Page<PostMainResponseDto> findRandomPosts(Pageable pageable, Float randomSeed, User user) {
 		float seed = getOrGenerateRandomSeed(randomSeed);
 		postRepository.setSeed(seed);
 
-		CustomPageImpl<PostSimpleResponseDto> customPage = new CustomPageImpl<>(
-			postRepository.findRandomPostsExceptMine(pageable, user).map(postMapper::toPostSimpleResponseDto));
+		CustomPageImpl<PostMainResponseDto> customPage = new CustomPageImpl<>(
+			postRepository.findRandomPostsExceptMine(pageable, user)
+				.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)))
+		);
 		customPage.setRandomSeed(seed);
 
 		return customPage;
@@ -97,5 +114,16 @@ public class PostService {
 			return random.nextFloat();
 		}
 		return seed;
+	}
+
+	private CommentResponseDto findRecentCommentByPostOrNull(Post post) {
+		Comment lastCommentByPost = post.getComments().stream().findFirst().orElse(null);
+		if (lastCommentByPost == null) {
+			return null;
+		} else {
+			UserSimpleResponseDto userSimpleResponseDto = userMapper.toUserSimpleResponseDto(
+				lastCommentByPost.getUser());
+			return commentMapper.toCommentResponseDto(lastCommentByPost, userSimpleResponseDto);
+		}
 	}
 }

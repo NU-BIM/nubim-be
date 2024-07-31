@@ -1,14 +1,11 @@
 package com.soyeon.nubim.domain.album.mapper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.Location;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
@@ -28,11 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 public class AlbumMapper {
 
 	private final LocationMapper locationMapper;
-	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	public Album toEntity(AlbumCreateRequestDto albumCreateRequestDto, User user) {
-		List<String> photoUrls = albumCreateRequestDto.getPhotoUrls();
-		String photoUrlsToJsonString = convertPhotoUrlListToJsonString(photoUrls);
+		Map<Integer, String> photoUrls = albumCreateRequestDto.getPhotoUrls();
 
 		List<LocationCreateRequestDto> locationDtos = albumCreateRequestDto.getLocations();
 		List<Location> locations = locationMapper.toEntityList(locationDtos);
@@ -40,7 +35,7 @@ public class AlbumMapper {
 		Album album = Album.builder()
 			.user(user)
 			.description(albumCreateRequestDto.getDescription())
-			.photoUrls(photoUrlsToJsonString)
+			.photoUrls(photoUrls)
 			.locations(locations)
 			.build();
 
@@ -50,8 +45,7 @@ public class AlbumMapper {
 	}
 
 	public AlbumCreateResponseDto toAlbumCreateResponseDto(Album album) {
-		String photoUrls = album.getPhotoUrls();
-		List<String> photoUrlList = convertJsonStringToPhotoUrlList(photoUrls);
+		Map<Integer, String> photoUrls = album.getPhotoUrls();
 
 		List<Location> locations = album.getLocations();
 		List<LocationCreateResponseDto> locationCreateResponseDtos =
@@ -61,7 +55,7 @@ public class AlbumMapper {
 			.albumId(album.getAlbumId())
 			.userId(album.getUser().getUserId())
 			.description(album.getDescription())
-			.photoUrls(photoUrlList)
+			.photoUrls(photoUrls)
 			.locations(locationCreateResponseDtos)
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
@@ -69,8 +63,7 @@ public class AlbumMapper {
 	}
 
 	public AlbumReadResponseDto toAlbumReadResponseDto(Album album) {
-		String photoUrls = album.getPhotoUrls();
-		List<String> photoUrlList = convertJsonStringToPhotoUrlList(photoUrls);
+		Map<Integer, String> photoUrls = album.getPhotoUrls();
 
 		List<Location> locations = album.getLocations();
 		List<LocationReadResponseDto> locationReadResponseDtos =
@@ -80,7 +73,7 @@ public class AlbumMapper {
 			.albumId(album.getAlbumId())
 			.userId(album.getUser().getUserId())
 			.description(album.getDescription())
-			.photoUrls(photoUrlList)
+			.photoUrls(photoUrls)
 			.locations(locationReadResponseDtos)
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
@@ -93,25 +86,6 @@ public class AlbumMapper {
 			albumReadResponseDtos.add(toAlbumReadResponseDto(album));
 		}
 		return albumReadResponseDtos;
-	}
-
-	private String convertPhotoUrlListToJsonString(List<String> photoUrls) {
-		try {
-			return objectMapper.writeValueAsString(photoUrls);
-		} catch (JsonProcessingException e) {
-			log.info(e.getMessage());
-			return "[]";
-		}
-	}
-
-	private List<String> convertJsonStringToPhotoUrlList(String photoUrls) {
-		try {
-			return objectMapper.readValue(photoUrls, new TypeReference<>() {
-			});
-		} catch (JsonProcessingException e) {
-			log.info(e.getMessage());
-			return Collections.emptyList();
-		}
 	}
 
 }

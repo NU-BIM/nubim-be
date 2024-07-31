@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.album.dto;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,6 @@ import lombok.Setter;
 @Builder
 public class AlbumCreateRequestDto {
 	private String description;
-	private List<String> photoUrls;
+	private Map<Integer, String> photoUrls;
 	private List<LocationCreateRequestDto> locations;
 }

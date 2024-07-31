@@ -8,11 +8,14 @@ import org.springframework.stereotype.Component;
 
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.comment.Comment;
+import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostMapper {
 
-	public Post toEntity(PostCreateRequestDto postCreateRequestDto, Album linkedAlbum, User authorUser) {
+	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 		return Post.builder()
 			.postTitle(postCreateRequestDto.getPostTitle())
 			.postContent(postCreateRequestDto.getPostContent())
@@ -55,13 +58,41 @@ public class PostMapper {
 	}
 
 	public PostSimpleResponseDto toPostSimpleResponseDto(Post post) {
+		UserSimpleResponseDto userSimpleResponseDto = UserSimpleResponseDto.builder()
+			.userId(post.getUser().getUserId())
+			.profileImageUrl(post.getUser().getProfileImageUrl())
+			.nickname(post.getUser().getNickname())
+			.build();
+
 		return PostSimpleResponseDto.builder()
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
 			.numberOfComments((long)post.getComments().size())
-			.userId(post.getUser().getUserId())
+			.user(userSimpleResponseDto)
 			.albumId(post.getAlbum().getAlbumId())
+			.createdAt(post.getCreatedAt())
+			.updatedAt(post.getUpdatedAt())
+			.build();
+	}
+
+	public PostMainResponseDto toPostMainResponseDto(Post post, CommentResponseDto representativeComment) {
+		UserSimpleResponseDto userSimpleResponseDto = UserSimpleResponseDto.builder()
+			.userId(post.getUser().getUserId())
+			.profileImageUrl(post.getUser().getProfileImageUrl())
+			.nickname(post.getUser().getNickname())
+			.build();
+
+		return PostMainResponseDto.builder()
+			.postId(post.getPostId())
+			.postTitle(post.getPostTitle())
+			.postContent(post.getPostContent())
+			.numberOfComments((long)post.getComments().size())
+			.representativeComment(representativeComment)
+			.user(userSimpleResponseDto)
+			.albumId(post.getAlbum().getAlbumId())
+			.createdAt(post.getCreatedAt())
+			.updatedAt(post.getUpdatedAt())
 			.build();
 	}
 

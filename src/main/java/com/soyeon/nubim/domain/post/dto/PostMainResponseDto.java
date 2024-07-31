@@ -2,6 +2,7 @@ package com.soyeon.nubim.domain.post.dto;
 
 import java.time.LocalDateTime;
 
+import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.Builder;
@@ -11,12 +12,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PostSimpleResponseDto {
+public class PostMainResponseDto {
 	private Long postId;
 	private String postTitle;
 	private String postContent;
-	private Long numberOfComments;
 	private UserSimpleResponseDto user;
+	private Long numberOfComments;
+	private CommentResponseDto representativeComment;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 

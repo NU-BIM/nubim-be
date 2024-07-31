@@ -25,7 +25,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE user_follows SET is_deleted = true WHERE user_follow_id = ?")
+@SQLDelete(sql = "UPDATE user_follow SET is_deleted = true WHERE user_follow_id = ?")
 @SQLRestriction("is_deleted = false")
 public class UserFollow extends BaseEntity {
 

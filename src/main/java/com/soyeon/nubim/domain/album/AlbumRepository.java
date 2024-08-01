@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,5 +20,9 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 
 	@Query("SELECT a FROM Album a LEFT JOIN FETCH a.locations WHERE a.user.email = :email")
 	List<Album> findAlbumsByEmail(@Param("email") String email);
+
+	@Modifying
+	@Query("DELETE FROM Location l WHERE l.album.albumId = :albumId")
+	void deleteLocationsByAlbumId(@Param("albumId") Long albumId);
 
 }

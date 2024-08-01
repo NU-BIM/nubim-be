@@ -12,7 +12,9 @@ import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumUpdateRequestDto;
+import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
+import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
@@ -27,6 +29,7 @@ public class AlbumService {
 	private final AlbumRepository albumRepository;
 	private final AlbumMapper albumMapper;
 	private final UserService userService;
+	private final LocationMapper locationMapper;
 
 	public Optional<Album> findById(Long id) {
 		return albumRepository.findById(id);
@@ -75,12 +78,19 @@ public class AlbumService {
 		return albumReadResponseDtos;
 	}
 
+	@Transactional
 	public AlbumReadResponseDto updateAlbum(Long albumId, AlbumUpdateRequestDto albumUpdateRequestDto) {
 		Album album = albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		String newDescription = albumUpdateRequestDto.getDescription();
 		album.setDescription(newDescription);
+
+		albumRepository.deleteLocationsByAlbumId(albumId);
+		List<LocationUpdateRequestDto> newLocationDtos = albumUpdateRequestDto.getLocations();
+		List<Location> newLocations = locationMapper.toEntityListFromUpdateDto(newLocationDtos);
+		album.setLocations(newLocations);
+		album.bindLocations();
 
 		Album updatedAlbum = albumRepository.save(album);
 		return albumMapper.toAlbumReadResponseDto(updatedAlbum);

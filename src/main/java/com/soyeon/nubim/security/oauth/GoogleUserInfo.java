@@ -1,10 +1,9 @@
 package com.soyeon.nubim.security.oauth;
 
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserNicknameGenerator;
 
 import lombok.Getter;
 
@@ -25,7 +24,7 @@ public class GoogleUserInfo {
 	public User toUserEntity() {
 		return User.builder()
 			.username(name)
-			.nickname(UUID.randomUUID().toString()) // TODO : 랜덤 닉네임 생성 로직으로 변경 필요
+			.nickname(UserNicknameGenerator.generate())
 			.email(email)
 			.profileImageUrl(picture)
 			.role(Role.USER)

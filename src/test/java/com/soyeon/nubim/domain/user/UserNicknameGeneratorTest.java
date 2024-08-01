@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class UserNicknameGeneratorTest {
 
 	@Test
-	void generateTest() {
+	void generate_Validation_Test() {
 		for (int i = 0; i < 10000; i++) {
 			// given
 			String generatedNickname = UserNicknameGenerator.generate();

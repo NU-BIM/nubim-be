@@ -311,7 +311,7 @@ class UserFollowControllerV1Test {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(1)))
-			.andExpect(jsonPath("$.content[0].userId").value(testUser2.getUserId()));
+			.andExpect(jsonPath("$.content[0].username").value(testUser2.getUsername()));
 	}
 
 	@DisplayName("팔로워가 없을 때 조회 테스트")
@@ -356,9 +356,9 @@ class UserFollowControllerV1Test {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(3)))
-			.andExpect(jsonPath("$.content[0].userId").value(testFollowers.get(6).getUserId()))
-			.andExpect(jsonPath("$.content[1].userId").value(testFollowers.get(5).getUserId()))
-			.andExpect(jsonPath("$.content[2].userId").value(testFollowers.get(4).getUserId()));
+			.andExpect(jsonPath("$.content[0].username").value(testFollowers.get(6).getUsername()))
+			.andExpect(jsonPath("$.content[1].username").value(testFollowers.get(5).getUsername()))
+			.andExpect(jsonPath("$.content[2].username").value(testFollowers.get(4).getUsername()));
 	}
 
 	private List<User> generateTestFollowers(User followee, int length) {
@@ -419,7 +419,7 @@ class UserFollowControllerV1Test {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(1)))
-			.andExpect(jsonPath("$.content[0].userId").value(testUser2.getUserId()));
+			.andExpect(jsonPath("$.content[0].username").value(testUser2.getUsername()));
 	}
 
 	@DisplayName("팔로이가 없을 때 조회 테스트")
@@ -464,9 +464,9 @@ class UserFollowControllerV1Test {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(3)))
-			.andExpect(jsonPath("$.content[0].userId").value(testFollowees.get(6).getUserId()))
-			.andExpect(jsonPath("$.content[1].userId").value(testFollowees.get(5).getUserId()))
-			.andExpect(jsonPath("$.content[2].userId").value(testFollowees.get(4).getUserId()));
+			.andExpect(jsonPath("$.content[0].username").value(testFollowees.get(6).getUsername()))
+			.andExpect(jsonPath("$.content[1].username").value(testFollowees.get(5).getUsername()))
+			.andExpect(jsonPath("$.content[2].username").value(testFollowees.get(4).getUsername()));
 	}
 
 	private List<User> generateTestFollowees(User follower, int length) {

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
+import com.soyeon.nubim.domain.album.dto.AlbumUpdateRequestDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +56,13 @@ public class AlbumControllerV1 {
 	public ResponseEntity<List<AlbumReadResponseDto>> getMyAlbums() {
 		List<AlbumReadResponseDto> albums = albumService.findAlbumsByCurrentUser();
 		return ResponseEntity.ok(albums);
+	}
+
+	@Operation(description = "앨범을 업데이트 한다")
+	@PutMapping("/{albumId}")
+	public ResponseEntity<AlbumReadResponseDto> updateAlbum(@PathVariable Long albumId, @RequestBody AlbumUpdateRequestDto albumUpdateRequestDto) {
+		AlbumReadResponseDto album = albumService.updateAlbum(albumId, albumUpdateRequestDto);
+		return ResponseEntity.ok(album);
 	}
 
 	@Operation(description = "앨범 id로 앨범을 삭제한다")

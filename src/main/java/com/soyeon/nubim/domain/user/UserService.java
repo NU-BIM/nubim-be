@@ -91,16 +91,16 @@ public class UserService {
 
 	@Transactional
 	public UserSimpleResponseDto modifyNickname(String newNickname) {
-		if (isDuplicatedNickname(newNickname)) {
-			throw new NicknameAlreadyExistsException(newNickname);
-		}
+		validateDuplicatedNickname(newNickname);
 		User user = getCurrentUser();
 		user.setNickname(newNickname);
 		userRepository.save(user);
 		return userMapper.toUserSimpleResponseDto(user);
 	}
 
-	private boolean isDuplicatedNickname(String nickname) {
-		return userRepository.existsByNickname(nickname);
+	public void validateDuplicatedNickname(String nickname) {
+		if (userRepository.existsByNickname(nickname)) {
+			throw new NicknameAlreadyExistsException(nickname);
+		}
 	}
 }

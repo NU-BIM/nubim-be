@@ -1,5 +1,7 @@
 package com.soyeon.nubim.domain.user.dto;
 
+import com.soyeon.nubim.domain.user.User;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -14,9 +16,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserNicknameRequestDto {
 	@NotNull
-	@Size(min = 4, max = 30)
+	@Size(min = User.NicknamePolicy.MIN_LENGTH, max = User.NicknamePolicy.MAX_LENGTH)
 	@Pattern(
-		regexp = "^[a-zA-Z][a-zA-Z0-9_.-]+$", // 첫자는 무조건 알파벳
-		message = "닉네임은 알파벳 및 숫자, 언더바(_), 점(.), 하이픈(-)만 포함할 수 있습니다. 첫자는 알파벳이어야 합니다.")
+		regexp = User.NicknamePolicy.REGEXP,
+		message = User.NicknamePolicy.ERROR_MESSAGE)
 	private String nickname;
 }

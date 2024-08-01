@@ -117,4 +117,14 @@ public class User extends BaseEntity {
 	public void deleteFollowee(UserFollow userFollow) {
 		this.followees.remove(userFollow);
 	}
+
+	public static class NicknamePolicy {
+		public static final String REGEXP = "^[a-zA-Z0-9][a-zA-Z0-9_.-]+$"; // 첫 글자는 알파벳 또는 숫자
+		public static final int MIN_LENGTH = 4;
+		public static final int MAX_LENGTH = 30;
+		public static final String ERROR_MESSAGE = "닉네임은 알파벳 및 숫자, 언더바(_), 점(.), 하이픈(-)만 포함할 수 있습니다. 첫자는 알파벳 또는 숫자이어야 합니다.";
+
+		private NicknamePolicy() {
+		}
+	}
 }

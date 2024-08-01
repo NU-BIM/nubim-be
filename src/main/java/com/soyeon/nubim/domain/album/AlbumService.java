@@ -13,8 +13,8 @@ import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
+import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 

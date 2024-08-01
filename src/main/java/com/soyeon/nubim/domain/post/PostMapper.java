@@ -59,7 +59,7 @@ public class PostMapper {
 
 	public PostSimpleResponseDto toPostSimpleResponseDto(Post post) {
 		UserSimpleResponseDto userSimpleResponseDto = UserSimpleResponseDto.builder()
-			.userId(post.getUser().getUserId())
+			.username(post.getUser().getUsername())
 			.profileImageUrl(post.getUser().getProfileImageUrl())
 			.nickname(post.getUser().getNickname())
 			.build();
@@ -78,7 +78,7 @@ public class PostMapper {
 
 	public PostMainResponseDto toPostMainResponseDto(Post post, CommentResponseDto representativeComment) {
 		UserSimpleResponseDto userSimpleResponseDto = UserSimpleResponseDto.builder()
-			.userId(post.getUser().getUserId())
+			.username(post.getUser().getUsername())
 			.profileImageUrl(post.getUser().getProfileImageUrl())
 			.nickname(post.getUser().getNickname())
 			.build();

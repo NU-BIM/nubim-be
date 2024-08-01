@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soyeon.nubim.domain.user.dto.UserNicknameRequestDto;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
+import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.jwt.dto.TokenDeleteRequestDto;
 import com.soyeon.nubim.security.oauth.GoogleOAuthLoginService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -45,4 +48,10 @@ public class UserControllerV1 {
 		return ResponseEntity.ok().body(logoutResult);
 	}
 
+	@PostMapping("/nickname")
+	public ResponseEntity<UserSimpleResponseDto> changeNickname(
+		@RequestBody @Valid UserNicknameRequestDto userNicknameRequestDto) {
+		UserSimpleResponseDto successResponse = userService.modifyNickname(userNicknameRequestDto.getNickname());
+		return ResponseEntity.ok().body(successResponse);
+	}
 }

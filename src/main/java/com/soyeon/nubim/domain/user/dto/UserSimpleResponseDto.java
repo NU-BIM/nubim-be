@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class UserSimpleResponseDto {
-	private Long userId;
+	private String username;
 	private String nickname;
 	private String profileImageUrl;
 }

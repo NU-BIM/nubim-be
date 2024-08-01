@@ -9,28 +9,20 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
+import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Service
+@RequiredArgsConstructor
 public class S3PresignedUrlGenerator {
 
 	public static final int PRESIGNED_URL_DURATION_TIME = 10;
 	private final S3Presigner s3Presigner;
-	private final String bucketName;
-
-	public S3PresignedUrlGenerator(
-		@Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
-		this.s3Presigner = S3Presigner.builder()
-			.region(DefaultAwsRegionProviderChain.builder().build().getRegion())
-			.credentialsProvider(DefaultCredentialsProvider.create())
-			.build();
-		this.bucketName = bucketName;
-	}
+	@Value("${spring.cloud.aws.s3.bucket}")
+	private String bucketName;
 
 	/**
 	 * S3 에 객체를 업로드하기 위한 presigned url을 contentTypes의 크기만큼 생성하여 반환한다

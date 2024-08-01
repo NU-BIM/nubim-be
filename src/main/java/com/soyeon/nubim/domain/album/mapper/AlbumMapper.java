@@ -30,7 +30,7 @@ public class AlbumMapper {
 		Map<Integer, String> photoUrls = albumCreateRequestDto.getPhotoUrls();
 
 		List<LocationCreateRequestDto> locationDtos = albumCreateRequestDto.getLocations();
-		List<Location> locations = locationMapper.toEntityList(locationDtos);
+		List<Location> locations = locationMapper.toEntityListFromCreateDto(locationDtos);
 
 		Album album = Album.builder()
 			.user(user)

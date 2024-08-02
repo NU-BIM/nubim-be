@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserNotFoundException;
 import com.soyeon.nubim.domain.user.UserService;
+import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;

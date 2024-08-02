@@ -27,7 +27,7 @@ public class UserMapper {
 
 	public UserSimpleResponseDto toUserSimpleResponseDto(User user) {
 		return UserSimpleResponseDto.builder()
-			.userId(user.getUserId())
+			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.profileImageUrl(user.getProfileImageUrl())
 			.build();
@@ -58,10 +58,11 @@ public class UserMapper {
 			.followeeCount((long)followees.size())
 			.build();
 	}
+
 	//사용자가 팔로우하고 있는 사용자의 팔로워의 isFollowing 값을 true 로 변경
 	private void markFollowedFollowers(List<UserFollowResponseDto> followers, List<UserFollowResponseDto> followees) {
 		for (UserFollowResponseDto follower : followers) {
-			if(followees.contains(follower)){
+			if (followees.contains(follower)) {
 				follower.setIsFollowingTrue();
 			}
 		}

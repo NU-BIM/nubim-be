@@ -8,6 +8,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
+import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
+import com.soyeon.nubim.domain.user.exception.NicknameAlreadyExistsException;
+import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import jakarta.transaction.Transactional;
@@ -86,4 +89,18 @@ public class UserService {
 			.orElse(null);
 	}
 
+	@Transactional
+	public UserSimpleResponseDto modifyNickname(String newNickname) {
+		validateDuplicatedNickname(newNickname);
+		User user = getCurrentUser();
+		user.setNickname(newNickname);
+		userRepository.save(user);
+		return userMapper.toUserSimpleResponseDto(user);
+	}
+
+	public void validateDuplicatedNickname(String nickname) {
+		if (userRepository.existsByNickname(nickname)) {
+			throw new NicknameAlreadyExistsException(nickname);
+		}
+	}
 }

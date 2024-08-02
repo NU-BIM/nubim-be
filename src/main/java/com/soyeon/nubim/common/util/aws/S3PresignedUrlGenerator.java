@@ -9,31 +9,24 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
+import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Service
+@RequiredArgsConstructor
 public class S3PresignedUrlGenerator {
 
-	public static final int PRESIGNED_URL_DURATION_TIME = 10;
+	private static final int PRESIGNED_URL_DURATION_TIME = 10;
 	private final S3Presigner s3Presigner;
-	private final String bucketName;
-
-	public S3PresignedUrlGenerator(
-		@Value("${spring.cloud.aws.s3.bucket}") String bucketName) {
-		this.s3Presigner = S3Presigner.builder()
-			.region(DefaultAwsRegionProviderChain.builder().build().getRegion())
-			.credentialsProvider(DefaultCredentialsProvider.create())
-			.build();
-		this.bucketName = bucketName;
-	}
+	@Value("${spring.cloud.aws.s3.bucket}")
+	private String bucketName;
 
 	/**
 	 * S3 에 객체를 업로드하기 위한 presigned url을 contentTypes의 크기만큼 생성하여 반환한다
+	 * 업로드할 경로는 자동으로 생성된다
 	 * @param contentTypes 업로드할 객체의 MIME 타입을 담은 List
 	 * @return S3에 업로드할 수 있는 presigned url들을 담은 List
 	 */
@@ -42,12 +35,32 @@ public class S3PresignedUrlGenerator {
 
 		String uploadDirectory = getUploadDirectory();
 
-		for (int i = 0; i < contentTypes.size(); i++) {
-			String s3UploadPath = uploadDirectory + getFileName(i);
+		for (String contentType : contentTypes) {
+			String s3UploadPath = uploadDirectory + getFileName();
 
-			String presignedUrl = preparePresignedUploadUrl(contentTypes.get(i), s3UploadPath);
+			String presignedUrl = preparePresignedUploadUrl(contentType, s3UploadPath);
 			presignedUrls.add(presignedUrl);
 		}
+		return presignedUrls;
+	}
+
+	/**
+	 * S3 에 객체를 업로드하기 위한 presigned url을 contentTypes의 크기만큼 생성하여 반환한다.
+	 * 업로드할 경로는 사용자가 직접 지정해야 한다
+	 * @param contentTypes 업로드할 객체의 MIME 타입을 담은 List
+	 * @param uploadPath 업로드할 경로를 사용자가 직접 지정한다
+	 * @return S3에 업로드할 수 있는 presigned url들을 담은 List
+	 */
+	public List<String> generatePresignedUrls(List<String> contentTypes, String uploadPath) {
+		List<String> presignedUrls = new ArrayList<>(contentTypes.size());
+
+		for (String contentType : contentTypes) {
+			String s3UploadPath = uploadPath + getFileName();
+
+			String presignedUrl = preparePresignedUploadUrl(contentType, s3UploadPath);
+			presignedUrls.add(presignedUrl);
+		}
+
 		return presignedUrls;
 	}
 
@@ -75,14 +88,20 @@ public class S3PresignedUrlGenerator {
 
 	/**
 	 * 사진 업로드를 위한 고유한 디렉토리 경로 생성
-	 * 현재 날짜와 UUID 8자리를 이용하여 충돌 가능성이 낮은 경로를 지정한다
+	 * 현재 날짜와 UUID 16자리를 이용하여 충돌 가능성이 낮은 경로를 지정한다
 	 * @return 디렉토리 경로 반환
 	 */
 	private static String getUploadDirectory() {
-		return LocalDate.now() + "/" + UUID.randomUUID().toString().substring(0, 8) + "/";
+		return LocalDate.now() + "/"
+			+ UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16) + "/";
 	}
 
-	private static String getFileName(int number) {
-		return "img" + String.format("%02d", number);
+	/**
+	 * 사진 업로드 경로 생성
+	 * UUID 10자리를 이용해 충돌 가능성이 낮은 경로를 생성한다
+	 * @return 사진 업로드 경로 반환
+	 */
+	private static String getFileName() {
+		return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10);
 	}
 }

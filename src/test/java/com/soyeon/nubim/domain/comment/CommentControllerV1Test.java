@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -91,7 +92,7 @@ class CommentControllerV1Test {
 		Album tempAlbum = Album.builder()
 			.user(testUser)
 			.description("Test User's Album")
-			.photoUrls("[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
+			.photoUrls(Map.of(1, "https://example.com/photo1.jpg", 2, "https://example.com/photo2.jpg"))
 			.build();
 		albumRepository.save(tempAlbum);
 

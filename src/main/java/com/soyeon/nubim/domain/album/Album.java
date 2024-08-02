@@ -2,6 +2,8 @@ package com.soyeon.nubim.domain.album;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -47,9 +49,10 @@ public class Album extends BaseEntity {
 
 	private String description;
 
+	@Builder.Default
 	@Type(JsonType.class)
 	@Column(nullable = false, columnDefinition = "jsonb")
-	private String photoUrls;
+	private Map<Integer, String> photoUrls = new TreeMap<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

@@ -19,7 +19,6 @@ import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
-import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,11 +56,10 @@ public class AlbumService {
 		return albumMapper.toAlbumReadResponseDto(album);
 	}
 
-	public List<AlbumReadResponseDto> findAlbumsByUserId(Long userId) {
-		userService.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException(userId));
+	public List<AlbumReadResponseDto> findAlbumsByUserNickname(String nickname) {
+		User user = userService.getUserByNickname(nickname);
 
-		List<Album> albums = albumRepository.findByUserUserId(userId);
+		List<Album> albums = albumRepository.findByUser(user);
 
 		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());
 		for (Album album : albums) {

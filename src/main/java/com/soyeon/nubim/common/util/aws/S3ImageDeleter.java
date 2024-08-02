@@ -8,7 +8,12 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.DeletedObject;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.S3Error;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Service
@@ -20,22 +25,25 @@ public class S3ImageDeleter {
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucketName;
 
-	public void deleteImage(String objectKey) {
-		try{
-			DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-				.bucket(bucketName)
-				.key(objectKey)
-				.build();
-			s3Client.deleteObject(deleteObjectRequest);
-			log.debug("Successfully deleted image: {}", objectKey);
-		} catch (S3Exception e) {
-			log.debug("Failed to deleted image: {}", objectKey);
-		}
-	}
-
 	public void deleteImages(List<String> objectKeys) {
-		for (String objectKey : objectKeys) {
-			deleteImage(objectKey);
+		try {
+			List<ObjectIdentifier> keys = objectKeys.stream()
+				.map(key -> ObjectIdentifier.builder().key(key).build())
+				.toList();
+
+			DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+				.bucket(bucketName)
+				.delete(Delete.builder().objects(keys).build())
+				.build();
+			DeleteObjectsResponse deleteObjectsResponse = s3Client.deleteObjects(deleteObjectsRequest);
+
+			List<DeletedObject> deletedObjects = deleteObjectsResponse.deleted();
+			deletedObjects.forEach(object -> log.debug("Successfully deleted image: {}", object.key()));
+
+			List<S3Error> errors = deleteObjectsResponse.errors();
+			errors.forEach(error -> log.debug("Failed to delete image: {}, message: {}", error.key(), error.message()));
+		} catch (S3Exception e) {
+			log.debug("Failed to delete images: {}", objectKeys);
 		}
 	}
 }

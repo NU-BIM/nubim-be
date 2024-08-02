@@ -95,7 +95,9 @@ public class AlbumService {
 		Map<Integer, String> newPhotoUrls = albumUpdateRequestDto.getPhotoUrls();
 		List<String> deletedS3ObjectKeys = getDeletedS3ObjectKeys(currentPhotoUrls, newPhotoUrls);
 
-		s3ImageDeleter.deleteImages(deletedS3ObjectKeys);
+		if (!deletedS3ObjectKeys.isEmpty()) {
+			s3ImageDeleter.deleteImages(deletedS3ObjectKeys);
+		}
 		album.setPhotoUrls(newPhotoUrls);
 
 		albumRepository.deleteLocationsByAlbumId(albumId);

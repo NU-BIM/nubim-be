@@ -19,13 +19,14 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @RequiredArgsConstructor
 public class S3PresignedUrlGenerator {
 
-	public static final int PRESIGNED_URL_DURATION_TIME = 10;
+	private static final int PRESIGNED_URL_DURATION_TIME = 10;
 	private final S3Presigner s3Presigner;
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucketName;
 
 	/**
 	 * S3 에 객체를 업로드하기 위한 presigned url을 contentTypes의 크기만큼 생성하여 반환한다
+	 * 업로드할 경로는 자동으로 생성된다
 	 * @param contentTypes 업로드할 객체의 MIME 타입을 담은 List
 	 * @return S3에 업로드할 수 있는 presigned url들을 담은 List
 	 */
@@ -40,6 +41,26 @@ public class S3PresignedUrlGenerator {
 			String presignedUrl = preparePresignedUploadUrl(contentType, s3UploadPath);
 			presignedUrls.add(presignedUrl);
 		}
+		return presignedUrls;
+	}
+
+	/**
+	 * S3 에 객체를 업로드하기 위한 presigned url을 contentTypes의 크기만큼 생성하여 반환한다.
+	 * 업로드할 경로는 사용자가 직접 지정해야 한다
+	 * @param contentTypes 업로드할 객체의 MIME 타입을 담은 List
+	 * @param uploadPath 업로드할 경로를 사용자가 직접 지정한다
+	 * @return S3에 업로드할 수 있는 presigned url들을 담은 List
+	 */
+	public List<String> generatePresignedUrls(List<String> contentTypes, String uploadPath) {
+		List<String> presignedUrls = new ArrayList<>(contentTypes.size());
+
+		for (String contentType : contentTypes) {
+			String s3UploadPath = uploadPath + getFileName();
+
+			String presignedUrl = preparePresignedUploadUrl(contentType, s3UploadPath);
+			presignedUrls.add(presignedUrl);
+		}
+
 		return presignedUrls;
 	}
 

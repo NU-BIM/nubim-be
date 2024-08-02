@@ -127,8 +127,12 @@ public class AlbumService {
 		albumRepository.deleteById(albumId);
 	}
 
-	public List<String> handlePhotoUploadUrlsGeneration(List<String> contentTypes) {
+	public List<String> generatePhotoUploadUrlsWithRandomPath(List<String> contentTypes) {
 		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes);
+	}
+
+	public List<String> generatePhotoUploadUrlsWithCustomPath(List<String> contentTypes, String uploadPath) {
+		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes, uploadPath);
 	}
 
 }

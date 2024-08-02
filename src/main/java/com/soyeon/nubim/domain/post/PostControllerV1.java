@@ -67,13 +67,13 @@ public class PostControllerV1 {
 		}
 	}
 
-	@Operation(description = "userId를 기준으로 게시글 미리보기 리스트 시간순 정렬 응답, 기본은 내림차순, sort=asc일경우 오름차순")
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<Page<PostSimpleResponseDto>> getPostsByUserId(
-		@PathVariable Long userId,
+	@Operation(description = "nickname 을 기준으로 게시글 미리보기 리스트 시간순 정렬 응답, 기본은 내림차순, sort=asc일경우 오름차순")
+	@GetMapping("/user/{nickname}")
+	public ResponseEntity<Page<PostSimpleResponseDto>> getPostsByUserNickname(
+		@PathVariable String nickname,
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "desc") String sort) {
-		userService.validateUserExists(userId);
+		User user = userService.getUserByNickname(nickname);
 
 		PageRequest pageRequest;
 		if (sort.equals("desc")) {
@@ -85,7 +85,7 @@ public class PostControllerV1 {
 		} else {
 			return ResponseEntity.badRequest().build();
 		}
-		return ResponseEntity.ok(postService.findAllPostsByUserIdOrderByCreatedAt(userId, pageRequest));
+		return ResponseEntity.ok(postService.findAllPostsByUserOrderByCreatedAt(user, pageRequest));
 	}
 
 	@DeleteMapping("{postId}")

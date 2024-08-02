@@ -49,8 +49,8 @@ public class PostService {
 		return postMapper.toPostSimpleResponseDto(post);
 	}
 
-	public Page<PostSimpleResponseDto> findAllPostsByUserIdOrderByCreatedAt(Long userId, Pageable pageable) {
-		Page<Post> postList = postRepository.findByUserUserId(userId, pageable);
+	public Page<PostSimpleResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
+		Page<Post> postList = postRepository.findByUser(user, pageable);
 		return postList
 			.map(postMapper::toPostSimpleResponseDto);
 	}

@@ -67,11 +67,12 @@ public class S3PresignedUrlGenerator {
 
 	/**
 	 * 사진 업로드를 위한 고유한 디렉토리 경로 생성
-	 * 현재 날짜와 UUID 8자리를 이용하여 충돌 가능성이 낮은 경로를 지정한다
+	 * 현재 날짜와 UUID 16자리를 이용하여 충돌 가능성이 낮은 경로를 지정한다
 	 * @return 디렉토리 경로 반환
 	 */
 	private static String getUploadDirectory() {
-		return LocalDate.now() + "/" + UUID.randomUUID().toString().substring(0, 8) + "/";
+		return LocalDate.now() + "/"
+			+ UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16) + "/";
 	}
 
 	/**
@@ -80,6 +81,6 @@ public class S3PresignedUrlGenerator {
 	 * @return 사진 업로드 경로 반환
 	 */
 	private static String getFileName() {
-		return UUID.randomUUID().toString().substring(0, 8) + UUID.randomUUID().toString().substring(9, 11);
+		return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10);
 	}
 }

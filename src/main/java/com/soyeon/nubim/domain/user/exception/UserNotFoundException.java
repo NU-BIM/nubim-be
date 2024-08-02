@@ -8,7 +8,15 @@ public class UserNotFoundException extends ResponseStatusException {
 		super(HttpStatus.NOT_FOUND, "User not found with id " + userId);
 	}
 
-	public UserNotFoundException(String email) {
-		super(HttpStatus.NOT_FOUND, "User not found with email " + email);
+	public UserNotFoundException(String identifier, String type) {
+		super(HttpStatus.NOT_FOUND, "User not found with " + type + " " + identifier);
+	}
+
+	public static UserNotFoundException forEmail(String email) {
+		return new UserNotFoundException(email, "email");
+	}
+
+	public static UserNotFoundException forNickname(String nickname) {
+		return new UserNotFoundException(nickname, "nickname");
 	}
 }

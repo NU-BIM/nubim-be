@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class UserFollowControllerV1 {
 	final UserFollowService userFollowService;
 
-	@Operation(description = "로그인된 유저가 해당 userId를 팔로우")
+	@Operation(description = "로그인된 유저가 해당 nickname 팔로우")
 	@PostMapping("/follows/{nickname}")
 	public ResponseEntity<FollowUserResponseDto> followUser(@PathVariable String nickname) {
 		FollowUserResponseDto followUserResponseDto = userFollowService.createFollow(nickname);

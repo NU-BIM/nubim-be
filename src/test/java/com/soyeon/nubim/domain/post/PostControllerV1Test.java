@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -108,7 +109,7 @@ class PostControllerV1Test {
 		testAlbum = Album.builder()
 			.user(testUser)
 			.description("User One's Album")
-			.photoUrls("[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
+			.photoUrls(Map.of(1, "https://example.com/photo1.jpg", 2, "https://example.com/photo2.jpg"))
 			.build();
 		albumRepository.save(testAlbum);
 		testAlbumId = testAlbum.getAlbumId();

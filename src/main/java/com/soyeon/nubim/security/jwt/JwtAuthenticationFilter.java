@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +13,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import net.minidev.json.JSONObject;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,7 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		log.debug("JWT filter started");
 		try {
-			processJwtAuthentication(request, response);
+			if (!processJwtAuthentication(request, response)) {
+				return;
+			}
 		} catch (Exception e) {
 			log.error("Failed to set user authentication in security context", e);
 		}
@@ -54,18 +59,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		log.debug("JWT filter completed");
 	}
 
-	private void processJwtAuthentication(HttpServletRequest request, HttpServletResponse response) {
+	private boolean processJwtAuthentication(HttpServletRequest request, HttpServletResponse response) throws
+		IOException {
 		String jwt = getJwtFromRequest(request);
 		log.debug("-- Extracted JWT token: {}", jwt);
 
 		if (!isValidJwtToken(jwt)) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
+			setUnAuthorization(response);
+			return false;
 		}
 
 		String userEmail = jwtTokenProvider.getUserEmailFromToken(jwt);
 		log.debug("---- JWT token is valid, user email: {}", userEmail);
 		setAuthentication(request, jwt);
+		return true;
 	}
 
 	private boolean isValidJwtToken(String jwt) {
@@ -78,6 +85,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return false;
 		}
 		return true;
+	}
+
+	private void setUnAuthorization(HttpServletResponse response) throws IOException {
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("error", "Unauthorized");
+		jsonObject.put("message", "Access denied");
+		response.getWriter().write(jsonObject.toString());
 	}
 
 	private void setAuthentication(HttpServletRequest request, String jwt) {

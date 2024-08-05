@@ -107,7 +107,7 @@ public class UserService {
 	}
 
 	public Page<UserSimpleResponseDto> searchUserByNickname(Pageable pageable, String query) {
-		return userRepository.findByNicknameStartingWith(pageable, query)
+		return userRepository.findByNicknameStartsWith(pageable, query)
 			.map(userMapper::toUserSimpleResponseDto);
 	}
 

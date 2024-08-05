@@ -59,6 +59,7 @@ public class PostService {
 		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId())
 			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
 		Post post = postMapper.toEntity(postCreateRequestDto, authorUser, linkedAlbum);
+		post.linkAlbum(linkedAlbum);
 
 		postRepository.save(post);
 		return postMapper.toPostCreateResponseDto(post);

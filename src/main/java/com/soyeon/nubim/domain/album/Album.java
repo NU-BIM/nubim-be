@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Type;
 
 import com.soyeon.nubim.common.BaseEntity;
+import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.user.User;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 
@@ -23,6 +24,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,6 +51,11 @@ public class Album extends BaseEntity {
 
 	private String description;
 
+	private boolean postLinked = false;
+
+	@OneToOne(mappedBy = "album")
+	private Post post;
+
 	@Builder.Default
 	@Type(JsonType.class)
 	@Column(nullable = false, columnDefinition = "jsonb")
@@ -62,6 +69,14 @@ public class Album extends BaseEntity {
 		for (Location location : locations) {
 			location.setAlbum(this);
 		}
+	}
+
+	public void linkPost(Post post) {
+		if (postLinked) {
+			throw new AlbumAlreadyLinkedToPostException();
+		}
+		this.post = post;
+		this.postLinked = true;
 	}
 
 }

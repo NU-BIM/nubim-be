@@ -20,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +46,7 @@ public class Post extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "album_id", nullable = false)
 	private Album album;
 
@@ -59,4 +60,9 @@ public class Post extends BaseEntity {
 	@OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
 	@OrderBy("createdAt DESC")
 	private List<Comment> comments = new ArrayList<>();
+
+	public void linkAlbum(Album album) {
+		this.album = album;
+		album.linkPost(this);
+	}
 }

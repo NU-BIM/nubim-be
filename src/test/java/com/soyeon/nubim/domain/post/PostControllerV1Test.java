@@ -61,8 +61,10 @@ class PostControllerV1Test {
 	private User testUser;
 	private User testUser2;
 	private Album testAlbum;
+	private Album testAlbum2;
 	private Long testUserId;
 	private Long testAlbumId;
+	private Long testAlbumId2;
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
@@ -113,6 +115,14 @@ class PostControllerV1Test {
 			.build();
 		albumRepository.save(testAlbum);
 		testAlbumId = testAlbum.getAlbumId();
+
+		testAlbum2 = Album.builder()
+			.user(testUser)
+			.description("User One's Album")
+			.photoUrls(Map.of(1, "https://example.com/photo1.jpg", 2, "https://example.com/photo2.jpg"))
+			.build();
+		albumRepository.save(testAlbum2);
+		testAlbumId2 = testAlbum2.getAlbumId();
 
 		String accessToken = jwtTokenProvider.generateAccessToken(
 			testUser.getUserId().toString(),
@@ -379,7 +389,7 @@ class PostControllerV1Test {
 			.postTitle("Second Post")
 			.postContent("Second Post Content")
 			.user(this.testUser)
-			.album(this.testAlbum)
+			.album(this.testAlbum2)
 			.build();
 		post2.setCreatedAt(LocalDateTime.now().minusDays(2));
 		postRepository.save(post2);
@@ -417,7 +427,7 @@ class PostControllerV1Test {
 			.postTitle("Second Post")
 			.postContent("Second Post Content")
 			.user(this.testUser)
-			.album(this.testAlbum)
+			.album(this.testAlbum2)
 			.build();
 		post2.setCreatedAt(LocalDateTime.now().minusDays(2));
 		postRepository.save(post2);

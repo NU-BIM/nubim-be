@@ -113,7 +113,7 @@ class UserFollowControllerV1Test {
 	@Test
 	void followUser_Success() throws Exception {
 		// given
-		String requestPath = "/v1/follows/" + testUser2.getUserId();
+		String requestPath = "/v1/follows/" + testUser2.getNickname();
 
 		// when
 		ResultActions resultActions = mockMvc.perform(
@@ -134,7 +134,7 @@ class UserFollowControllerV1Test {
 	@Test
 	void followUser_FollowMyself_Error() throws Exception {
 		// given
-		String requestPath = "/v1/follows/" + testUser1.getUserId();
+		String requestPath = "/v1/follows/" + testUser1.getNickname();
 
 		// when
 		ResultActions resultActions = mockMvc.perform(
@@ -177,7 +177,7 @@ class UserFollowControllerV1Test {
 	@Test
 	void followUser_FollowRepetition_Error() throws Exception {
 		// given
-		String requestPath = "/v1/follows/" + testUser2.getUserId();
+		String requestPath = "/v1/follows/" + testUser2.getNickname();
 		UserFollow userFollow = UserFollow.builder()
 			.follower(testUser1)
 			.followee(testUser2)
@@ -212,7 +212,7 @@ class UserFollowControllerV1Test {
 	@Test
 	void unfollowUser_Success() throws Exception {
 		// given
-		String requestPath = "/v1/follows/" + testUser2.getUserId();
+		String requestPath = "/v1/follows/" + testUser2.getNickname();
 		UserFollow userFollow = UserFollow.builder()
 			.follower(testUser1)
 			.followee(testUser2)
@@ -266,7 +266,7 @@ class UserFollowControllerV1Test {
 	@Test
 	void unfollowUser_UserNotFollowed_Error() throws Exception {
 		// given
-		String requestPath = "/v1/follows/" + testUser2.getUserId();
+		String requestPath = "/v1/follows/" + testUser2.getNickname();
 
 		// when
 		ResultActions resultActions = mockMvc.perform(

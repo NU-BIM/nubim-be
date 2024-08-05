@@ -37,7 +37,7 @@ public class UserService {
 
 	public User findByEmail(String email) {
 		return userRepository.findByEmail(email)
-			.orElseThrow(() -> new UserNotFoundException(email));
+			.orElseThrow(() -> UserNotFoundException.forEmail(email));
 	}
 
 	public User saveUser(User user) {
@@ -71,7 +71,7 @@ public class UserService {
 		String currentUserEmail = getCurrentUserEmail();
 
 		return userRepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> new UserNotFoundException(currentUserEmail));
+			.orElseThrow(() -> UserNotFoundException.forEmail(currentUserEmail));
 	}
 
 	public Long getCurrentUserId() {
@@ -109,5 +109,10 @@ public class UserService {
 	public Page<UserSimpleResponseDto> searchUserByNickname(Pageable pageable, String query) {
 		return userRepository.findByNicknameStartingWith(pageable, query)
 			.map(userMapper::toUserSimpleResponseDto);
+	}
+
+	public User getUserByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(() -> UserNotFoundException.forNickname(nickname));
 	}
 }

@@ -9,6 +9,7 @@ import com.soyeon.nubim.domain.album.Location;
 import com.soyeon.nubim.domain.album.dto.LocationCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.LocationReadResponseDto;
+import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,15 @@ public class LocationMapper {
 			.longitude(locationCreateRequestDto.getLongitude())
 			.visitedAt(locationCreateRequestDto.getVisitedAt())
 			.placeName(locationCreateRequestDto.getPlaceName())
+			.build();
+	}
+
+	public Location toEntity(LocationUpdateRequestDto locationUpdateRequestDto){
+		return Location.builder()
+			.latitude(locationUpdateRequestDto.getLatitude())
+			.longitude(locationUpdateRequestDto.getLongitude())
+			.visitedAt(locationUpdateRequestDto.getVisitedAt())
+			.placeName(locationUpdateRequestDto.getPlaceName())
 			.build();
 	}
 
@@ -47,10 +57,18 @@ public class LocationMapper {
 			.build();
 	}
 
-	public List<Location> toEntityList(List<LocationCreateRequestDto> locationDtos) {
+	public List<Location> toEntityListFromCreateDto(List<LocationCreateRequestDto> locationDtos) {
 		List<Location> locations = new ArrayList<>();
 		for (LocationCreateRequestDto locationDto : locationDtos) {
 			locations.add(toEntity(locationDto));
+		}
+		return locations;
+	}
+
+	public List<Location> toEntityListFromUpdateDto(List<LocationUpdateRequestDto> locationUpdateRequestDtos) {
+		List<Location> locations = new ArrayList<>();
+		for (LocationUpdateRequestDto locationUpdateRequestDto : locationUpdateRequestDtos) {
+			locations.add(toEntity(locationUpdateRequestDto));
 		}
 		return locations;
 	}

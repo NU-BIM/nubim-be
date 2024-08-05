@@ -27,19 +27,19 @@ import lombok.RequiredArgsConstructor;
 public class UserFollowControllerV1 {
 	final UserFollowService userFollowService;
 
-	@Operation(description = "로그인된 유저가 해당 userId를 팔로우")
-	@PostMapping("/follows/{userId}")
-	public ResponseEntity<FollowUserResponseDto> followUser(@PathVariable Long userId) {
-		FollowUserResponseDto followUserResponseDto = userFollowService.createFollow(userId);
+	@Operation(description = "로그인된 유저가 해당 nickname 팔로우")
+	@PostMapping("/follows/{nickname}")
+	public ResponseEntity<FollowUserResponseDto> followUser(@PathVariable String nickname) {
+		FollowUserResponseDto followUserResponseDto = userFollowService.createFollow(nickname);
 
 		return ResponseEntity
 			.created(URI.create("")) // TODO : 팔로잉 조회 uri 추가
 			.body(followUserResponseDto);
 	}
 
-	@DeleteMapping("/follows/{userId}")
-	public ResponseEntity<FollowUserResponseDto> unfollowUser(@PathVariable Long userId) {
-		FollowUserResponseDto followUserResponseDto = userFollowService.deleteUserFollow(userId);
+	@DeleteMapping("/follows/{nickname}")
+	public ResponseEntity<FollowUserResponseDto> unfollowUser(@PathVariable String nickname) {
+		FollowUserResponseDto followUserResponseDto = userFollowService.deleteUserFollow(nickname);
 
 		return ResponseEntity
 			.ok()

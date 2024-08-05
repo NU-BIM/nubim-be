@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -108,15 +109,15 @@ class PostControllerV1Test {
 		testAlbum = Album.builder()
 			.user(testUser)
 			.description("User One's Album")
-			.photoUrls("[\"https://example.com/photo1.jpg\", \"https://example.com/photo2.jpg\"]")
+			.photoUrls(Map.of(1, "https://example.com/photo1.jpg", 2, "https://example.com/photo2.jpg"))
 			.build();
 		albumRepository.save(testAlbum);
 		testAlbumId = testAlbum.getAlbumId();
 
 		String accessToken = jwtTokenProvider.generateAccessToken(
-				testUser.getUserId().toString(),
-				testUser.getEmail(),
-				testUser.getRole().name());
+			testUser.getUserId().toString(),
+			testUser.getEmail(),
+			testUser.getRole().name());
 
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
 			.apply(springSecurity())
@@ -363,7 +364,7 @@ class PostControllerV1Test {
 
 	@DisplayName("게시글 2개 시간 내림차순 정상 조회 테스트")
 	@Test
-	void getPostsByUserId_Desc_Success() throws Exception {
+	void getPostsByUserNickname_Desc_Success() throws Exception {
 		//given
 		Post post1 = Post.builder()
 			.postTitle("First Post")
@@ -384,7 +385,7 @@ class PostControllerV1Test {
 		postRepository.save(post2);
 
 		//when
-		ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getUserId()));
+		ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getNickname()));
 
 		//then
 		resultActions
@@ -401,7 +402,7 @@ class PostControllerV1Test {
 
 	@DisplayName("게시글 2개 시간 오름차순 정상 조회 테스트")
 	@Test
-	void getPostsByUserId_Asc_Success() throws Exception {
+	void getPostsByUserNickname_Asc_Success() throws Exception {
 		//given
 		Post post1 = Post.builder()
 			.postTitle("First Post")
@@ -423,7 +424,7 @@ class PostControllerV1Test {
 
 		//when
 		ResultActions resultActions = mockMvc.perform(
-			get("/v1/posts/user/" + this.testUser.getUserId())
+			get("/v1/posts/user/" + this.testUser.getNickname())
 				.param("sort", "asc")
 		);
 
@@ -446,7 +447,7 @@ class PostControllerV1Test {
 		//given
 
 		//when
-		ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getUserId()));
+		ResultActions resultActions = mockMvc.perform(get("/v1/posts/user/" + this.testUser.getNickname()));
 
 		//then
 		resultActions

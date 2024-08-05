@@ -71,10 +71,15 @@ public class AlbumService {
 		return albumReadResponseDtos;
 	}
 
-	public List<AlbumReadResponseDto> findAlbumsByCurrentUser() {
+	public List<AlbumReadResponseDto> findAlbumsByCurrentUser(boolean unlinked) {
 		String currentUserEmail = userService.getCurrentUserEmail();
 
-		List<Album> albums = albumRepository.findAlbumsByEmail(currentUserEmail);
+		List<Album> albums;
+		if (unlinked) {
+			albums = albumRepository.findUnlinkedAlbumsByEmail(currentUserEmail);
+		} else {
+			albums = albumRepository.findAlbumsByEmail(currentUserEmail);
+		}
 
 		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());
 		for (Album album : albums) {

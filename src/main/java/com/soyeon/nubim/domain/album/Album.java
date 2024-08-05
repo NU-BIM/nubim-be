@@ -79,4 +79,9 @@ public class Album extends BaseEntity {
 		this.postLinked = true;
 	}
 
+	public void unlinkPost() {
+		this.post = null;
+		this.postLinked = false;
+	}
+
 }

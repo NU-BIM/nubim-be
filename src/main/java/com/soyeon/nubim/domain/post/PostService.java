@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.post;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Random;
 
 import org.springframework.data.domain.Page;
@@ -65,8 +66,13 @@ public class PostService {
 		return postMapper.toPostCreateResponseDto(post);
 	}
 
-	public void deleteById(Long id) {
-		postRepository.deleteById(id);
+	public void deleteById(Long postId, Long userId) {
+		validatePostOwner(postId, userId);
+
+		Post post = findPostByIdOrThrow(postId);
+		post.unlinkAlbum();
+
+		postRepository.deleteById(postId);
 	}
 
 	public Post findPostByIdOrThrow(Long id) {
@@ -82,10 +88,11 @@ public class PostService {
 		}
 	}
 
-	public void validatePostOwner(Long postId, User author) {
-		Post post = this.findPostByIdOrThrow(postId);
+	public void validatePostOwner(Long postId, Long userId) {
+		Post post = findPostByIdOrThrow(postId);
+		Long postOwnerId = post.getUser().getUserId();
 
-		if (!author.getPosts().contains(post)) {
+		if (!Objects.equals(postOwnerId, userId)) {
 			throw new UnauthorizedAccessException(postId);
 		}
 	}

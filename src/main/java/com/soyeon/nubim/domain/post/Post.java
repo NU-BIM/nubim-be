@@ -34,7 +34,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE post_id = ?")
+@SQLDelete(sql = "UPDATE post SET is_deleted = true, album_id = null WHERE post_id = ?")
 @SQLRestriction("is_deleted = false")
 public class Post extends BaseEntity {
 
@@ -47,7 +47,7 @@ public class Post extends BaseEntity {
 	private User user;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "album_id", nullable = false)
+	@JoinColumn(name = "album_id")
 	private Album album;
 
 	@Column(nullable = false, length = 100)
@@ -64,5 +64,10 @@ public class Post extends BaseEntity {
 	public void linkAlbum(Album album) {
 		this.album = album;
 		album.linkPost(this);
+	}
+
+	public void unlinkAlbum() {
+		album.unlinkPost();
+		this.album = null;
 	}
 }

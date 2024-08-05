@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
-
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,18 +23,19 @@ public class SearchControllerV1 {
 	private final SearchService searchService;
 
 	private static final int DEFAULT_PAGE_SIZE = 20;
-	
+
 	@GetMapping
-	public ResponseEntity<Page<UserSimpleResponseDto>> searchWithType(
+	public ResponseEntity<Page<?>> searchWithType(
 		@RequestParam(defaultValue = "nickname") @Parameter(description = "[ nickname, post ]") String type,
-		@RequestParam(required = true) String query,
+		@RequestParam(required = true) @Size(min = 2) String query,
 		@RequestParam(defaultValue = "0") Integer page
 	) {
 		if (type.equals("nickname")) {
 			Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.ASC, "nickname"));
 			return ResponseEntity.ok().body(searchService.searchUsers(query, pageable));
 		} else if (type.equals("post")) {
-			return ResponseEntity.ok().body(null); // TODO : post 검색 구현
+			Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
+			return ResponseEntity.ok().body(searchService.searchPosts(query, pageable));
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}

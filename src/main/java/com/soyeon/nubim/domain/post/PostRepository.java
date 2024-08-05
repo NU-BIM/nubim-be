@@ -27,4 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	@Query(value = "SELECT p FROM Post p WHERE p.user != :user ORDER BY function('RANDOM')")
 	Page<Post> findRandomPostsExceptMine(Pageable pageable, User user);
+
+	Page<Post> findByPostTitleContainingOrPostContentContaining(
+		String titleQuery, String contentQuery, Pageable pageable);
 }

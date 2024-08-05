@@ -3,6 +3,8 @@ package com.soyeon.nubim.domain.user;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -102,6 +104,11 @@ public class UserService {
 		if (userRepository.existsByNickname(nickname)) {
 			throw new NicknameAlreadyExistsException(nickname);
 		}
+	}
+
+	public Page<UserSimpleResponseDto> searchUserByNickname(Pageable pageable, String query) {
+		return userRepository.findByNicknameStartsWith(pageable, query)
+			.map(userMapper::toUserSimpleResponseDto);
 	}
 
 	public User getUserByNickname(String nickname) {

@@ -126,4 +126,9 @@ public class PostService {
 			return commentMapper.toCommentResponseDto(lastCommentByPost, userSimpleResponseDto);
 		}
 	}
+
+	public Page<PostSimpleResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
+		return postRepository.findByPostTitleContainingOrPostContentContaining(query, query, pageable)
+			.map(postMapper::toPostSimpleResponseDto);
+	}
 }

@@ -15,7 +15,7 @@ import com.soyeon.nubim.domain.user.User;
 public interface PostRepository extends JpaRepository<Post, Long> {
 	List<Post> findByUserUserId(Long userId);
 
-	Page<Post> findByUserUserId(Long postPostId, Pageable pageable);
+	Page<Post> findByUser(User user, Pageable pageable);
 
 	@Query("SELECT p FROM Post p WHERE p.user IN " +
 		"(SELECT uf.followee FROM UserFollow uf WHERE uf.follower = :user) " +

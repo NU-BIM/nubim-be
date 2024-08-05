@@ -35,7 +35,7 @@ public class UserService {
 
 	public User findByEmail(String email) {
 		return userRepository.findByEmail(email)
-			.orElseThrow(() -> new UserNotFoundException(email));
+			.orElseThrow(() -> UserNotFoundException.forEmail(email));
 	}
 
 	public User saveUser(User user) {
@@ -69,7 +69,7 @@ public class UserService {
 		String currentUserEmail = getCurrentUserEmail();
 
 		return userRepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> new UserNotFoundException(currentUserEmail));
+			.orElseThrow(() -> UserNotFoundException.forEmail(currentUserEmail));
 	}
 
 	public Long getCurrentUserId() {
@@ -102,5 +102,10 @@ public class UserService {
 		if (userRepository.existsByNickname(nickname)) {
 			throw new NicknameAlreadyExistsException(nickname);
 		}
+	}
+
+	public User getUserByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(() -> UserNotFoundException.forNickname(nickname));
 	}
 }

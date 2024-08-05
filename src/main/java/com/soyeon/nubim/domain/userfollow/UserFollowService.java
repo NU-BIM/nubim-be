@@ -21,10 +21,9 @@ public class UserFollowService {
 	private final UserService userService;
 	private final UserMapper userMapper;
 
-	public FollowUserResponseDto createFollow(Long userId) {
-		userService.validateUserExists(userId);
+	public FollowUserResponseDto createFollow(String nickname) {
+		User followee = userService.getUserByNickname(nickname);
 		User follower = userService.getCurrentUser();
-		User followee = userService.findUserByIdOrThrow(userId);
 
 		if (follower.equals(followee)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot follow yourself");
@@ -57,11 +56,9 @@ public class UserFollowService {
 		}
 	}
 
-	public FollowUserResponseDto deleteUserFollow(Long userId) {
-		userService.validateUserExists(userId);
-
+	public FollowUserResponseDto deleteUserFollow(String nickname) {
+		User followee = userService.getUserByNickname(nickname);
 		User follower = userService.getCurrentUser();
-		User followee = userService.findUserByIdOrThrow(userId);
 
 		if (!isFollowing(follower, followee)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not following");

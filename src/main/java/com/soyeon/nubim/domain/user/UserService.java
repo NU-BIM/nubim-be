@@ -105,10 +105,7 @@ public class UserService {
 	}
 
 	public User getUserByNickname(String nickname) {
-		Optional<User> user = userRepository.findByNickname(nickname);
-		if (user.isEmpty()) {
-			throw UserNotFoundException.forNickname(nickname);
-		}
-		return user.get();
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(() -> UserNotFoundException.forNickname(nickname));
 	}
 }

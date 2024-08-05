@@ -27,7 +27,7 @@ public class SearchControllerV1 {
 	@GetMapping
 	public ResponseEntity<Page<?>> searchWithType(
 		@RequestParam(defaultValue = "nickname") @Parameter(description = "[ nickname, post ]") String type,
-		@RequestParam(required = true) @Size(min = 2) String query,
+		@RequestParam(required = true) @Size(min = 2) @Parameter(description = "2자 이상") String query,
 		@RequestParam(defaultValue = "0") Integer page
 	) {
 		if (type.equals("nickname")) {

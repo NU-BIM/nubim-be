@@ -1,7 +1,6 @@
 package com.soyeon.nubim.domain.post;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Random;
 
 import org.springframework.data.domain.Page;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.album.Album;
-import com.soyeon.nubim.domain.album.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.AlbumService;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.CommentMapper;
@@ -20,7 +18,7 @@ import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post.exceptions.PostNotFoundException;
-import com.soyeon.nubim.domain.post.exceptions.UnauthorizedAccessException;
+import com.soyeon.nubim.domain.post.exceptions.UnauthorizedPostAccessException;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
@@ -57,8 +55,9 @@ public class PostService {
 	}
 
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
-		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId())
-			.orElseThrow(() -> new AlbumNotFoundException(postCreateRequestDto.getAlbumId()));
+		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId());
+		albumService.validateAlbumOwner(linkedAlbum.getAlbumId(), authorUser.getUserId());
+
 		Post post = postMapper.toEntity(postCreateRequestDto, authorUser, linkedAlbum);
 		post.linkAlbum(linkedAlbum);
 
@@ -92,8 +91,8 @@ public class PostService {
 		Post post = findPostByIdOrThrow(postId);
 		Long postOwnerId = post.getUser().getUserId();
 
-		if (!Objects.equals(postOwnerId, userId)) {
-			throw new UnauthorizedAccessException(postId);
+		if (!postOwnerId.equals(userId)) {
+			throw new UnauthorizedPostAccessException(postId);
 		}
 	}
 

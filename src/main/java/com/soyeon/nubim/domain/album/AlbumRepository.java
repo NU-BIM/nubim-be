@@ -23,6 +23,9 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 	@Query("SELECT a FROM Album a LEFT JOIN FETCH a.locations WHERE a.user.email = :email")
 	List<Album> findAlbumsByEmail(@Param("email") String email);
 
+	@Query("SELECT a FROM Album a LEFT JOIN FETCH a.locations WHERE a.user.email = :email and a.postLinked = false")
+	List<Album> findUnlinkedAlbumsByEmail(@Param("email") String email);
+
 	@Modifying
 	@Query("DELETE FROM Location l WHERE l.album.albumId = :albumId")
 	void deleteLocationsByAlbumId(@Param("albumId") Long albumId);

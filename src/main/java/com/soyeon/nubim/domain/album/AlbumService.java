@@ -3,7 +3,6 @@ package com.soyeon.nubim.domain.album;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +14,7 @@ import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumUpdateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
+import com.soyeon.nubim.domain.album.exception.UnauthorizedAlbumAccessException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.user.User;
@@ -35,8 +35,9 @@ public class AlbumService {
 	private final LocationMapper locationMapper;
 	private final S3ImageDeleter s3ImageDeleter;
 
-	public Optional<Album> findById(Long id) {
-		return albumRepository.findById(id);
+	public Album findById(Long id) {
+		return albumRepository.findById(id)
+			.orElseThrow(() -> new AlbumNotFoundException(id));
 	}
 
 	@Transactional
@@ -68,10 +69,15 @@ public class AlbumService {
 		return albumReadResponseDtos;
 	}
 
-	public List<AlbumReadResponseDto> findAlbumsByCurrentUser() {
+	public List<AlbumReadResponseDto> findAlbumsByCurrentUser(boolean unlinked) {
 		String currentUserEmail = userService.getCurrentUserEmail();
 
-		List<Album> albums = albumRepository.findAlbumsByEmail(currentUserEmail);
+		List<Album> albums;
+		if (unlinked) {
+			albums = albumRepository.findUnlinkedAlbumsByEmail(currentUserEmail);
+		} else {
+			albums = albumRepository.findAlbumsByEmail(currentUserEmail);
+		}
 
 		List<AlbumReadResponseDto> albumReadResponseDtos = new ArrayList<>(albums.size());
 		for (Album album : albums) {
@@ -125,6 +131,15 @@ public class AlbumService {
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		albumRepository.deleteById(albumId);
+	}
+
+	public void validateAlbumOwner(Long albumId, Long userId) {
+		Album album = findById(albumId);
+		Long albumOwnerId = album.getUser().getUserId();
+
+		if (!albumOwnerId.equals(userId)) {
+			throw new UnauthorizedAlbumAccessException(albumOwnerId);
+		}
 	}
 
 	public List<String> generatePhotoUploadUrlsWithRandomPath(List<String> contentTypes) {

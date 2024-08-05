@@ -90,11 +90,7 @@ public class PostControllerV1 {
 
 	@DeleteMapping("{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-		postService.validatePostExist(postId);
-		postService.validatePostOwner(postId, userService.getCurrentUser());
-
-		postService.deleteById(postId);
-
+		postService.deleteById(postId, userService.getCurrentUserId());
 		return ResponseEntity.ok().build();
 	}
 

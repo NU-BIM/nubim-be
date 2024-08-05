@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
@@ -54,8 +55,9 @@ public class AlbumControllerV1 {
 
 	@Operation(description = "요청을 보낸 사용자 자신의 모든 앨범을 가져온다.")
 	@GetMapping("/my-albums")
-	public ResponseEntity<List<AlbumReadResponseDto>> getMyAlbums() {
-		List<AlbumReadResponseDto> albums = albumService.findAlbumsByCurrentUser();
+	public ResponseEntity<List<AlbumReadResponseDto>> getMyAlbums(
+		@RequestParam(required = false, defaultValue = "false") boolean unlinked) {
+		List<AlbumReadResponseDto> albums = albumService.findAlbumsByCurrentUser(unlinked);
 		return ResponseEntity.ok(albums);
 	}
 

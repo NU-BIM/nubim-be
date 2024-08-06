@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserNicknameRequestDto;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
@@ -50,6 +52,14 @@ public class UserControllerV1 {
 		Map<String, String> logoutResult = userService.logout(tokenDeleteRequestDto.getRefreshToken());
 
 		return ResponseEntity.ok().body(logoutResult);
+	}
+
+	@Operation(description = "프로필 이미지 변경")
+	@PostMapping(value = "/profile-image", consumes = {"multipart/form-data"})
+	public ResponseEntity<ProfileImageUpdateResponse> updateProfileImage(@RequestParam MultipartFile profileImage) {
+		ProfileImageUpdateResponse profileImageUpdateResponse = userService.updateProfileImage(profileImage);
+
+		return ResponseEntity.ok().body(profileImageUpdateResponse);
 	}
 
 	@Operation(description = "닉네임 변경 api, 문제 시 중복 체크 api 와 동일한 에러 반환")

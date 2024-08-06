@@ -2,16 +2,21 @@ package com.soyeon.nubim.domain.user;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.soyeon.nubim.common.util.aws.S3ImageUploader;
+import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.domain.user.exception.NicknameAlreadyExistsException;
+import com.soyeon.nubim.domain.user.exception.UnsupportedProfileImageTypeException;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
@@ -24,6 +29,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final RefreshTokenService refreshTokenService;
 	private final UserMapper userMapper;
+	private final S3ImageUploader s3ImageUploader;
 
 	public UserProfileResponseDto getCurrentUserProfile() {
 		User currentUser = getCurrentUser();
@@ -98,6 +104,26 @@ public class UserService {
 		user.setNickname(newNickname);
 		userRepository.save(user);
 		return userMapper.toUserSimpleResponseDto(user);
+	}
+
+	@Transactional
+	public ProfileImageUpdateResponse updateProfileImage(MultipartFile profileImage) {
+		validateProfileImageContentType(profileImage.getContentType());
+
+		String uploadPath = "users/" + getCurrentUserId() + "/profile/" + UUID.randomUUID().toString().substring(0, 4);
+		String uploadResponse = s3ImageUploader.uploadImage(uploadPath, profileImage);
+
+		if (uploadResponse.contains("fail")) {
+			return new ProfileImageUpdateResponse("profile image update fail", null);
+		}
+		userRepository.updateProfileImage(uploadResponse, getCurrentUserId());
+		return new ProfileImageUpdateResponse("profile image update success", uploadResponse);
+	}
+
+	private void validateProfileImageContentType(String contentType) {
+		if (contentType == null || !contentType.equals("image/png")) {
+			throw new UnsupportedProfileImageTypeException(contentType);
+		}
 	}
 
 	public void validateDuplicatedNickname(String nickname) {

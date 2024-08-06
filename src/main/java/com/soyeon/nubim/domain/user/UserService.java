@@ -179,7 +179,9 @@ public class UserService {
 		if (!Pattern.matches(User.NicknamePolicy.REGEXP, nickname)) {
 			throw new InvalidNicknameFormatException("contains illegal characters");
 		}
-		validateDuplicatedNickname(nickname);
+		if (!userRepository.isNicknameMatchingForUser(getCurrentUserId(), nickname)) {
+			validateDuplicatedNickname(nickname);
+		}
 	}
 
 	public void validateDuplicatedNickname(String nickname) {

@@ -37,4 +37,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		+ "WHERE u.userId = :userId")
 	int updateProfile(String username, String nickname, String profileIntroduction,
 		String phoneNumber, LocalDateTime birthDate, Gender gender, Long userId);
+
+	@Query("SELECT CASE WHEN u.nickname = :nickname THEN true ELSE false END FROM User u WHERE u.userId = :userId")
+	boolean isNicknameMatchingForUser(Long userId, String nickname);
 }

@@ -7,3 +7,12 @@ springdoc:
 logging:
   level:
     root: info
+
+sentry:
+  dsn: ${SENTRY_DSN}
+  environment: production
+
+  # TODO: 적정한 수치로 조절 필요
+  traces-sample-rate: 1.0
+  exception-resolver-order: -2147483647
+  max-request-body-size: always

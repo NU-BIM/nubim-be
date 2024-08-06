@@ -19,3 +19,6 @@ springdoc:
 logging:
   level:
     root: info
+
+sentry:
+  enabled: false

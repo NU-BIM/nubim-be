@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
+import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
+import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserNicknameRequestDto;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
@@ -60,6 +62,14 @@ public class UserControllerV1 {
 		ProfileImageUpdateResponse profileImageUpdateResponse = userService.updateProfileImage(profileImage);
 
 		return ResponseEntity.ok().body(profileImageUpdateResponse);
+	}
+
+	@PostMapping("/profile-update")
+	public ResponseEntity<ProfileUpdateResponse> updateProfile(
+		@RequestBody ProfileUpdateRequest profileUpdateRequest) {
+		ProfileUpdateResponse profileUpdateResponse = userService.updateProfile(profileUpdateRequest);
+
+		return ResponseEntity.ok().body(profileUpdateResponse);
 	}
 
 	@Operation(description = "닉네임 변경 api, 문제 시 중복 체크 api 와 동일한 에러 반환")

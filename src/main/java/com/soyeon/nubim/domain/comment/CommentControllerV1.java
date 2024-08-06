@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
@@ -62,7 +63,7 @@ public class CommentControllerV1 {
 		} else if (sort.equalsIgnoreCase("desc")) {
 			pageable = PageRequest.of(page.intValue(), DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
 		} else {
-			return ResponseEntity.badRequest().build();
+			throw new InvalidQueryParameterException("sort");
 		}
 		return ResponseEntity.ok(commentService.findCommentsByPostIdAndPageable(postId, pageable));
 	}

@@ -2,15 +2,14 @@ package com.soyeon.nubim.domain.userfollow;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.domain.userfollow.dto.FollowUserResponseDto;
+import com.soyeon.nubim.domain.userfollow.exception.FollowingStatusException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,11 +25,11 @@ public class UserFollowService {
 		User follower = userService.getCurrentUser();
 
 		if (follower.equals(followee)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot follow yourself");
+			throw FollowingStatusException.followYourself();
 		}
 
 		if (this.isFollowing(follower, followee)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are already following");
+			throw FollowingStatusException.alreadyFollowing(nickname);
 		}
 
 		UserFollow userFollow = UserFollow.builder()
@@ -61,7 +60,7 @@ public class UserFollowService {
 		User follower = userService.getCurrentUser();
 
 		if (!isFollowing(follower, followee)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not following");
+			throw FollowingStatusException.notFollowing(nickname);
 		}
 		UserFollow userFollowToDelete = userFollowRepository.findByFollowerAndFollowee(follower, followee)
 			.orElseThrow();

@@ -14,6 +14,7 @@ import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumUpdateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
+import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.exception.UnauthorizedAlbumAccessException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;

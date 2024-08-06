@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.domain.userfollow.dto.FollowUserResponseDto;
 
@@ -58,7 +59,7 @@ public class UserFollowControllerV1 {
 		} else if (sort.equalsIgnoreCase("desc")) {
 			pageable = PageRequest.of(page.intValue(), pageSize.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"));
 		} else {
-			return ResponseEntity.badRequest().build();
+			throw new InvalidQueryParameterException("sort");
 		}
 		return ResponseEntity.ok(userFollowService.getFollowers(pageable));
 	}
@@ -69,12 +70,7 @@ public class UserFollowControllerV1 {
 		@RequestParam(defaultValue = "desc") String sort,
 		@RequestParam(defaultValue = "20") Long pageSize) {
 
-		Pageable pageable;
-		try {
-			pageable = determinePageable(page, sort, pageSize);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().build();
-		}
+		Pageable pageable = determinePageable(page, sort, pageSize);
 
 		return ResponseEntity.ok(userFollowService.getFollowees(pageable));
 	}
@@ -86,7 +82,7 @@ public class UserFollowControllerV1 {
 		} else if (sort.equalsIgnoreCase("desc")) {
 			pageable = PageRequest.of(page.intValue(), pageSize.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"));
 		} else {
-			throw new IllegalArgumentException();
+			throw new InvalidQueryParameterException("sort");
 		}
 		return pageable;
 	}

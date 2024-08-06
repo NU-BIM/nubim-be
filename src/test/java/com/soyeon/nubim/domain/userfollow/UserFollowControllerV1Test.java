@@ -195,7 +195,7 @@ class UserFollowControllerV1Test {
 		// then
 		resultActions
 			.andExpect(status().isBadRequest())
-			.andExpect(status().reason("You are already following"));
+			.andExpect(jsonPath("$.message").value("You are already following " + testUser2.getNickname()));
 	}
 
 	/*
@@ -278,7 +278,7 @@ class UserFollowControllerV1Test {
 		// then
 		resultActions
 			.andExpect(status().isBadRequest())
-			.andExpect(status().reason("You are not following"));
+			.andExpect(jsonPath("$.message").value("You are NOT following " + testUser2.getNickname()));
 	}
 
 

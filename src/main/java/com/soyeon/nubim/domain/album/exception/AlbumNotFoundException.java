@@ -1,4 +1,4 @@
-package com.soyeon.nubim.domain.album;
+package com.soyeon.nubim.domain.album.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;

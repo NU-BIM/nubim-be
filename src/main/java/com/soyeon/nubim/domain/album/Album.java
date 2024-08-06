@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Type;
 
 import com.soyeon.nubim.common.BaseEntity;
+import com.soyeon.nubim.domain.album.exception.AlbumAlreadyLinkedToPostException;
 import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.user.User;
 import com.vladmihalcea.hibernate.type.json.JsonType;

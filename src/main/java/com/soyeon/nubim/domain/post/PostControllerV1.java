@@ -5,7 +5,6 @@ import java.net.URI;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
@@ -63,7 +62,7 @@ public class PostControllerV1 {
 		} else if (type.equals("simple")) {
 			return ResponseEntity.ok(postService.findPostSimpleById(postId));
 		} else {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+			throw new InvalidQueryParameterException("type");
 		}
 	}
 
@@ -83,7 +82,7 @@ public class PostControllerV1 {
 			pageRequest = PageRequest.of(page.intValue(), DEFAULT_SIMPLE_PAGE_SIZE,
 				Sort.by(Sort.Direction.ASC, DEFAULT_ORDER_BY));
 		} else {
-			return ResponseEntity.badRequest().build();
+			throw new InvalidQueryParameterException("sort");
 		}
 		return ResponseEntity.ok(postService.findAllPostsByUserOrderByCreatedAt(user, pageRequest));
 	}
@@ -113,7 +112,7 @@ public class PostControllerV1 {
 
 			return ResponseEntity.ok(postService.findRandomPosts(pageRequest, randomSeed, user));
 		} else {
-			return ResponseEntity.badRequest().build();
+			throw new InvalidQueryParameterException("type");
 		}
 	}
 }

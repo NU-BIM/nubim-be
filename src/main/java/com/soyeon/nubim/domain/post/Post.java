@@ -61,6 +61,16 @@ public class Post extends BaseEntity {
 	@OrderBy("createdAt DESC")
 	private List<Comment> comments = new ArrayList<>();
 
+	/**
+	 * 다른 엔티티 생성 시 매핑만을 위해 임시 Post 엔티티 생성
+	 * 실제 Post의 값은 가지지 않으니 사용 시 주의할 것
+	 */
+	public Post(Long postId, Long userId) {
+		this.postId = postId;
+		this.user = new User(userId);
+		this.postTitle = "MAPPING_POST";
+	}
+
 	public void linkAlbum(Album album) {
 		this.album = album;
 		album.linkPost(this);

@@ -1,7 +1,10 @@
 package com.soyeon.nubim.domain.user.exception;
 
-public class InvalidNicknameFormatException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+public class InvalidNicknameFormatException extends ResponseStatusException {
 	public InvalidNicknameFormatException(String reason) {
-		super("Invalid nickname format: " + reason);
+		super(HttpStatus.BAD_REQUEST, "Invalid nickname format: " + reason);
 	}
 }

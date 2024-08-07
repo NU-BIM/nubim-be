@@ -1,11 +1,10 @@
 package com.soyeon.nubim.domain.user.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-public class UnsupportedProfileImageTypeException extends RuntimeException {
+public class UnsupportedProfileImageTypeException extends ResponseStatusException {
 	public UnsupportedProfileImageTypeException(String contentType) {
-		super("Unsupported profile image type : " + contentType);
+		super(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported profile image type : " + contentType);
 	}
 }

@@ -1,7 +1,10 @@
 package com.soyeon.nubim.domain.user.exception;
 
-public class NicknameNullOrEmptyException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+public class NicknameNullOrEmptyException extends ResponseStatusException {
 	public NicknameNullOrEmptyException() {
-		super("Nickname cannot be null or empty");
+		super(HttpStatus.BAD_REQUEST, "Nickname cannot be null or empty");
 	}
 }

@@ -109,15 +109,6 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserSimpleResponseDto modifyNickname(String newNickname) {
-		validateDuplicatedNickname(newNickname);
-		User user = getCurrentUser();
-		user.setNickname(newNickname);
-		userRepository.save(user);
-		return userMapper.toUserSimpleResponseDto(user);
-	}
-
-	@Transactional
 	public ProfileImageUpdateResponse updateProfileImage(MultipartFile profileImage) {
 		validateProfileImageContentType(profileImage.getContentType());
 

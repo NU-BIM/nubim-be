@@ -18,10 +18,10 @@ public class PostLikeControllerV1 {
 
 	private final PostLikeService postLikeService;
 
-	@Operation(description = "게시글 좋아요 생성")
+	@Operation(description = "게시글 좋아요 및 좋아요 취소. 게시글에 좋아요를 누르고, 이미 좋아요가 되어있을 시 취소한다.")
 	@PostMapping("/{postId}")
-	public ResponseEntity<PostLikeResponse> likePost(@PathVariable("postId") Long postId) {
-		PostLikeResponse postLike = postLikeService.createPostLike(postId);
+	public ResponseEntity<PostLikeResponse> togglePostLike(@PathVariable("postId") Long postId) {
+		PostLikeResponse postLike = postLikeService.togglePostLike(postId);
 
 		return ResponseEntity.ok().body(postLike);
 	}

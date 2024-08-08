@@ -36,24 +36,6 @@ public class PostService {
 	private final CommentMapper commentMapper;
 	private final UserMapper userMapper;
 
-	public PostDetailResponseDto findPostDetailById(Long id) {
-		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
-
-		return postMapper.toPostDetailResponseDto(post);
-	}
-
-	public PostSimpleResponseDto findPostSimpleById(Long id) {
-		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
-
-		return postMapper.toPostSimpleResponseDto(post);
-	}
-
-	public Page<PostSimpleResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
-		Page<Post> postList = postRepository.findByUser(user, pageable);
-		return postList
-			.map(postMapper::toPostSimpleResponseDto);
-	}
-
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
 		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId());
 		albumService.validateAlbumOwner(linkedAlbum.getAlbumId(), authorUser.getUserId());
@@ -65,39 +47,34 @@ public class PostService {
 		return postMapper.toPostCreateResponseDto(post);
 	}
 
-	public void deleteById(Long postId, Long userId) {
-		validatePostOwner(postId, userId);
-
-		Post post = findPostByIdOrThrow(postId);
-		post.unlinkAlbum();
-
-		postRepository.deleteById(postId);
-	}
-
 	public Post findPostByIdOrThrow(Long id) {
-
-		return postRepository
-			.findById(id)
-			.orElseThrow(() -> new PostNotFoundException(id));
+		return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
 	}
 
-	public void validatePostExist(Long postId) {
-		if (!postRepository.existsById(postId)) {
-			throw new PostNotFoundException(postId);
-		}
+	public PostSimpleResponseDto findPostSimpleById(Long id) {
+		Post post = findPostByIdOrThrow(id);
+
+		return postMapper.toPostSimpleResponseDto(post);
 	}
 
-	public void validatePostOwner(Long postId, Long userId) {
-		Post post = findPostByIdOrThrow(postId);
-		Long postOwnerId = post.getUser().getUserId();
+	public PostDetailResponseDto findPostDetailById(Long id) {
+		Post post = findPostByIdOrThrow(id);
 
-		if (!postOwnerId.equals(userId)) {
-			throw new UnauthorizedPostAccessException(postId);
-		}
+		return postMapper.toPostDetailResponseDto(post);
 	}
 
-	public Page<PostMainResponseDto> findRecentPostsOfFollowees(
-		User user, Pageable pageable, int recentCriteriaDays) {
+	public Page<PostSimpleResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
+		return postRepository.findByPostTitleContainingOrPostContentContaining(query, query, pageable)
+			.map(postMapper::toPostSimpleResponseDto);
+	}
+
+	public Page<PostSimpleResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
+		Page<Post> postList = postRepository.findByUser(user, pageable);
+		return postList
+			.map(postMapper::toPostSimpleResponseDto);
+	}
+
+	public Page<PostMainResponseDto> findRecentPostsOfFollowees(User user, Pageable pageable, int recentCriteriaDays) {
 		return postRepository.findRecentPostsByFollowees(user, LocalDateTime.now().minusDays(recentCriteriaDays),
 				pageable)
 			.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)));
@@ -116,13 +93,6 @@ public class PostService {
 		return customPage;
 	}
 
-	private Float getOrGenerateRandomSeed(Float seed) {
-		if (seed == null) {
-			return random.nextFloat();
-		}
-		return seed;
-	}
-
 	private CommentResponseDto findRecentCommentByPostOrNull(Post post) {
 		Comment lastCommentByPost = post.getComments().stream().findFirst().orElse(null);
 		if (lastCommentByPost == null) {
@@ -134,8 +104,33 @@ public class PostService {
 		}
 	}
 
-	public Page<PostSimpleResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
-		return postRepository.findByPostTitleContainingOrPostContentContaining(query, query, pageable)
-			.map(postMapper::toPostSimpleResponseDto);
+	public void deleteById(Long postId, Long userId) {
+		Post post = findPostByIdOrThrow(postId);
+		validatePostOwner(post, userId);
+
+		post.unlinkAlbum();
+
+		postRepository.deleteById(postId);
+	}
+
+	public void validatePostExist(Long postId) {
+		if (!postRepository.existsById(postId)) {
+			throw new PostNotFoundException(postId);
+		}
+	}
+
+	public void validatePostOwner(Post post, Long userId) {
+		Long postOwnerId = post.getUser().getUserId();
+
+		if (!postOwnerId.equals(userId)) {
+			throw new UnauthorizedPostAccessException(post.getPostId());
+		}
+	}
+
+	private Float getOrGenerateRandomSeed(Float seed) {
+		if (seed == null) {
+			return random.nextFloat();
+		}
+		return seed;
 	}
 }

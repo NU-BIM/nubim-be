@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PostLikeResponse {
+public class PostLikeCreateResponse {
 	private String message;
 }

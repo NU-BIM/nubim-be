@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostService;
-import com.soyeon.nubim.domain.postlike.dto.PostLikeResponse;
+import com.soyeon.nubim.domain.postlike.dto.PostLikeCreateResponse;
 import com.soyeon.nubim.domain.postlike.exception.MultiplePostLikeDeleteException;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
@@ -22,7 +22,7 @@ public class PostLikeService {
 	private final PostLikeRepository postLikeRepository;
 
 	@Transactional
-	public PostLikeResponse togglePostLike(Long postId) {
+	public PostLikeCreateResponse togglePostLike(Long postId) {
 		Long currentUserId = userService.getCurrentUserId();
 
 		postService.validatePostExist(postId);
@@ -35,7 +35,7 @@ public class PostLikeService {
 			if (deleteResult != POST_LIKE_DELETE_SUCCESS) {
 				throw new MultiplePostLikeDeleteException();
 			}
-			return new PostLikeResponse("post like removed");
+			return new PostLikeCreateResponse("post like removed");
 		}
 
 		PostLike postLike = PostLike.builder()
@@ -44,6 +44,6 @@ public class PostLikeService {
 			.build();
 		postLikeRepository.save(postLike);
 
-		return new PostLikeResponse("post like successfully");
+		return new PostLikeCreateResponse("post like successfully");
 	}
 }

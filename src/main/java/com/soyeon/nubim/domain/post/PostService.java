@@ -18,7 +18,6 @@ import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post.exceptions.PostNotFoundException;
-import com.soyeon.nubim.domain.post.exceptions.UnauthorizedPostAccessException;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
@@ -30,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final PostValidator postValidator;
 	private final AlbumService albumService;
 
 	private static final Random random = new Random();
@@ -106,25 +106,11 @@ public class PostService {
 
 	public void deleteById(Long postId, Long userId) {
 		Post post = findPostByIdOrThrow(postId);
-		validatePostOwner(post, userId);
+		postValidator.validatePostOwner(post, userId);
 
 		post.unlinkAlbum();
 
 		postRepository.deleteById(postId);
-	}
-
-	public void validatePostExist(Long postId) {
-		if (!postRepository.existsById(postId)) {
-			throw new PostNotFoundException(postId);
-		}
-	}
-
-	public void validatePostOwner(Post post, Long userId) {
-		Long postOwnerId = post.getUser().getUserId();
-
-		if (!postOwnerId.equals(userId)) {
-			throw new UnauthorizedPostAccessException(post.getPostId());
-		}
 	}
 
 	private Float getOrGenerateRandomSeed(Float seed) {

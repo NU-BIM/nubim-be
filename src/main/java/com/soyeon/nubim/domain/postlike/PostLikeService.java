@@ -3,7 +3,7 @@ package com.soyeon.nubim.domain.postlike;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.post.Post;
-import com.soyeon.nubim.domain.post.PostService;
+import com.soyeon.nubim.domain.post.PostValidator;
 import com.soyeon.nubim.domain.postlike.dto.PostLikeCreateResponse;
 import com.soyeon.nubim.domain.postlike.exception.MultiplePostLikeDeleteException;
 import com.soyeon.nubim.domain.user.User;
@@ -16,16 +16,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostLikeService {
 
-	public static final int POST_LIKE_DELETE_SUCCESS = 1;
+	private static final int POST_LIKE_DELETE_SUCCESS = 1;
 	private final UserService userService;
-	private final PostService postService;
+	private final PostValidator postValidator;
 	private final PostLikeRepository postLikeRepository;
 
 	@Transactional
 	public PostLikeCreateResponse togglePostLike(Long postId) {
 		Long currentUserId = userService.getCurrentUserId();
 
-		postService.validatePostExist(postId);
+		postValidator.validatePostExist(postId);
 		userService.validateUserExists(currentUserId);
 
 		// 좋아요 되어 있을 시 좋아요 삭제

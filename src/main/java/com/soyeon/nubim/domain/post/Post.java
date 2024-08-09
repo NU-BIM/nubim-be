@@ -71,7 +71,7 @@ public class Post extends BaseEntity {
 
 	public void linkAlbum(Album album) {
 		this.album = album;
-		album.linkPost(this);
+		album.linkPost();
 	}
 
 	public void unlinkAlbum() {

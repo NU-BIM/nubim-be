@@ -93,6 +93,17 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
 	private List<UserFollow> followees = new ArrayList<>();
 
+	/**
+	 * 다른 엔티티 생성 시 매핑만을 위한 임시 User 엔티티 생성
+	 * 실제 User의 값은 가지지 않으니 사용 시 주의할 것
+	 */
+	public User(Long userId) {
+		this.userId = userId;
+		this.username = "MAPPING_USER";
+		this.nickname = "MAPPING_USER";
+		this.email = "MAPPING_USER@email.com";
+	}
+
 	public User updateNameFromOAuthProfile(String name) {
 		this.username = name;
 		return this;

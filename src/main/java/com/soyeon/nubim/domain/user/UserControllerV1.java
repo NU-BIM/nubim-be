@@ -10,16 +10,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.soyeon.nubim.domain.user.dto.UserNicknameRequestDto;
+import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
+import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
+import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
-import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.jwt.dto.TokenDeleteRequestDto;
 import com.soyeon.nubim.security.oauth.GoogleOAuthLoginService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -52,12 +53,20 @@ public class UserControllerV1 {
 		return ResponseEntity.ok().body(logoutResult);
 	}
 
-	@Operation(description = "닉네임 변경 api, 문제 시 중복 체크 api 와 동일한 에러 반환")
-	@PostMapping("/nickname")
-	public ResponseEntity<UserSimpleResponseDto> changeNickname(
-		@RequestBody @Valid UserNicknameRequestDto userNicknameRequestDto) {
-		UserSimpleResponseDto successResponse = userService.modifyNickname(userNicknameRequestDto.getNickname());
-		return ResponseEntity.ok().body(successResponse);
+	@Operation(description = "프로필 이미지 변경")
+	@PostMapping(value = "/profile-image", consumes = {"multipart/form-data"})
+	public ResponseEntity<ProfileImageUpdateResponse> updateProfileImage(@RequestParam MultipartFile profileImage) {
+		ProfileImageUpdateResponse profileImageUpdateResponse = userService.updateProfileImage(profileImage);
+
+		return ResponseEntity.ok().body(profileImageUpdateResponse);
+	}
+
+	@PostMapping("/profile-update")
+	public ResponseEntity<ProfileUpdateResponse> updateProfile(
+		@RequestBody ProfileUpdateRequest profileUpdateRequest) {
+		ProfileUpdateResponse profileUpdateResponse = userService.updateProfile(profileUpdateRequest);
+
+		return ResponseEntity.ok().body(profileUpdateResponse);
 	}
 
 	@Operation(description = "닉네임 중복 및 형식 체크, 중복 시 409, 형식 에러 시 400 반환, 문제 없을 시 200")

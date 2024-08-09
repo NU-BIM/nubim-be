@@ -39,7 +39,7 @@ public class PostLikeService {
 		}
 
 		PostLike postLike = PostLike.builder()
-			.post(new Post(postId, currentUserId))
+			.post(new Post(postId))
 			.user(new User(currentUserId))
 			.build();
 		postLikeRepository.save(postLike);

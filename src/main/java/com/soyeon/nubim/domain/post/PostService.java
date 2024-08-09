@@ -11,6 +11,7 @@ import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumService;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.CommentMapper;
+import com.soyeon.nubim.domain.comment.CommentService;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
@@ -18,7 +19,6 @@ import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post.exceptions.PostNotFoundException;
-import com.soyeon.nubim.domain.post.exceptions.UnauthorizedPostAccessException;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
@@ -30,7 +30,9 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final PostValidator postValidator;
 	private final AlbumService albumService;
+	private final CommentService commentService;
 
 	private static final Random random = new Random();
 	private final CommentMapper commentMapper;
@@ -77,7 +79,10 @@ public class PostService {
 	public Page<PostMainResponseDto> findRecentPostsOfFollowees(User user, Pageable pageable, int recentCriteriaDays) {
 		return postRepository.findRecentPostsByFollowees(user, LocalDateTime.now().minusDays(recentCriteriaDays),
 				pageable)
-			.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)));
+			.map(post -> {
+				long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+				return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+			});
 	}
 
 	public Page<PostMainResponseDto> findRandomPosts(Pageable pageable, Float randomSeed, User user) {
@@ -86,7 +91,11 @@ public class PostService {
 
 		CustomPageImpl<PostMainResponseDto> customPage = new CustomPageImpl<>(
 			postRepository.findRandomPostsExceptMine(pageable, user)
-				.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)))
+				.map(post -> {
+					long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+					return
+						postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+				})
 		);
 		customPage.setRandomSeed(seed);
 
@@ -106,25 +115,11 @@ public class PostService {
 
 	public void deleteById(Long postId, Long userId) {
 		Post post = findPostByIdOrThrow(postId);
-		validatePostOwner(post, userId);
+		postValidator.validatePostOwner(post, userId);
 
 		post.unlinkAlbum();
 
 		postRepository.deleteById(postId);
-	}
-
-	public void validatePostExist(Long postId) {
-		if (!postRepository.existsById(postId)) {
-			throw new PostNotFoundException(postId);
-		}
-	}
-
-	public void validatePostOwner(Post post, Long userId) {
-		Long postOwnerId = post.getUser().getUserId();
-
-		if (!postOwnerId.equals(userId)) {
-			throw new UnauthorizedPostAccessException(post.getPostId());
-		}
 	}
 
 	private Float getOrGenerateRandomSeed(Float seed) {

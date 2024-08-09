@@ -19,21 +19,21 @@ import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
-import com.soyeon.nubim.domain.post.PostService;
+import com.soyeon.nubim.domain.post.PostValidator;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/v1/comments")
+@RequiredArgsConstructor
 public class CommentControllerV1 {
-	CommentService commentService;
-	PostService postService;
-	UserService userService;
+	private final CommentService commentService;
+	private final UserService userService;
+	private final PostValidator postValidator;
 
 	@PostMapping
 	public ResponseEntity<CommentCreateResponseDto> createComment(
@@ -53,7 +53,7 @@ public class CommentControllerV1 {
 		@PathVariable Long postId,
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "asc") String sort) {
-		postService.validatePostExist(postId);
+		postValidator.validatePostExist(postId);
 
 		Pageable pageable;
 		final int DEFAULT_PAGE_SIZE = 10;

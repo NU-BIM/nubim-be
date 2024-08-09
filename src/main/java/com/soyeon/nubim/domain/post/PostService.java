@@ -11,6 +11,7 @@ import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumService;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.CommentMapper;
+import com.soyeon.nubim.domain.comment.CommentService;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
@@ -31,6 +32,7 @@ public class PostService {
 	private final PostMapper postMapper;
 	private final PostValidator postValidator;
 	private final AlbumService albumService;
+	private final CommentService commentService;
 
 	private static final Random random = new Random();
 	private final CommentMapper commentMapper;
@@ -77,7 +79,10 @@ public class PostService {
 	public Page<PostMainResponseDto> findRecentPostsOfFollowees(User user, Pageable pageable, int recentCriteriaDays) {
 		return postRepository.findRecentPostsByFollowees(user, LocalDateTime.now().minusDays(recentCriteriaDays),
 				pageable)
-			.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)));
+			.map(post -> {
+				long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+				return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+			});
 	}
 
 	public Page<PostMainResponseDto> findRandomPosts(Pageable pageable, Float randomSeed, User user) {
@@ -86,7 +91,11 @@ public class PostService {
 
 		CustomPageImpl<PostMainResponseDto> customPage = new CustomPageImpl<>(
 			postRepository.findRandomPostsExceptMine(pageable, user)
-				.map(post -> postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post)))
+				.map(post -> {
+					long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+					return
+						postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+				})
 		);
 		customPage.setRandomSeed(seed);
 

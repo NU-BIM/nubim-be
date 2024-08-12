@@ -99,9 +99,6 @@ public class User extends BaseEntity {
 	 */
 	public User(Long userId) {
 		this.userId = userId;
-		this.username = "MAPPING_USER";
-		this.nickname = "MAPPING_USER";
-		this.email = "MAPPING_USER@email.com";
 	}
 
 	public User updateNameFromOAuthProfile(String name) {

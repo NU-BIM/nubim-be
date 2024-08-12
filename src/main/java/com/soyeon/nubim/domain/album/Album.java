@@ -25,7 +25,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,10 +51,8 @@ public class Album extends BaseEntity {
 
 	private String description;
 
+	@Builder.Default
 	private boolean postLinked = false;
-
-	@OneToOne(mappedBy = "album")
-	private Post post;
 
 	@Builder.Default
 	@Type(JsonType.class)
@@ -72,16 +69,14 @@ public class Album extends BaseEntity {
 		}
 	}
 
-	public void linkPost(Post post) {
+	public void linkPost() {
 		if (postLinked) {
 			throw new AlbumAlreadyLinkedToPostException();
 		}
-		this.post = post;
 		this.postLinked = true;
 	}
 
 	public void unlinkPost() {
-		this.post = null;
 		this.postLinked = false;
 	}
 

@@ -1,7 +1,9 @@
 package com.soyeon.nubim.domain.post.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.soyeon.nubim.domain.album.dto.AlbumSimpleResponse;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
@@ -16,12 +18,16 @@ public class PostMainResponseDto {
 	private Long postId;
 	private String postTitle;
 	private String postContent;
-	private UserSimpleResponseDto user;
-	private Long numberOfComments;
-	private CommentResponseDto representativeComment;
+	private UserSimpleResponseDto postOwner;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	// TODO : Album 구현 완료되면 적절하게 변경되어야 함.
-	private Long albumId;
+	private AlbumSimpleResponse album;
+
+	private List<UserSimpleResponseDto> postLikeUsers;
+	private Long numberOfPostLikes;
+
+	private CommentResponseDto representativeComment;
+	private Long numberOfComments;
+
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostMapper;
-import com.soyeon.nubim.domain.post.PostService;
+import com.soyeon.nubim.domain.post.PostValidator;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post_bookmark.dto.PostBookmarkRequestDto;
 import com.soyeon.nubim.domain.post_bookmark.dto.PostBookmarkResponseDto;
@@ -22,13 +22,15 @@ import lombok.RequiredArgsConstructor;
 public class PostBookmarkService {
 	private final PostBookmarkRepository postBookmarkRepository;
 	private final UserService userService;
-	private final PostService postService;
 	private final PostMapper postMapper;
+	private final PostValidator postValidator;
 
 	@Transactional
 	public PostBookmarkResponseDto bookmarkPost(PostBookmarkRequestDto requestDto) {
 		User user = userService.getCurrentUser();
-		Post post = postService.findPostByIdOrThrow(requestDto.getPostId());
+
+		postValidator.validatePostExist(requestDto.getPostId());
+		Post post = new Post(requestDto.getPostId());
 
 		// 이미 북마크가 되어 있는지 확인
 		if (postBookmarkRepository.existsByUserAndPost(user, post)) {
@@ -51,7 +53,9 @@ public class PostBookmarkService {
 	@Transactional
 	public PostBookmarkResponseDto deleteBookmarkPost(PostBookmarkRequestDto requestDto) {
 		User user = userService.getCurrentUser();
-		Post post = postService.findPostByIdOrThrow(requestDto.getPostId());
+
+		postValidator.validatePostExist(requestDto.getPostId());
+		Post post = new Post(requestDto.getPostId());
 
 		PostBookmark postBookmark = postBookmarkRepository
 			.findByUserAndPost(user, post)
@@ -66,7 +70,7 @@ public class PostBookmarkService {
 	}
 
 	public Page<PostSimpleResponseDto> getUserBookmarks(Pageable pageable) {
-		User user = userService.getCurrentUser();
+		User user = new User(userService.getCurrentUserId());
 
 		Page<PostBookmark> postBookmarks = postBookmarkRepository.findByUser(user, pageable);
 

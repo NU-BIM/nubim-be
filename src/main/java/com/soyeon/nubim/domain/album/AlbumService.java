@@ -18,6 +18,7 @@ import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.exception.UnauthorizedAlbumAccessException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
+import com.soyeon.nubim.domain.post.PostRepository;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
@@ -35,6 +36,7 @@ public class AlbumService {
 	private final UserService userService;
 	private final LocationMapper locationMapper;
 	private final S3ImageDeleter s3ImageDeleter;
+	private final PostRepository postRepository;
 
 	public Album findById(Long id) {
 		return albumRepository.findById(id)
@@ -134,6 +136,7 @@ public class AlbumService {
 
 		albumRepository.deleteLocationsByAlbumId(albumId);
 		albumRepository.deleteByAlbumId(albumId);
+		postRepository.deletePostByDeletedAlbumId(albumId);
 	}
 
 	public void validateAlbumOwner(Long albumId, Long userId) {

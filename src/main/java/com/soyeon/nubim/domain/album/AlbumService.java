@@ -15,7 +15,6 @@ import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumUpdateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
 import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
-import com.soyeon.nubim.domain.album.exception.UnauthorizedAlbumAccessException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.user.User;
@@ -27,14 +26,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AlbumService {
 
-	public static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
-	public static final int OBJECT_KEY_START_OFFSET = 14;
+	private static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
+	private static final int OBJECT_KEY_START_OFFSET = 14;
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 	private final AlbumRepository albumRepository;
 	private final AlbumMapper albumMapper;
 	private final UserService userService;
 	private final LocationMapper locationMapper;
 	private final S3ImageDeleter s3ImageDeleter;
+	private final AlbumValidator albumValidator;
 
 	public Album findById(Long id) {
 		return albumRepository.findById(id)
@@ -90,6 +90,7 @@ public class AlbumService {
 
 	@Transactional
 	public AlbumReadResponseDto updateAlbum(Long albumId, AlbumUpdateRequestDto albumUpdateRequestDto) {
+		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
 		Album album = albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
@@ -128,19 +129,11 @@ public class AlbumService {
 	}
 
 	public void deleteAlbum(Long albumId) {
+		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
 		albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		albumRepository.deleteById(albumId);
-	}
-
-	public void validateAlbumOwner(Long albumId, Long userId) {
-		Album album = findById(albumId);
-		Long albumOwnerId = album.getUser().getUserId();
-
-		if (!albumOwnerId.equals(userId)) {
-			throw new UnauthorizedAlbumAccessException(albumOwnerId);
-		}
 	}
 
 	public List<String> generatePhotoUploadUrlsWithRandomPath(List<String> contentTypes) {

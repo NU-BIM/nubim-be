@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumService;
+import com.soyeon.nubim.domain.album.AlbumValidator;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.CommentMapper;
 import com.soyeon.nubim.domain.comment.CommentService;
@@ -32,6 +33,7 @@ public class PostService {
 	private final PostMapper postMapper;
 	private final PostValidator postValidator;
 	private final AlbumService albumService;
+	private final AlbumValidator albumValidator;
 	private final CommentService commentService;
 
 	private static final Random random = new Random();
@@ -40,7 +42,7 @@ public class PostService {
 
 	public PostCreateResponseDto createPost(PostCreateRequestDto postCreateRequestDto, User authorUser) {
 		Album linkedAlbum = albumService.findById(postCreateRequestDto.getAlbumId());
-		albumService.validateAlbumOwner(linkedAlbum.getAlbumId(), authorUser.getUserId());
+		albumValidator.validateAlbumOwner(linkedAlbum.getAlbumId(), authorUser.getUserId());
 
 		Post post = postMapper.toEntity(postCreateRequestDto, authorUser, linkedAlbum);
 		post.linkAlbum(linkedAlbum);

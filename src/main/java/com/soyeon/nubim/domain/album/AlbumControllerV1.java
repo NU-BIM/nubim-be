@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class AlbumControllerV1 {
 
 	private final AlbumService albumService;
+	private final AlbumPhotoUploadUrlService albumPhotoUploadUrlService;
 
 	@Operation(description = "앨범 생성")
 	@PostMapping
@@ -77,14 +78,14 @@ public class AlbumControllerV1 {
 
 	@PostMapping("/photos/upload-urls")
 	public ResponseEntity<List<String>> getInitialPhotoUploadUrls(@RequestBody PhotoInitialUploadRequestDto request) {
-		List<String> presignedUrls = albumService.generatePhotoUploadUrlsWithRandomPath(request.getContentTypes());
+		List<String> presignedUrls = albumPhotoUploadUrlService.generatePhotoUploadUrlsWithRandomPath(request.getContentTypes());
 		return ResponseEntity.ok(presignedUrls);
 	}
 
 	@PostMapping("/photos/update-upload-urls")
 	public ResponseEntity<List<String>> getUpdatePhotoUploadUrls(@RequestBody PhotoUpdateUploadRequestDto request) {
 		List<String> presignedUrls =
-			albumService.generatePhotoUploadUrlsWithCustomPath(request.getContentTypes(), request.getUploadPath());
+			albumPhotoUploadUrlService.generatePhotoUploadUrlsWithCustomPath(request.getContentTypes(), request.getUploadPath());
 		return ResponseEntity.ok(presignedUrls);
 	}
 }

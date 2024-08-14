@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.soyeon.nubim.common.util.aws.S3ImageDeleter;
-import com.soyeon.nubim.common.util.aws.S3PresignedUrlGenerator;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
@@ -28,13 +27,12 @@ public class AlbumService {
 
 	private static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
 	private static final int OBJECT_KEY_START_OFFSET = 14;
-	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
-	private final AlbumRepository albumRepository;
+	private final AlbumValidator albumValidator;
 	private final AlbumMapper albumMapper;
+	private final AlbumRepository albumRepository;
 	private final UserService userService;
 	private final LocationMapper locationMapper;
 	private final S3ImageDeleter s3ImageDeleter;
-	private final AlbumValidator albumValidator;
 
 	public Album findById(Long id) {
 		return albumRepository.findById(id)
@@ -134,14 +132,6 @@ public class AlbumService {
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		albumRepository.deleteById(albumId);
-	}
-
-	public List<String> generatePhotoUploadUrlsWithRandomPath(List<String> contentTypes) {
-		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes);
-	}
-
-	public List<String> generatePhotoUploadUrlsWithCustomPath(List<String> contentTypes, String uploadPath) {
-		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes, uploadPath);
 	}
 
 }

@@ -15,7 +15,7 @@ import com.soyeon.nubim.domain.user.User;
 public interface AlbumRepository extends JpaRepository<Album, Long> {
 
 	@Query("SELECT a.user.userId FROM Album a WHERE a.albumId = :albumId")
-	Long findAlbumOwnerIdByAlbumId(Long albumId);
+	Optional<Long> findAlbumOwnerIdByAlbumId(Long albumId);
 
 	@Query("SELECT a FROM Album a LEFT JOIN FETCH a.locations WHERE a.albumId = :albumId")
 	Optional<Album> findByIdWithLocations(@Param("albumId") Long albumId);

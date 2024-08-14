@@ -18,6 +18,7 @@ import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.exception.UnauthorizedAlbumAccessException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
+import com.soyeon.nubim.domain.post.PostRepository;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
@@ -27,14 +28,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AlbumService {
 
-	public static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
-	public static final int OBJECT_KEY_START_OFFSET = 14;
+	private static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
+	private static final int OBJECT_KEY_START_OFFSET = 14;
 	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 	private final AlbumRepository albumRepository;
 	private final AlbumMapper albumMapper;
 	private final UserService userService;
 	private final LocationMapper locationMapper;
 	private final S3ImageDeleter s3ImageDeleter;
+	private final PostRepository postRepository;
 
 	public Album findById(Long id) {
 		return albumRepository.findById(id)
@@ -127,11 +129,14 @@ public class AlbumService {
 		return deletedS3ObjectKeys;
 	}
 
+	@Transactional
 	public void deleteAlbum(Long albumId) {
 		albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
-		albumRepository.deleteById(albumId);
+		albumRepository.deleteLocationsByAlbumId(albumId);
+		albumRepository.deleteByAlbumId(albumId);
+		postRepository.deletePostByDeletedAlbumId(albumId);
 	}
 
 	public void validateAlbumOwner(Long albumId, Long userId) {

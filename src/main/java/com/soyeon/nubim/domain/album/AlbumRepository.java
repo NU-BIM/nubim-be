@@ -33,4 +33,8 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 	@Query("DELETE FROM Location l WHERE l.album.albumId = :albumId")
 	void deleteLocationsByAlbumId(@Param("albumId") Long albumId);
 
+	@Modifying
+	@Query("UPDATE Album a SET a.isDeleted = true WHERE a.albumId = :albumId")
+	void deleteByAlbumId(@Param("albumId") Long albumId);
+
 }

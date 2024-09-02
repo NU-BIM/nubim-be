@@ -8,14 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.soyeon.nubim.common.util.aws.S3ImageDeleter;
-import com.soyeon.nubim.common.util.aws.S3PresignedUrlGenerator;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumUpdateRequestDto;
 import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
 import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
-import com.soyeon.nubim.domain.album.exception.UnauthorizedAlbumAccessException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.post.PostRepository;
@@ -30,7 +28,7 @@ public class AlbumService {
 
 	private static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
 	private static final int OBJECT_KEY_START_OFFSET = 14;
-	private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
+	private final AlbumValidator albumValidator;
 	private final AlbumRepository albumRepository;
 	private final AlbumMapper albumMapper;
 	private final UserService userService;
@@ -92,6 +90,7 @@ public class AlbumService {
 
 	@Transactional
 	public AlbumReadResponseDto updateAlbum(Long albumId, AlbumUpdateRequestDto albumUpdateRequestDto) {
+		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
 		Album album = albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
@@ -131,29 +130,13 @@ public class AlbumService {
 
 	@Transactional
 	public void deleteAlbum(Long albumId) {
+		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
 		albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
 		albumRepository.deleteLocationsByAlbumId(albumId);
 		albumRepository.deleteByAlbumId(albumId);
 		postRepository.deletePostByDeletedAlbumId(albumId);
-	}
-
-	public void validateAlbumOwner(Long albumId, Long userId) {
-		Album album = findById(albumId);
-		Long albumOwnerId = album.getUser().getUserId();
-
-		if (!albumOwnerId.equals(userId)) {
-			throw new UnauthorizedAlbumAccessException(albumOwnerId);
-		}
-	}
-
-	public List<String> generatePhotoUploadUrlsWithRandomPath(List<String> contentTypes) {
-		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes);
-	}
-
-	public List<String> generatePhotoUploadUrlsWithCustomPath(List<String> contentTypes, String uploadPath) {
-		return s3PresignedUrlGenerator.generatePresignedUrls(contentTypes, uploadPath);
 	}
 
 }

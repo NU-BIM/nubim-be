@@ -37,7 +37,7 @@ public class SecurityConfig {
 				.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/error",
 					"/login", "/logout", "/oauth2/**", "/swagger-ui", "/swagger-ui/**",
 					"/swagger-ui.html", "/v3/api-docs/**", "/v1/users/login", "/v1/users/logout",
-					"/v1/refresh-tokens/new-access-token")
+					"/v1/refresh-tokens/new-access-token", "/actuator/health")
 				.permitAll()
 				.anyRequest()
 				.authenticated()

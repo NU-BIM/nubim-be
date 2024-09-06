@@ -3,10 +3,12 @@ package com.soyeon.nubim.common.util.aws;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class S3AndCdnUrlConverter {
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucketName;

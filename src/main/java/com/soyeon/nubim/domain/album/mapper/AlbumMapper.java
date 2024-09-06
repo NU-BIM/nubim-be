@@ -52,6 +52,9 @@ public class AlbumMapper {
 	public AlbumCreateResponseDto toAlbumCreateResponseDto(Album album) {
 		Map<Integer, String> photoUrls = album.getPhotoUrls();
 
+		// cdn 경로 붙여서 반환
+		photoUrls.forEach((key, value) -> photoUrls.put(key, s3AndCdnUrlConverter.convertPathToCdnUrl(value)));
+
 		List<Location> locations = album.getLocations();
 		List<LocationCreateResponseDto> locationCreateResponseDtos =
 			locationMapper.toLocationCreateResponseDtoList(locations);

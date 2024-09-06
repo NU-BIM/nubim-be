@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.soyeon.nubim.common.util.aws.S3AndCdnUrlConverter;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.Location;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
@@ -25,9 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AlbumMapper {
 
 	private final LocationMapper locationMapper;
+	private final S3AndCdnUrlConverter s3AndCdnUrlConverter;
 
 	public Album toEntity(AlbumCreateRequestDto albumCreateRequestDto, User user) {
 		Map<Integer, String> photoUrls = albumCreateRequestDto.getPhotoUrls();
+
+		// S3 url 제거 후 경로만 저장
+		photoUrls.forEach((key, value) -> photoUrls.put(key, s3AndCdnUrlConverter.convertS3UrlToPath(value)));
 
 		List<LocationCreateRequestDto> locationDtos = albumCreateRequestDto.getLocations();
 		List<Location> locations = locationMapper.toEntityListFromCreateDto(locationDtos);
@@ -64,6 +69,9 @@ public class AlbumMapper {
 
 	public AlbumReadResponseDto toAlbumReadResponseDto(Album album) {
 		Map<Integer, String> photoUrls = album.getPhotoUrls();
+
+		// cdn 경로 붙여서 반환
+		photoUrls.forEach((key, value) -> photoUrls.put(key, s3AndCdnUrlConverter.convertPathToCdnUrl(value)));
 
 		List<Location> locations = album.getLocations();
 		List<LocationReadResponseDto> locationReadResponseDtos =

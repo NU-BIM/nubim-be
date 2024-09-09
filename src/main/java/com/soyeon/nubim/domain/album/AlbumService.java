@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.soyeon.nubim.common.util.aws.S3AndCdnUrlConverter;
 import com.soyeon.nubim.common.util.aws.S3ImageDeleter;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
@@ -26,8 +27,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AlbumService {
 
-	private static final String S3_DOMAIN_SUFFIX = "amazonaws.com";
-	private static final int OBJECT_KEY_START_OFFSET = 14;
 	private final AlbumValidator albumValidator;
 	private final AlbumRepository albumRepository;
 	private final AlbumMapper albumMapper;
@@ -35,6 +34,7 @@ public class AlbumService {
 	private final LocationMapper locationMapper;
 	private final S3ImageDeleter s3ImageDeleter;
 	private final PostRepository postRepository;
+	private final S3AndCdnUrlConverter s3AndCdnUrlConverter;
 
 	public Album findById(Long id) {
 		return albumRepository.findById(id)
@@ -94,11 +94,13 @@ public class AlbumService {
 		Album album = albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
-		String newDescription = albumUpdateRequestDto.getDescription();
-		album.setDescription(newDescription);
+		album.setDescription(albumUpdateRequestDto.getDescription());
 
 		Map<Integer, String> currentPhotoUrls = album.getPhotoUrls();
 		Map<Integer, String> newPhotoUrls = albumUpdateRequestDto.getPhotoUrls();
+		newPhotoUrls.forEach(
+			(key, value) -> newPhotoUrls.put(key, s3AndCdnUrlConverter.convertS3UrlOrCdnUrlToPath(value)));
+
 		List<String> deletedS3ObjectKeys = getDeletedS3ObjectKeys(currentPhotoUrls, newPhotoUrls);
 
 		if (!deletedS3ObjectKeys.isEmpty()) {
@@ -121,8 +123,7 @@ public class AlbumService {
 		List<String> deletedS3ObjectKeys = new ArrayList<>();
 		for (String currentUrl : currentPhotoUrls.values()) {
 			if (!newPhotoUrls.containsValue(currentUrl)) {
-				int awsS3UrlPrefixIndex = currentUrl.indexOf(S3_DOMAIN_SUFFIX) + OBJECT_KEY_START_OFFSET;
-				deletedS3ObjectKeys.add(currentUrl.substring(awsS3UrlPrefixIndex));
+				deletedS3ObjectKeys.add(currentUrl);
 			}
 		}
 		return deletedS3ObjectKeys;

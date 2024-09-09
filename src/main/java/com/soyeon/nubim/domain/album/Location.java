@@ -1,6 +1,12 @@
 package com.soyeon.nubim.domain.album;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.annotations.Type;
+
+import com.vladmihalcea.hibernate.type.json.JsonType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,5 +46,12 @@ public class Location {
 	private LocalDateTime visitedAt;
 
 	private String placeName;
+
+	private String placeId;
+
+	@Builder.Default
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
+	private List<Integer> photoUrlKeys = new ArrayList<>();
 
 }

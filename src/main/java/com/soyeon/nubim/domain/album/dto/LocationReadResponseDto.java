@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.album.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -16,4 +17,6 @@ public class LocationReadResponseDto {
 	private Double longitude;
 	private LocalDateTime visitedAt;
 	private String placeName;
+	private String placeId;
+	private List<Integer> photoUrlKeys;
 }

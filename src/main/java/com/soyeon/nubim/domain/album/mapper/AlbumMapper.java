@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.album.mapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,10 +51,7 @@ public class AlbumMapper {
 	}
 
 	public AlbumCreateResponseDto toAlbumCreateResponseDto(Album album) {
-		Map<Integer, String> photoUrls = album.getPhotoUrls();
-
-		// cdn 경로 붙여서 반환
-		photoUrls.forEach((key, value) -> photoUrls.put(key, s3AndCdnUrlConverter.convertPathToCdnUrl(value)));
+		Map<Integer, String> cdnPhotoUrls = generateCdnPhotoUrls(album.getPhotoUrls());
 
 		List<Location> locations = album.getLocations();
 		List<LocationCreateResponseDto> locationCreateResponseDtos =
@@ -63,7 +61,7 @@ public class AlbumMapper {
 			.albumId(album.getAlbumId())
 			.userId(album.getUser().getUserId())
 			.description(album.getDescription())
-			.photoUrls(photoUrls)
+			.photoUrls(cdnPhotoUrls)
 			.locations(locationCreateResponseDtos)
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
@@ -71,10 +69,7 @@ public class AlbumMapper {
 	}
 
 	public AlbumReadResponseDto toAlbumReadResponseDto(Album album) {
-		Map<Integer, String> photoUrls = album.getPhotoUrls();
-
-		// cdn 경로 붙여서 반환
-		photoUrls.forEach((key, value) -> photoUrls.put(key, s3AndCdnUrlConverter.convertPathToCdnUrl(value)));
+		Map<Integer, String> cdnPhotoUrls = generateCdnPhotoUrls(album.getPhotoUrls());
 
 		List<Location> locations = album.getLocations();
 		List<LocationReadResponseDto> locationReadResponseDtos =
@@ -84,7 +79,7 @@ public class AlbumMapper {
 			.albumId(album.getAlbumId())
 			.userId(album.getUser().getUserId())
 			.description(album.getDescription())
-			.photoUrls(photoUrls)
+			.photoUrls(cdnPhotoUrls)
 			.locations(locationReadResponseDtos)
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
@@ -97,6 +92,13 @@ public class AlbumMapper {
 			albumReadResponseDtos.add(toAlbumReadResponseDto(album));
 		}
 		return albumReadResponseDtos;
+	}
+
+	private Map<Integer, String> generateCdnPhotoUrls(Map<Integer, String> photoUrls) {
+		Map<Integer, String> cdnPhotoUrls = new HashMap<>(photoUrls.size());
+		// cdn 경로 붙여서 반환
+		photoUrls.forEach((key, value) -> cdnPhotoUrls.put(key, s3AndCdnUrlConverter.convertPathToCdnUrl(value)));
+		return cdnPhotoUrls;
 	}
 
 }

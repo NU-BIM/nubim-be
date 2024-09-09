@@ -32,4 +32,16 @@ public class S3AndCdnUrlConverter {
 	public String convertPathToCdnUrl(String path) {
 		return cdnUrl + path;
 	}
+
+	public String convertS3UrlOrCdnUrlToPath(String url) {
+		String s3BucketUrlPrefix = String.format("https://%s.s3.%s.amazonaws.com", bucketName, region);
+
+		if (url.startsWith(s3BucketUrlPrefix)) {
+			return url.replace(s3BucketUrlPrefix, "");
+		} else if (url.startsWith(cdnUrl)) {
+			return url.replace(cdnUrl, "");
+		} else {
+			throw new InvalidPhotoUrlException();
+		}
+	}
 }

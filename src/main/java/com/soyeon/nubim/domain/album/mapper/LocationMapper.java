@@ -23,6 +23,8 @@ public class LocationMapper {
 			.longitude(locationCreateRequestDto.getLongitude())
 			.visitedAt(locationCreateRequestDto.getVisitedAt())
 			.placeName(locationCreateRequestDto.getPlaceName())
+			.placeId(locationCreateRequestDto.getPlaceId())
+			.photoUrlKeys(locationCreateRequestDto.getPhotoUrlKeys())
 			.build();
 	}
 
@@ -32,6 +34,8 @@ public class LocationMapper {
 			.longitude(locationUpdateRequestDto.getLongitude())
 			.visitedAt(locationUpdateRequestDto.getVisitedAt())
 			.placeName(locationUpdateRequestDto.getPlaceName())
+			.placeId(locationUpdateRequestDto.getPlaceId())
+			.photoUrlKeys(locationUpdateRequestDto.getPhotoUrlKeys())
 			.build();
 	}
 
@@ -43,6 +47,8 @@ public class LocationMapper {
 			.longitude(location.getLongitude())
 			.visitedAt(location.getVisitedAt())
 			.placeName(location.getPlaceName())
+			.placeId(location.getPlaceId())
+			.photoUrlKeys(location.getPhotoUrlKeys())
 			.build();
 	}
 
@@ -54,6 +60,8 @@ public class LocationMapper {
 			.longitude(location.getLongitude())
 			.visitedAt(location.getVisitedAt())
 			.placeName(location.getPlaceName())
+			.placeId(location.getPlaceId())
+			.photoUrlKeys(location.getPhotoUrlKeys())
 			.build();
 	}
 

@@ -53,6 +53,10 @@ public class AlbumIntegrationTest {
 	private String bucketName;
 	@Value("${spring.cloud.aws.region.static}")
 	private String region;
+	@Value("${CDN_URL}")
+	private String cdnUrl;
+
+	private String s3BucketUrlPrefix;
 
 	private User user;
 	private String accessToken;
@@ -84,7 +88,7 @@ public class AlbumIntegrationTest {
 		anotherAccessToken = jwtTokenProvider.generateAccessToken(anotherUser.getUserId().toString(),
 			anotherUser.getEmail(), anotherUser.getRole().name());
 
-		String s3BucketUrlPrefix = String.format("https://%s.s3.%s.amazonaws.com", bucketName, region);
+		s3BucketUrlPrefix = String.format("https://%s.s3.%s.amazonaws.com", bucketName, region);
 
 		LocationCreateRequestDto location1 = LocationCreateRequestDto.builder()
 			.latitude(1.0)
@@ -115,7 +119,7 @@ public class AlbumIntegrationTest {
 
 		updateRequestDto = AlbumUpdateRequestDto.builder()
 			.description("updated description")
-			.photoUrls(Map.of(1, s3BucketUrlPrefix + "/updated1.jpg", 2, s3BucketUrlPrefix + "/updated2.jpg"))
+			.photoUrls(Map.of(1, s3BucketUrlPrefix + "/updated01.jpg", 2, cdnUrl + "/updated02.jpg"))
 			.locations(List.of(newLocation))
 			.build();
 	}
@@ -155,6 +159,7 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$.albumId").value(albumId))
 			.andExpect(jsonPath("$.description").value("create test album"))
 			.andExpect(jsonPath("$.photoUrls").exists())
+			.andExpect(jsonPath("$.photoUrls.*", everyItem(startsWith(cdnUrl))))
 			.andExpect(jsonPath("$.locations").exists())
 			.andExpect(jsonPath("$.userId").value(user.getUserId()));
 	}
@@ -222,6 +227,7 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$.albumId").value(albumId))
 			.andExpect(jsonPath("$.description").value("updated description"))
 			.andExpect(jsonPath("$.photoUrls").exists())
+			.andExpect(jsonPath("$.photoUrls.*", everyItem(startsWith(cdnUrl))))
 			.andExpect(jsonPath("$.locations").value(hasSize(1)));
 	}
 
@@ -322,7 +328,8 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$").isArray())
 			.andExpect(jsonPath("$", hasSize(2)))
 			.andExpect(jsonPath("$[0]").isString())
-			.andExpect(jsonPath("$[1]").isString());
+			.andExpect(jsonPath("$[1]").isString())
+			.andExpect(jsonPath("$.*", everyItem(startsWith(s3BucketUrlPrefix))));
 	}
 
 	@Test
@@ -354,7 +361,8 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$").isArray())
 			.andExpect(jsonPath("$", hasSize(2)))
 			.andExpect(jsonPath("$[0]").isString())
-			.andExpect(jsonPath("$[1]").isString());
+			.andExpect(jsonPath("$[1]").isString())
+			.andExpect(jsonPath("$.*", everyItem(startsWith(s3BucketUrlPrefix))));
 	}
 
 	@Test

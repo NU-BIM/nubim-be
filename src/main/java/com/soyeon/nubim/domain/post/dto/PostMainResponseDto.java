@@ -3,7 +3,7 @@ package com.soyeon.nubim.domain.post.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.soyeon.nubim.domain.album.dto.AlbumSimpleResponse;
+import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
@@ -22,7 +22,7 @@ public class PostMainResponseDto {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	private AlbumSimpleResponse album;
+	private AlbumReadResponseDto album;
 
 	private List<UserSimpleResponseDto> postLikeUsers;
 	private Long numberOfPostLikes;

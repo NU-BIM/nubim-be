@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.Location;
+import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.dto.AlbumSimpleResponse;
 import com.soyeon.nubim.domain.album.dto.LocationReadResponseDto;
+import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class PostMapper {
 
 	private final LocationMapper locationMapper;
+	private final AlbumMapper albumMapper;
 
 	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 		return Post.builder()
@@ -87,7 +90,7 @@ public class PostMapper {
 		Post post, CommentResponseDto representativeComment, long numberOfComments) {
 
 		UserSimpleResponseDto postOwner = createUserSimpleResponseDto(post.getUser());
-		AlbumSimpleResponse album = createAlbumSimpleResponse(post.getAlbum());
+		AlbumReadResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
 		List<UserSimpleResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
 
 		return PostMainResponseDto.builder()

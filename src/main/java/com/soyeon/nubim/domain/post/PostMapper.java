@@ -50,7 +50,7 @@ public class PostMapper {
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
-			.postOwner(createUserSimpleResponseDto(post.getUser()))
+			.user(createUserSimpleResponseDto(post.getUser()))
 			.album(albumMapper.toAlbumReadResponseDto(post.getAlbum()))
 			.build();
 	}
@@ -77,7 +77,7 @@ public class PostMapper {
 	public PostMainResponseDto toPostMainResponseDto(
 		Post post, CommentResponseDto representativeComment, long numberOfComments) {
 
-		UserSimpleResponseDto postOwner = createUserSimpleResponseDto(post.getUser());
+		UserSimpleResponseDto user = createUserSimpleResponseDto(post.getUser());
 		AlbumResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
 		List<UserSimpleResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
 
@@ -85,7 +85,7 @@ public class PostMapper {
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
-			.postOwner(postOwner)
+			.user(user)
 			.createdAt(post.getCreatedAt())
 			.updatedAt(post.getUpdatedAt())
 			.album(album)

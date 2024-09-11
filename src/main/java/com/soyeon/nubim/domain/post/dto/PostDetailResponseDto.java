@@ -15,5 +15,5 @@ public class PostDetailResponseDto {
 	private String postTitle;
 	private String postContent;
 	private AlbumResponseDto album;
-	private UserResponseDto postOwner;
+	private UserResponseDto user;
 }

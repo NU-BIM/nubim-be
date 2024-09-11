@@ -18,7 +18,7 @@ public class PostMainResponseDto {
 	private Long postId;
 	private String postTitle;
 	private String postContent;
-	private UserSimpleResponseDto postOwner;
+	private UserSimpleResponseDto user;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 

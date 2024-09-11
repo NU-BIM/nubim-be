@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class UserSimpleResponseDto {
+public class UserSimpleResponseDto implements UserResponseDto {
 	private String username;
 	private String nickname;
 	private String profileImageUrl;

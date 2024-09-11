@@ -2,18 +2,12 @@ package com.soyeon.nubim.domain.post;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import com.soyeon.nubim.domain.album.Album;
-import com.soyeon.nubim.domain.album.Location;
-import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
-import com.soyeon.nubim.domain.album.dto.AlbumSimpleResponse;
-import com.soyeon.nubim.domain.album.dto.LocationReadResponseDto;
+import com.soyeon.nubim.domain.album.dto.AlbumResponseDto;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
-import com.soyeon.nubim.domain.album.mapper.LocationMapper;
-import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
@@ -30,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostMapper {
 
-	private final LocationMapper locationMapper;
 	private final AlbumMapper albumMapper;
 
 	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
@@ -52,18 +45,13 @@ public class PostMapper {
 			.build();
 	}
 
-	private List<Long> extractCommentIds(List<Comment> comments) {
-		return comments.stream().map(Comment::getCommentId).collect(Collectors.toList());
-	}
-
 	public PostDetailResponseDto toPostDetailResponseDto(Post post) {
 		return PostDetailResponseDto.builder()
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
-			.userId(post.getUser().getUserId())
-			.albumId(post.getAlbum().getAlbumId())
-			.commentIds(this.extractCommentIds(post.getComments()))
+			.postOwner(createUserSimpleResponseDto(post.getUser()))
+			.album(albumMapper.toAlbumReadResponseDto(post.getAlbum()))
 			.build();
 	}
 
@@ -90,7 +78,7 @@ public class PostMapper {
 		Post post, CommentResponseDto representativeComment, long numberOfComments) {
 
 		UserSimpleResponseDto postOwner = createUserSimpleResponseDto(post.getUser());
-		AlbumReadResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
+		AlbumResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
 		List<UserSimpleResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
 
 		return PostMainResponseDto.builder()
@@ -121,16 +109,6 @@ public class PostMapper {
 			.username(user.getUsername())
 			.profileImageUrl(user.getProfileImageUrl())
 			.nickname(user.getNickname())
-			.build();
-	}
-
-	private AlbumSimpleResponse createAlbumSimpleResponse(Album album) {
-		List<Location> locations = album.getLocations();
-		List<LocationReadResponseDto> locationReadResponses = locationMapper.toLocationReadResponseDtoList(locations);
-
-		return AlbumSimpleResponse.builder()
-			.photoUrls(album.getPhotoUrls())
-			.locations(locationReadResponses)
 			.build();
 	}
 

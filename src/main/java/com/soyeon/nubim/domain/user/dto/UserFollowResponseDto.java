@@ -7,7 +7,7 @@ import lombok.Getter;
 @EqualsAndHashCode(of = {"nickname"})
 @Getter
 @Builder
-public class UserFollowResponseDto {
+public class UserFollowResponseDto implements UserResponseDto {
 	private String username;
 	private String nickname;
 	private String profileImageUrl;

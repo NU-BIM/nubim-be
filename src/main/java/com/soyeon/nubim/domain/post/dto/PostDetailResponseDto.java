@@ -1,6 +1,7 @@
 package com.soyeon.nubim.domain.post.dto;
 
-import java.util.List;
+import com.soyeon.nubim.domain.album.dto.AlbumResponseDto;
+import com.soyeon.nubim.domain.user.dto.UserResponseDto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -13,9 +14,6 @@ public class PostDetailResponseDto {
 	private Long postId;
 	private String postTitle;
 	private String postContent;
-
-	// TODO : User, Album, Comment 구현 완료되면 적절하게 변경되어야 함.
-	private Long userId;
-	private Long albumId;
-	private List<Long> commentIds;
+	private AlbumResponseDto album;
+	private UserResponseDto postOwner;
 }

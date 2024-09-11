@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AlbumReadResponseDto {
+public class AlbumReadResponseDto implements AlbumResponseDto {
 	private Long albumId;
 	private Long userId;
 	private String description;

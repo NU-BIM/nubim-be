@@ -44,6 +44,7 @@ public class AlbumService {
 	@Transactional
 	public AlbumCreateResponseDto createAlbum(AlbumCreateRequestDto albumCreateRequestDto) {
 		User currentUser = userService.getCurrentUser();
+		albumValidator.validateAlbumPathCoordinates(albumCreateRequestDto);
 
 		Album album = albumMapper.toEntity(albumCreateRequestDto, currentUser);
 
@@ -91,6 +92,7 @@ public class AlbumService {
 	@Transactional
 	public AlbumReadResponseDto updateAlbum(Long albumId, AlbumUpdateRequestDto albumUpdateRequestDto) {
 		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
+		albumValidator.validateAlbumPathCoordinates(albumUpdateRequestDto);
 		Album album = albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 
@@ -113,6 +115,8 @@ public class AlbumService {
 		List<Location> newLocations = locationMapper.toEntityListFromUpdateDto(newLocationDtos);
 		album.setLocations(newLocations);
 		album.bindLocations();
+
+		album.setPath(albumUpdateRequestDto.getPath());
 
 		Album updatedAlbum = albumRepository.save(album);
 		return albumMapper.toAlbumReadResponseDto(updatedAlbum);

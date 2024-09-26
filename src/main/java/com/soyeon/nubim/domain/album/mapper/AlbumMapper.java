@@ -43,6 +43,7 @@ public class AlbumMapper {
 			.description(albumCreateRequestDto.getDescription())
 			.photoUrls(photoUrls)
 			.locations(locations)
+			.path(albumCreateRequestDto.getPath())
 			.build();
 
 		album.bindLocations();
@@ -63,6 +64,7 @@ public class AlbumMapper {
 			.description(album.getDescription())
 			.photoUrls(cdnPhotoUrls)
 			.locations(locationCreateResponseDtos)
+			.path(album.getPath())
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
 			.build();
@@ -81,6 +83,7 @@ public class AlbumMapper {
 			.description(album.getDescription())
 			.photoUrls(cdnPhotoUrls)
 			.locations(locationReadResponseDtos)
+			.path(album.getPath())
 			.createdAt(album.getCreatedAt())
 			.updatedAt(album.getUpdatedAt())
 			.build();

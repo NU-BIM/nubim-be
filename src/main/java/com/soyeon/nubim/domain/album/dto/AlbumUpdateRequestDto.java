@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class AlbumUpdateRequestDto {
+public class AlbumUpdateRequestDto implements AlbumRequestDto {
 	private String description;
 	private Map<Integer, String> photoUrls;
 	private List<LocationUpdateRequestDto> locations;

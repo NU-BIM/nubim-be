@@ -14,4 +14,5 @@ public class AlbumCreateRequestDto {
 	private String description;
 	private Map<Integer, String> photoUrls;
 	private List<LocationCreateRequestDto> locations;
+	private List<List<Double>> path;
 }

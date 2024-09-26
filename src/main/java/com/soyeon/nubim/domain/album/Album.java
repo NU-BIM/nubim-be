@@ -11,7 +11,6 @@ import org.hibernate.annotations.Type;
 
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.domain.album.exception.AlbumAlreadyLinkedToPostException;
-import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.user.User;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 
@@ -62,6 +61,11 @@ public class Album extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Location> locations = new ArrayList<>();
+
+	@Builder.Default
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
+	private List<List<Double>> path = new ArrayList<>();
 
 	public void bindLocations() {
 		for (Location location : locations) {

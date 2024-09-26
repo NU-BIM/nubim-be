@@ -12,4 +12,5 @@ public class AlbumUpdateRequestDto {
 	private String description;
 	private Map<Integer, String> photoUrls;
 	private List<LocationUpdateRequestDto> locations;
+	private List<List<Double>> path;
 }

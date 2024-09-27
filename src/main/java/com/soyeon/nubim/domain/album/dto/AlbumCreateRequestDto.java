@@ -10,8 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AlbumCreateRequestDto {
+public class AlbumCreateRequestDto implements AlbumRequestDto {
 	private String description;
 	private Map<Integer, String> photoUrls;
 	private List<LocationCreateRequestDto> locations;
+	private List<List<Double>> path;
 }

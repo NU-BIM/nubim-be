@@ -104,10 +104,22 @@ public class AlbumIntegrationTest {
 			.placeName("제주")
 			.build();
 
+		List<List<Double>> path = List.of(List.of(0.0, 0.0),
+			List.of(1.0, 1.0),
+			List.of(2.0, 2.0),
+			List.of(3.0, 3.0),
+			List.of(4.0, 4.0),
+			List.of(5.0, 5.0),
+			List.of(6.0, 6.0),
+			List.of(7.0, 7.0),
+			List.of(8.0, 8.0),
+			List.of(9.0, 9.0));
+
 		createRequestDto = AlbumCreateRequestDto.builder()
 			.description("create test album")
 			.photoUrls(Map.of(1, s3BucketUrlPrefix + "/test01.jpg", 2, s3BucketUrlPrefix + "/test02.jpg"))
 			.locations(List.of(location1, location2))
+			.path(path)
 			.build();
 
 		LocationUpdateRequestDto newLocation = LocationUpdateRequestDto.builder()
@@ -117,10 +129,13 @@ public class AlbumIntegrationTest {
 			.placeName("new place")
 			.build();
 
+		List<List<Double>> newPath = List.of(List.of(0.0, 0.0));
+
 		updateRequestDto = AlbumUpdateRequestDto.builder()
 			.description("updated description")
 			.photoUrls(Map.of(1, s3BucketUrlPrefix + "/updated01.jpg", 2, cdnUrl + "/updated02.jpg"))
 			.locations(List.of(newLocation))
+			.path(newPath)
 			.build();
 	}
 
@@ -136,7 +151,8 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$.description").value("create test album"))
 			.andExpect(jsonPath("$.photoUrls").exists())
 			.andExpect(jsonPath("$.locations").exists())
-			.andExpect(jsonPath("$.userId").value(user.getUserId()));
+			.andExpect(jsonPath("$.userId").value(user.getUserId()))
+			.andExpect(jsonPath("$.path").exists());
 	}
 
 	@Test
@@ -161,7 +177,8 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$.photoUrls").exists())
 			.andExpect(jsonPath("$.photoUrls.*", everyItem(startsWith(cdnUrl))))
 			.andExpect(jsonPath("$.locations").exists())
-			.andExpect(jsonPath("$.userId").value(user.getUserId()));
+			.andExpect(jsonPath("$.userId").value(user.getUserId()))
+			.andExpect(jsonPath("$.path").exists());
 	}
 
 	@Test
@@ -185,7 +202,8 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$").isArray())
 			.andExpect(jsonPath("$", hasSize(2)))
 			.andExpect(jsonPath("$[0].description").value("create test album"))
-			.andExpect(jsonPath("$[1].description").value("create test album"));
+			.andExpect(jsonPath("$[1].description").value("create test album"))
+			.andExpect(jsonPath("$[0].path").value(hasSize(10)));
 	}
 
 	@Test
@@ -202,7 +220,8 @@ public class AlbumIntegrationTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$").isArray())
 			.andExpect(jsonPath("$", hasSize(1)))
-			.andExpect(jsonPath("$[0].description").value("create test album"));
+			.andExpect(jsonPath("$[0].description").value("create test album"))
+			.andExpect(jsonPath("$[0].path").value(hasSize(10)));
 	}
 
 	@Test
@@ -228,7 +247,8 @@ public class AlbumIntegrationTest {
 			.andExpect(jsonPath("$.description").value("updated description"))
 			.andExpect(jsonPath("$.photoUrls").exists())
 			.andExpect(jsonPath("$.photoUrls.*", everyItem(startsWith(cdnUrl))))
-			.andExpect(jsonPath("$.locations").value(hasSize(1)));
+			.andExpect(jsonPath("$.locations").value(hasSize(1)))
+			.andExpect(jsonPath("$.path").value(hasSize(1)));
 	}
 
 	@Test

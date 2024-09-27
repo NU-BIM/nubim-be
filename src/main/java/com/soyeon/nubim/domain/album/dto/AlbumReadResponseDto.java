@@ -17,6 +17,7 @@ public class AlbumReadResponseDto implements AlbumResponseDto {
 	private String description;
 	private Map<Integer, String> photoUrls;
 	private List<LocationReadResponseDto> locations;
+	private List<List<Double>> path;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }

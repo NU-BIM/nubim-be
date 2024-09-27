@@ -61,8 +61,20 @@ class AlbumRepositoryTest {
 			.visitedAt(LocalDateTime.now())
 			.build();
 
+		List<List<Double>> path = List.of(List.of(0.0, 0.0),
+			List.of(1.0, 1.0),
+			List.of(2.0, 2.0),
+			List.of(3.0, 3.0),
+			List.of(4.0, 4.0),
+			List.of(5.0, 5.0),
+			List.of(6.0, 6.0),
+			List.of(7.0, 7.0),
+			List.of(8.0, 8.0),
+			List.of(9.0, 9.0));
+
 		album.setLocations(List.of(location1, location2));
 		album.bindLocations();
+		album.setPath(path);
 
 		album.setUser(user);
 
@@ -132,7 +144,7 @@ class AlbumRepositoryTest {
 
 		assertThrows(AlbumNotFoundException.class, () ->
 			albumRepository.findByIdWithLocations(album.getAlbumId()).orElseThrow(
-				()-> new AlbumNotFoundException(album.getAlbumId())
+				() -> new AlbumNotFoundException(album.getAlbumId())
 			));
 	}
 }

@@ -141,10 +141,24 @@ class AlbumControllerV1Test {
 				.build()
 		);
 
+		List<List<Double>> path = List.of(
+			List.of(0.0, 0.0),
+			List.of(1.0, 1.0),
+			List.of(2.0, 2.0),
+			List.of(3.0, 3.0),
+			List.of(4.0, 4.0),
+			List.of(5.0, 5.0),
+			List.of(6.0, 6.0),
+			List.of(7.0, 7.0),
+			List.of(8.0, 8.0),
+			List.of(9.0, 9.0)
+		);
+
 		createRequestDto = AlbumCreateRequestDto.builder()
 			.description(description)
 			.photoUrls(photoUrls)
 			.locations(locationsRequest)
+			.path(path)
 			.build();
 
 		createResponseDto = AlbumCreateResponseDto.builder()
@@ -153,6 +167,7 @@ class AlbumControllerV1Test {
 			.description(description)
 			.photoUrls(photoUrls)
 			.locations(locationsResponse)
+			.path(path)
 			.build();
 
 		readResponseDto = AlbumReadResponseDto.builder()
@@ -170,6 +185,7 @@ class AlbumControllerV1Test {
 					.placeName("서울")
 					.build()
 			))
+			.path(path)
 			.build();
 
 		updateRequestDto = AlbumUpdateRequestDto.builder()
@@ -183,6 +199,7 @@ class AlbumControllerV1Test {
 					.placeName("경기도")
 					.build())
 			)
+			.path(path)
 			.build();
 	}
 
@@ -200,6 +217,7 @@ class AlbumControllerV1Test {
 			.andExpect(jsonPath("$.description").value(createResponseDto.getDescription()))
 			.andExpect(jsonPath("$.photoUrls").isNotEmpty())
 			.andExpect(jsonPath("$.locations").isNotEmpty())
+			.andExpect(jsonPath("$.path").isNotEmpty())
 			.andReturn();
 
 		String content = result.getResponse().getContentAsString();
@@ -249,7 +267,8 @@ class AlbumControllerV1Test {
 			.andExpect(jsonPath("$.photoUrls").isNotEmpty())
 			.andExpect(jsonPath("$.locations").isNotEmpty())
 			.andExpect(
-				jsonPath("$.locations[0].placeName").value(readResponseDto.getLocations().get(0).getPlaceName()));
+				jsonPath("$.locations[0].placeName").value(readResponseDto.getLocations().get(0).getPlaceName()))
+			.andExpect(jsonPath("$.path").isNotEmpty());
 
 		verify(albumService).findByIdWithLocations(albumId);
 	}
@@ -301,6 +320,14 @@ class AlbumControllerV1Test {
 			assertEquals(expectedLocation.getVisitedAt(), actualLocation.getVisitedAt());
 			assertEquals(expectedLocation.getPlaceName(), actualLocation.getPlaceName());
 		}
+
+		assertEquals(readResponseDto.getPath().size(), actualAlbums.get(0).getPath().size());
+		for (int i = 0; i < readResponseDto.getPath().size(); i++) {
+			List<Double> expectedPath = readResponseDto.getPath().get(i);
+			List<Double> actualPath = actualAlbums.get(0).getPath().get(i);
+			assertEquals(expectedPath.get(0), actualPath.get(0));
+			assertEquals(expectedPath.get(1), actualPath.get(1));
+		}
 	}
 
 	@Test
@@ -341,6 +368,7 @@ class AlbumControllerV1Test {
 			.description(updateRequestDto.getDescription())
 			.photoUrls(updateRequestDto.getPhotoUrls())
 			.locations(locationReadList)
+			.path(readResponseDto.getPath())
 			.build();
 
 		when(albumService.updateAlbum(any(Long.class), any(AlbumUpdateRequestDto.class))).thenReturn(updateResponseDto);
@@ -355,6 +383,7 @@ class AlbumControllerV1Test {
 			.andExpect(jsonPath("$.description").value(updateRequestDto.getDescription()))
 			.andExpect(jsonPath("$.photoUrls").isNotEmpty())
 			.andExpect(jsonPath("$.locations").isNotEmpty())
+			.andExpect(jsonPath("$.path").isNotEmpty())
 			.andReturn();
 
 		String content = result.getResponse().getContentAsString();

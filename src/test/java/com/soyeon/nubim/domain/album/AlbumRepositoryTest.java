@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.user.User;
@@ -46,6 +47,7 @@ class AlbumRepositoryTest {
 		user.setUsername("testUser");
 		user.setNickname("testNickname");
 		user.setEmail("test@email.com");
+		user.setProvider(Provider.GOOGLE);
 
 		album = new Album();
 		album.setPhotoUrls(Map.of());

@@ -1,6 +1,7 @@
 package com.soyeon.nubim.security.oauth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserNicknameGenerator;
@@ -28,6 +29,7 @@ public class GoogleUserInfo {
 			.email(email)
 			.profileImageUrl(picture)
 			.role(Role.USER)
+			.provider(Provider.GOOGLE)
 			.build();
 	}
 

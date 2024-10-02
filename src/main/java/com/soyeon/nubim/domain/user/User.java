@@ -9,6 +9,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import com.soyeon.nubim.common.BaseEntity;
 import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.comment.Comment;
@@ -72,6 +73,10 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@NotNull
 	private Role role;
+
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	private Provider provider;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

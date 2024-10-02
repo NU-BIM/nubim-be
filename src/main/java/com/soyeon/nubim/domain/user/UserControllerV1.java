@@ -18,6 +18,7 @@ import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.jwt.dto.TokenDeleteRequestDto;
+import com.soyeon.nubim.security.oauth.AppleOAuthLoginService;
 import com.soyeon.nubim.security.oauth.GoogleOAuthLoginService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +33,7 @@ public class UserControllerV1 {
 
 	private final UserService userService;
 	private final GoogleOAuthLoginService googleOAuthLoginService;
+	private final AppleOAuthLoginService appleOAuthLoginService;
 
 	@GetMapping("/me")
 	public ResponseEntity<UserProfileResponseDto> getCurrentUserProfile() {
@@ -41,9 +43,14 @@ public class UserControllerV1 {
 			.body(currentUserProfile);
 	}
 
-	@GetMapping("/login")
-	public ResponseEntity<JwtTokenResponseDto> login(@RequestHeader("Authorization") String oauthAccessToken) {
+	@GetMapping("/login-google")
+	public ResponseEntity<JwtTokenResponseDto> loginGoogle(@RequestHeader("Authorization") String oauthAccessToken) {
 		return googleOAuthLoginService.authenticateWithGoogleToken(oauthAccessToken);
+	}
+
+	@GetMapping("/login-apple")
+	public ResponseEntity<JwtTokenResponseDto> loginApple(@RequestHeader("Authorization") String idToken) {
+		return appleOAuthLoginService.authenticateWithAppleToken(idToken);
 	}
 
 	@PostMapping("/logout")

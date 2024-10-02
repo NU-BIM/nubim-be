@@ -7,12 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
-import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
-import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +23,7 @@ public class GoogleOAuthLoginService {
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	private final UserService userService;
-	private final JwtTokenProvider jwtTokenProvider;
-	private final RefreshTokenService refreshTokenService;
+	private final OAuthLoginCommons oAuthLoginCommons;
 
 	// TODO : redirect 기능 추가 예정
 	public ResponseEntity<JwtTokenResponseDto> authenticateWithGoogleToken(String oauthAccessToken) {
@@ -35,7 +33,7 @@ public class GoogleOAuthLoginService {
 
 		User user = upsertUserFromGoogleUserInfo(userInfo);
 
-		JwtTokenResponseDto jwtTokenResponseDto = generateTokenResponse(user);
+		JwtTokenResponseDto jwtTokenResponseDto = oAuthLoginCommons.generateTokenResponse(user);
 
 		return ResponseEntity.ok()
 			.body(jwtTokenResponseDto);
@@ -71,23 +69,12 @@ public class GoogleOAuthLoginService {
 		User user;
 		try {
 			user = userService.findByEmail(userInfo.getEmail());
+			oAuthLoginCommons.validateUserProvider(user, Provider.GOOGLE);
 			user = user.updateNameFromOAuthProfile(userInfo.getName());
 		} catch (UserNotFoundException e) {
 			user = userInfo.toUserEntity();
 		}
 		return userService.saveUser(user);
-	}
-
-	private JwtTokenResponseDto generateTokenResponse(User user) {
-		String userId = user.getUserId().toString();
-		String userEmail = user.getEmail();
-		String userRole = user.getRole().name();
-
-		String accessToken = jwtTokenProvider.generateAccessToken(userId, userEmail, userRole);
-		String refreshToken = jwtTokenProvider.generateRefreshToken(userId, userEmail, userRole);
-		refreshTokenService.upsertRefreshTokenEntity(refreshToken, userEmail);
-
-		return new JwtTokenResponseDto(accessToken, refreshToken);
 	}
 
 }

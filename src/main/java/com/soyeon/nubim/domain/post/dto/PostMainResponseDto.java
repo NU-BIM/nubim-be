@@ -27,6 +27,9 @@ public class PostMainResponseDto implements PostResponseDto {
 	private List<UserResponseDto> postLikeUsers;
 	private Long numberOfPostLikes;
 
+	private Boolean isLiked;
+	private Boolean isBookmarked;
+
 	private CommentResponseDto representativeComment;
 	private Long numberOfComments;
 

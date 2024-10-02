@@ -1,19 +1,19 @@
 package com.soyeon.nubim.domain.album;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.soyeon.nubim.common.util.aws.S3ImageDeleter;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
@@ -25,8 +25,8 @@ import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.post.PostRepository;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserService;
 
 class AlbumServiceTest {
 
@@ -37,7 +37,7 @@ class AlbumServiceTest {
 	@Mock
 	private AlbumMapper albumMapper;
 	@Mock
-	private UserService userService;
+	private LoggedInUserService loggedInUserService;
 	@Mock
 	private LocationMapper locationMapper;
 	@Mock
@@ -84,7 +84,7 @@ class AlbumServiceTest {
 		Album savedAlbum = new Album();
 		AlbumCreateResponseDto expectedResponseDto = AlbumCreateResponseDto.builder().build();
 
-		when(userService.getCurrentUser()).thenReturn(currentUser);
+		when(loggedInUserService.getCurrentUser()).thenReturn(currentUser);
 		when(albumMapper.toEntity(requestDto, currentUser)).thenReturn(album);
 		when(albumRepository.save(album)).thenReturn(savedAlbum);
 		when(albumMapper.toAlbumCreateResponseDto(savedAlbum)).thenReturn(expectedResponseDto);
@@ -123,12 +123,12 @@ class AlbumServiceTest {
 			.description("New description")
 			.photoUrls(Map.of())
 			.locations(List.of(LocationUpdateRequestDto.builder().build()))
-		.build();
+			.build();
 
 		Album existingAlbum = new Album();
 		existingAlbum.setPhotoUrls(new HashMap<>());
 
-		when(userService.getCurrentUserId()).thenReturn(userId);
+		when(loggedInUserService.getCurrentUserId()).thenReturn(userId);
 		when(albumRepository.findByIdWithLocations(albumId)).thenReturn(Optional.of(existingAlbum));
 		when(albumRepository.save(existingAlbum)).thenReturn(existingAlbum);
 		when(albumMapper.toAlbumReadResponseDto(existingAlbum)).thenReturn(AlbumReadResponseDto.builder().build());
@@ -150,7 +150,7 @@ class AlbumServiceTest {
 		Long userId = 1L;
 		Album album = new Album();
 
-		when(userService.getCurrentUserId()).thenReturn(userId);
+		when(loggedInUserService.getCurrentUserId()).thenReturn(userId);
 		when(albumRepository.findByIdWithLocations(albumId)).thenReturn(Optional.of(album));
 
 		// When

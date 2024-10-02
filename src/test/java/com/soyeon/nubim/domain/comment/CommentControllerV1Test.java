@@ -33,9 +33,9 @@ import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostRepository;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
-import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 
 import jakarta.transaction.Transactional;
@@ -68,7 +68,7 @@ class CommentControllerV1Test {
 	private JwtTokenProvider jwtTokenProvider;
 
 	@Mock
-	private UserService userService;
+	private LoggedInUserService loggedInUserService;
 
 	/**
 	 * 더미 게시글 및 유저 생성
@@ -127,7 +127,7 @@ class CommentControllerV1Test {
 			.build();
 
 		//when
-		Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
+		Mockito.when(loggedInUserService.getCurrentUser()).thenReturn(testUser);
 		ResultActions resultActions = mockMvc.perform(post("/v1/comments")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(commentCreateRequestDto)));

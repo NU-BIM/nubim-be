@@ -20,8 +20,8 @@ import com.soyeon.nubim.domain.comment.dto.CommentCreateRequestDto;
 import com.soyeon.nubim.domain.comment.dto.CommentCreateResponseDto;
 import com.soyeon.nubim.domain.comment.dto.CommentResponseDto;
 import com.soyeon.nubim.domain.post.PostValidator;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -32,13 +32,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentControllerV1 {
 	private final CommentService commentService;
-	private final UserService userService;
 	private final PostValidator postValidator;
+	private final LoggedInUserService loggedInUserService;
 
 	@PostMapping
 	public ResponseEntity<CommentCreateResponseDto> createComment(
 		@Valid @RequestBody CommentCreateRequestDto commentCreateRequestDto) {
-		User authorUser = userService.getCurrentUser();
+		User authorUser = loggedInUserService.getCurrentUser();
 		CommentCreateResponseDto commentCreateResponseDto = commentService.createComment(commentCreateRequestDto,
 			authorUser);
 

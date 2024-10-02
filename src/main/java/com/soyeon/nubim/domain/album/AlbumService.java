@@ -18,6 +18,7 @@ import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.album.mapper.LocationMapper;
 import com.soyeon.nubim.domain.post.PostRepository;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
@@ -35,6 +36,7 @@ public class AlbumService {
 	private final S3ImageDeleter s3ImageDeleter;
 	private final PostRepository postRepository;
 	private final S3AndCdnUrlConverter s3AndCdnUrlConverter;
+	private final LoggedInUserService loggedInUserService;
 
 	public Album findById(Long id) {
 		return albumRepository.findById(id)
@@ -43,7 +45,7 @@ public class AlbumService {
 
 	@Transactional
 	public AlbumCreateResponseDto createAlbum(AlbumCreateRequestDto albumCreateRequestDto) {
-		User currentUser = userService.getCurrentUser();
+		User currentUser = loggedInUserService.getCurrentUser();
 		albumValidator.validateAlbumPathCoordinates(albumCreateRequestDto);
 
 		Album album = albumMapper.toEntity(albumCreateRequestDto, currentUser);
@@ -72,7 +74,7 @@ public class AlbumService {
 	}
 
 	public List<AlbumReadResponseDto> findAlbumsByCurrentUser(boolean unlinked) {
-		String currentUserEmail = userService.getCurrentUserEmail();
+		String currentUserEmail = loggedInUserService.getCurrentUserEmail();
 
 		List<Album> albums;
 		if (unlinked) {
@@ -91,7 +93,7 @@ public class AlbumService {
 
 	@Transactional
 	public AlbumReadResponseDto updateAlbum(Long albumId, AlbumUpdateRequestDto albumUpdateRequestDto) {
-		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
+		albumValidator.validateAlbumOwner(albumId, loggedInUserService.getCurrentUserId());
 		albumValidator.validateAlbumPathCoordinates(albumUpdateRequestDto);
 		Album album = albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
@@ -135,7 +137,7 @@ public class AlbumService {
 
 	@Transactional
 	public void deleteAlbum(Long albumId) {
-		albumValidator.validateAlbumOwner(albumId, userService.getCurrentUserId());
+		albumValidator.validateAlbumOwner(albumId, loggedInUserService.getCurrentUserId());
 		albumRepository.findByIdWithLocations(albumId)
 			.orElseThrow(() -> new AlbumNotFoundException(albumId));
 

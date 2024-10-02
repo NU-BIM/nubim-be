@@ -11,8 +11,8 @@ import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post_bookmark.dto.PostBookmarkRequestDto;
 import com.soyeon.nubim.domain.post_bookmark.dto.PostBookmarkResponseDto;
 import com.soyeon.nubim.domain.post_bookmark.exception.PostBookmarkStatusException;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
-import com.soyeon.nubim.domain.user.UserService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class PostBookmarkService {
 	private final PostBookmarkRepository postBookmarkRepository;
-	private final UserService userService;
 	private final PostMapper postMapper;
 	private final PostValidator postValidator;
+	private final LoggedInUserService loggedInUserService;
 
 	@Transactional
 	public PostBookmarkResponseDto bookmarkPost(PostBookmarkRequestDto requestDto) {
-		User user = userService.getCurrentUser();
+		User user = loggedInUserService.getCurrentUser();
 
 		postValidator.validatePostExist(requestDto.getPostId());
 		Post post = new Post(requestDto.getPostId());
@@ -52,7 +52,7 @@ public class PostBookmarkService {
 
 	@Transactional
 	public PostBookmarkResponseDto deleteBookmarkPost(PostBookmarkRequestDto requestDto) {
-		User user = userService.getCurrentUser();
+		User user = loggedInUserService.getCurrentUser();
 
 		postValidator.validatePostExist(requestDto.getPostId());
 		Post post = new Post(requestDto.getPostId());
@@ -70,7 +70,7 @@ public class PostBookmarkService {
 	}
 
 	public Page<PostSimpleResponseDto> getUserBookmarks(Pageable pageable) {
-		User user = new User(userService.getCurrentUserId());
+		User user = new User(loggedInUserService.getCurrentUserId());
 
 		Page<PostBookmark> postBookmarks = postBookmarkRepository.findByUser(user, pageable);
 

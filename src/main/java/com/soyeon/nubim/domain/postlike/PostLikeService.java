@@ -7,6 +7,7 @@ import com.soyeon.nubim.domain.post.PostValidator;
 import com.soyeon.nubim.domain.postlike.dto.PostLikeResponse;
 import com.soyeon.nubim.domain.postlike.dto.PostLikeToggleResponse;
 import com.soyeon.nubim.domain.postlike.exception.MultiplePostLikeDeleteException;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
@@ -21,10 +22,11 @@ public class PostLikeService {
 	private final UserService userService;
 	private final PostValidator postValidator;
 	private final PostLikeRepository postLikeRepository;
+	private final LoggedInUserService loggedInUserService;
 
 	@Transactional
 	public PostLikeResponse togglePostLike(Long postId) {
-		Long currentUserId = userService.getCurrentUserId();
+		Long currentUserId = loggedInUserService.getCurrentUserId();
 
 		postValidator.validatePostExist(postId);
 		userService.validateUserExists(currentUserId);

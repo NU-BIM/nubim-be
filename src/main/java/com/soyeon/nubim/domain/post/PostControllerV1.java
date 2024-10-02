@@ -21,6 +21,7 @@ import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
@@ -41,11 +42,12 @@ public class PostControllerV1 {
 	private static final int DEFAULT_MAIN_PAGE_SIZE = 5;
 	private static final String DEFAULT_ORDER_BY = "createdAt";
 	private static final int DEFAULT_RECENT_CRITERIA_DAYS = 3;
+	private final LoggedInUserService loggedInUserService;
 
 	@PostMapping
 	public ResponseEntity<PostCreateResponseDto> createPost(
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto) {
-		User authorUser = userService.getCurrentUser();
+		User authorUser = loggedInUserService.getCurrentUser();
 		PostCreateResponseDto postCreateResponseDto = postService.createPost(postCreateRequestDto, authorUser);
 
 		return ResponseEntity
@@ -90,7 +92,7 @@ public class PostControllerV1 {
 
 	@DeleteMapping("{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-		postService.deleteById(postId, userService.getCurrentUserId());
+		postService.deleteById(postId, loggedInUserService.getCurrentUserId());
 		return ResponseEntity.ok().build();
 	}
 
@@ -100,7 +102,7 @@ public class PostControllerV1 {
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "follow") @Parameter(description = "[ follow, random ]") String type,
 		@RequestParam(required = false) Float randomSeed) {
-		User user = userService.getCurrentUser();
+		User user = loggedInUserService.getCurrentUser();
 
 		if (type.equals("follow")) { // 팔로우 기반 게시글 조회
 			PageRequest pageRequest = PageRequest.of(

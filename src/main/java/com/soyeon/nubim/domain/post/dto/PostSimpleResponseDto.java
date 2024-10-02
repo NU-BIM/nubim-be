@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PostSimpleResponseDto {
+public class PostSimpleResponseDto implements PostResponseDto {
 	private Long postId;
 	private String postTitle;
 	private String postContent;

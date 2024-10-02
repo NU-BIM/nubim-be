@@ -16,6 +16,7 @@ import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.postlike.PostLike;
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.dto.UserResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -79,7 +80,7 @@ public class PostMapper {
 
 		UserSimpleResponseDto user = createUserSimpleResponseDto(post.getUser());
 		AlbumResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
-		List<UserSimpleResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
+		List<UserResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
 
 		return PostMainResponseDto.builder()
 			.postId(post.getPostId())
@@ -112,8 +113,8 @@ public class PostMapper {
 			.build();
 	}
 
-	private List<UserSimpleResponseDto> createPostLikeUsers(List<PostLike> postLikes) {
-		List<UserSimpleResponseDto> postLikeUsers = new ArrayList<>();
+	private List<UserResponseDto> createPostLikeUsers(List<PostLike> postLikes) {
+		List<UserResponseDto> postLikeUsers = new ArrayList<>();
 		for (PostLike postLike : postLikes) {
 			User postLikeUser = postLike.getUser();
 			postLikeUsers.add(createUserSimpleResponseDto(postLikeUser));

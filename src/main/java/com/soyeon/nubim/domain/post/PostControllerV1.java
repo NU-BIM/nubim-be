@@ -19,6 +19,7 @@ import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
@@ -54,7 +55,7 @@ public class PostControllerV1 {
 
 	@Operation(description = "type이 비어있을 경우: 자세한 게시글 type=simple: 미리보기")
 	@GetMapping("/{postId}")
-	public ResponseEntity<?> getPostDetail(
+	public ResponseEntity<PostResponseDto> getPostDetail(
 		@PathVariable Long postId,
 		@RequestParam(required = false) String type) {
 		if (type == null) {

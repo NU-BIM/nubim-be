@@ -27,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.AlbumRepository;
@@ -86,6 +87,7 @@ class CommentControllerV1Test {
 			.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 			.gender(Gender.MALE)
 			.role(Role.USER)
+			.provider(Provider.GOOGLE)
 			.build();
 		userRepository.save(testUser);
 

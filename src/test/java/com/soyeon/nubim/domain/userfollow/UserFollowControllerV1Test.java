@@ -24,6 +24,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserRepository;
@@ -70,6 +71,7 @@ class UserFollowControllerV1Test {
 			.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 			.gender(Gender.MALE)
 			.role(Role.USER)
+			.provider(Provider.GOOGLE)
 			.build();
 		userRepository.save(testUser1);
 
@@ -83,6 +85,7 @@ class UserFollowControllerV1Test {
 			.birthDate(LocalDateTime.of(1991, 1, 1, 0, 0))
 			.gender(Gender.FEMALE)
 			.role(Role.USER)
+			.provider(Provider.APPLE)
 			.build();
 		userRepository.save(testUser2);
 
@@ -374,6 +377,7 @@ class UserFollowControllerV1Test {
 				.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 				.gender(Gender.MALE)
 				.role(Role.USER)
+				.provider(Provider.GOOGLE)
 				.build();
 			userRepository.save(user);
 			UserFollow userFollow = UserFollow.builder()
@@ -482,6 +486,7 @@ class UserFollowControllerV1Test {
 				.birthDate(LocalDateTime.of(1990, 1, 1, 0, 0))
 				.gender(Gender.MALE)
 				.role(Role.USER)
+				.provider(Provider.GOOGLE)
 				.build();
 			userRepository.save(user);
 			UserFollow userFollow = UserFollow.builder()

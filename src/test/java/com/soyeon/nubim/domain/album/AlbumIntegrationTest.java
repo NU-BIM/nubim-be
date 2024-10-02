@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateRequestDto;
 import com.soyeon.nubim.domain.album.dto.AlbumCreateResponseDto;
@@ -72,6 +73,7 @@ public class AlbumIntegrationTest {
 			.nickname("testNickname")
 			.email("testEmail@email.com")
 			.role(Role.USER)
+			.provider(Provider.GOOGLE)
 			.build();
 		userRepository.save(user);
 
@@ -80,6 +82,7 @@ public class AlbumIntegrationTest {
 			.nickname("anotherNickname")
 			.email("another@email.com")
 			.role(Role.USER)
+			.provider(Provider.APPLE)
 			.build();
 		userRepository.save(anotherUser);
 

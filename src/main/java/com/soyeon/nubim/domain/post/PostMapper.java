@@ -84,10 +84,11 @@ public class PostMapper {
 	public PostMainResponseDto toPostMainResponseDto(
 		Post post, CommentResponseDto representativeComment, long numberOfComments) {
 
-		User currentUser = loggedInUserService.getCurrentUser();
 		UserSimpleResponseDto user = createUserSimpleResponseDto(post.getUser());
 		AlbumResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
 		List<UserResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
+
+		User currentUser = loggedInUserService.getCurrentUser();
 		Boolean isBookmarked = postBookmarkRepository.existsByUserAndPost(currentUser, post);
 		Boolean isLiked = postLikeRepository.existsPostLikeByPostAndUser(post.getPostId(), currentUser.getUserId());
 

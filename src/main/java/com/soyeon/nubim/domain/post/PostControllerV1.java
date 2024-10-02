@@ -37,12 +37,12 @@ public class PostControllerV1 {
 
 	private final PostService postService;
 	private final UserService userService;
+	private final LoggedInUserService loggedInUserService;
 
 	private static final int DEFAULT_SIMPLE_PAGE_SIZE = 10;
 	private static final int DEFAULT_MAIN_PAGE_SIZE = 5;
 	private static final String DEFAULT_ORDER_BY = "createdAt";
 	private static final int DEFAULT_RECENT_CRITERIA_DAYS = 3;
-	private final LoggedInUserService loggedInUserService;
 
 	@PostMapping
 	public ResponseEntity<PostCreateResponseDto> createPost(

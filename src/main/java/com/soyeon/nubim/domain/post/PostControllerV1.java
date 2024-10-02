@@ -61,7 +61,7 @@ public class PostControllerV1 {
 		@PathVariable Long postId,
 		@RequestParam(required = false) String type) {
 		if (type == null) {
-			return ResponseEntity.ok(postService.findPostDetailById(postId));
+			return ResponseEntity.ok(postService.findPostMainById(postId));
 		} else if (type.equals("simple")) {
 			return ResponseEntity.ok(postService.findPostSimpleById(postId));
 		} else {

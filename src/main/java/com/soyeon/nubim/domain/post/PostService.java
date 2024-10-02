@@ -67,6 +67,13 @@ public class PostService {
 		return postMapper.toPostDetailResponseDto(post);
 	}
 
+	public PostMainResponseDto findPostMainById(Long id) {
+		Post post = findPostByIdOrThrow(id);
+
+		long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+		return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+	}
+
 	public Page<PostSimpleResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
 		return postRepository.findByPostTitleContainingOrPostContentContaining(query, query, pageable)
 			.map(postMapper::toPostSimpleResponseDto);

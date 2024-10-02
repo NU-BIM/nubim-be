@@ -8,7 +8,6 @@ import com.soyeon.nubim.domain.post.Post;
 import com.soyeon.nubim.domain.post.PostMapper;
 import com.soyeon.nubim.domain.post.PostValidator;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
-import com.soyeon.nubim.domain.post_bookmark.dto.PostBookmarkRequestDto;
 import com.soyeon.nubim.domain.post_bookmark.dto.PostBookmarkResponseDto;
 import com.soyeon.nubim.domain.post_bookmark.exception.PostBookmarkStatusException;
 import com.soyeon.nubim.domain.user.LoggedInUserService;
@@ -26,47 +25,40 @@ public class PostBookmarkService {
 	private final LoggedInUserService loggedInUserService;
 
 	@Transactional
-	public PostBookmarkResponseDto bookmarkPost(PostBookmarkRequestDto requestDto) {
+	public PostBookmarkResponseDto togglePostBookmark(Long postId) {
 		User user = loggedInUserService.getCurrentUser();
 
-		postValidator.validatePostExist(requestDto.getPostId());
-		Post post = new Post(requestDto.getPostId());
+		postValidator.validatePostExist(postId);
+		Post post = new Post(postId);
 
-		// 이미 북마크가 되어 있는지 확인
+		// 이미 북마크가 되어 있으면 삭제
 		if (postBookmarkRepository.existsByUserAndPost(user, post)) {
-			throw PostBookmarkStatusException.alreadyBookmarked(post.getPostId());
+			PostBookmark postBookmark = postBookmarkRepository
+				.findByUserAndPost(user, post)
+				.orElseThrow(() -> PostBookmarkStatusException.notBookmarked(post.getPostId()));
+
+			postBookmarkRepository.delete(postBookmark);
+
+			return PostBookmarkResponseDto.builder()
+				.postId(post.getPostId())
+				.message("Successfully deleted postBookmark")
+				.bookmarkResult(false)
+				.build();
+		} else { // 북마크가 안되어 있으면 생성
+			PostBookmark postBookmark = PostBookmark.builder()
+				.user(user)
+				.post(post)
+				.build();
+
+			postBookmarkRepository.save(postBookmark);
+
+			return PostBookmarkResponseDto.builder()
+				.postId(post.getPostId())
+				.message("Successfully bookmarked post")
+				.bookmarkResult(true)
+				.build();
 		}
 
-		PostBookmark postBookmark = PostBookmark.builder()
-			.user(user)
-			.post(post)
-			.build();
-
-		postBookmarkRepository.save(postBookmark);
-
-		return PostBookmarkResponseDto.builder()
-			.postId(post.getPostId())
-			.message("Successfully bookmarked post")
-			.build();
-	}
-
-	@Transactional
-	public PostBookmarkResponseDto deleteBookmarkPost(PostBookmarkRequestDto requestDto) {
-		User user = loggedInUserService.getCurrentUser();
-
-		postValidator.validatePostExist(requestDto.getPostId());
-		Post post = new Post(requestDto.getPostId());
-
-		PostBookmark postBookmark = postBookmarkRepository
-			.findByUserAndPost(user, post)
-			.orElseThrow(() -> PostBookmarkStatusException.notBookmarked(post.getPostId()));
-
-		postBookmarkRepository.delete(postBookmark);
-
-		return PostBookmarkResponseDto.builder()
-			.postId(post.getPostId())
-			.message("Successfully deleted postBookmark")
-			.build();
 	}
 
 	public Page<PostSimpleResponseDto> getUserBookmarks(Pageable pageable) {

@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,9 +39,10 @@ public class UserService {
 	private final RefreshTokenService refreshTokenService;
 	private final UserMapper userMapper;
 	private final S3ImageUploader s3ImageUploader;
+	private final LoggedInUserService loggedInUserService;
 
 	public UserProfileResponseDto getCurrentUserProfile() {
-		User currentUser = getCurrentUser();
+		User currentUser = loggedInUserService.getCurrentUser();
 
 		return userMapper.toUserProfileResponseDto(currentUser);
 	}
@@ -80,45 +79,19 @@ public class UserService {
 			.orElseThrow(() -> new UserNotFoundException(userId));
 	}
 
-	public String getCurrentUserEmail() {
-		return SecurityContextHolder.getContext().getAuthentication().getName();
-	}
-
-	public User getCurrentUser() {
-		String currentUserEmail = getCurrentUserEmail();
-
-		return userRepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> UserNotFoundException.forEmail(currentUserEmail));
-	}
-
-	public Long getCurrentUserId() {
-		return Long.parseLong(parseAuthority("ID_"));
-	}
-
-	public String getCurrentUserRole() {
-		return parseAuthority("ROLE_");
-	}
-
-	private String parseAuthority(String prefix) {
-		return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.filter(authority -> authority.startsWith(prefix))
-			.findFirst()
-			.map(authority -> authority.substring(prefix.length()))
-			.orElse(null);
-	}
-
 	@Transactional
 	public ProfileImageUpdateResponse updateProfileImage(MultipartFile profileImage) {
 		validateProfileImageContentType(profileImage.getContentType());
 
-		String uploadPath = "users/" + getCurrentUserId() + "/profile/" + UUID.randomUUID().toString().substring(0, 4);
+		String uploadPath = "users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
+			.toString()
+			.substring(0, 4);
 		String uploadResponse = s3ImageUploader.uploadImage(uploadPath, profileImage);
 
 		if (uploadResponse.contains("fail")) {
 			return new ProfileImageUpdateResponse("profile image update fail", null);
 		}
-		userRepository.updateProfileImage(uploadResponse, getCurrentUserId());
+		userRepository.updateProfileImage(uploadResponse, loggedInUserService.getCurrentUserId());
 		return new ProfileImageUpdateResponse("profile image update success", uploadResponse);
 	}
 
@@ -130,7 +103,7 @@ public class UserService {
 		String phoneNumber = updateRequest.getPhoneNumber();
 		LocalDateTime birthDate = updateRequest.getBirthDate();
 		Gender gender = updateRequest.getGender();
-		Long currentUserId = getCurrentUserId();
+		Long currentUserId = loggedInUserService.getCurrentUserId();
 
 		validateUsername(username);
 		validateNickname(nickname);
@@ -170,7 +143,7 @@ public class UserService {
 		if (!Pattern.matches(User.NicknamePolicy.REGEXP, nickname)) {
 			throw new InvalidNicknameFormatException("contains illegal characters");
 		}
-		if (!userRepository.isNicknameMatchingForUser(getCurrentUserId(), nickname)) {
+		if (!userRepository.isNicknameMatchingForUser(loggedInUserService.getCurrentUserId(), nickname)) {
 			validateDuplicatedNickname(nickname);
 		}
 	}

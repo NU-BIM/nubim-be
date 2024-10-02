@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PostCreateResponseDto {
+public class PostCreateResponseDto implements PostResponseDto {
 	private Long postId;
 	private Long userId;
 	private Long albumId;

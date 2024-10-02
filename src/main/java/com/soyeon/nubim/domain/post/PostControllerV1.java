@@ -19,7 +19,9 @@ import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 
@@ -35,6 +37,7 @@ public class PostControllerV1 {
 
 	private final PostService postService;
 	private final UserService userService;
+	private final LoggedInUserService loggedInUserService;
 
 	private static final int DEFAULT_SIMPLE_PAGE_SIZE = 10;
 	private static final int DEFAULT_MAIN_PAGE_SIZE = 5;
@@ -44,7 +47,7 @@ public class PostControllerV1 {
 	@PostMapping
 	public ResponseEntity<PostCreateResponseDto> createPost(
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto) {
-		User authorUser = userService.getCurrentUser();
+		User authorUser = loggedInUserService.getCurrentUser();
 		PostCreateResponseDto postCreateResponseDto = postService.createPost(postCreateRequestDto, authorUser);
 
 		return ResponseEntity
@@ -54,11 +57,11 @@ public class PostControllerV1 {
 
 	@Operation(description = "type이 비어있을 경우: 자세한 게시글 type=simple: 미리보기")
 	@GetMapping("/{postId}")
-	public ResponseEntity<?> getPostDetail(
+	public ResponseEntity<PostResponseDto> getPostDetail(
 		@PathVariable Long postId,
 		@RequestParam(required = false) String type) {
 		if (type == null) {
-			return ResponseEntity.ok(postService.findPostDetailById(postId));
+			return ResponseEntity.ok(postService.findPostMainById(postId));
 		} else if (type.equals("simple")) {
 			return ResponseEntity.ok(postService.findPostSimpleById(postId));
 		} else {
@@ -89,7 +92,7 @@ public class PostControllerV1 {
 
 	@DeleteMapping("{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-		postService.deleteById(postId, userService.getCurrentUserId());
+		postService.deleteById(postId, loggedInUserService.getCurrentUserId());
 		return ResponseEntity.ok().build();
 	}
 
@@ -99,7 +102,7 @@ public class PostControllerV1 {
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "follow") @Parameter(description = "[ follow, random ]") String type,
 		@RequestParam(required = false) Float randomSeed) {
-		User user = userService.getCurrentUser();
+		User user = loggedInUserService.getCurrentUser();
 
 		if (type.equals("follow")) { // 팔로우 기반 게시글 조회
 			PageRequest pageRequest = PageRequest.of(

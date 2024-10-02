@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.UserService;
@@ -19,10 +20,11 @@ public class UserFollowService {
 	private final UserFollowRepository userFollowRepository;
 	private final UserService userService;
 	private final UserMapper userMapper;
+	private final LoggedInUserService loggedInUserService;
 
 	public FollowUserResponseDto createFollow(String nickname) {
 		User followee = userService.getUserByNickname(nickname);
-		User follower = userService.getCurrentUser();
+		User follower = loggedInUserService.getCurrentUser();
 
 		if (follower.equals(followee)) {
 			throw FollowingStatusException.followYourself();
@@ -57,7 +59,7 @@ public class UserFollowService {
 
 	public FollowUserResponseDto deleteUserFollow(String nickname) {
 		User followee = userService.getUserByNickname(nickname);
-		User follower = userService.getCurrentUser();
+		User follower = loggedInUserService.getCurrentUser();
 
 		if (!isFollowing(follower, followee)) {
 			throw FollowingStatusException.notFollowing(nickname);
@@ -75,7 +77,7 @@ public class UserFollowService {
 	}
 
 	public Page<UserSimpleResponseDto> getFollowers(Pageable pageable) {
-		User followee = userService.getCurrentUser();
+		User followee = loggedInUserService.getCurrentUser();
 
 		Page<UserFollow> filteredUserFollows = userFollowRepository.findByFollowee(followee, pageable);
 
@@ -84,7 +86,7 @@ public class UserFollowService {
 	}
 
 	public Page<UserSimpleResponseDto> getFollowees(Pageable pageable) {
-		User follower = userService.getCurrentUser();
+		User follower = loggedInUserService.getCurrentUser();
 
 		Page<UserFollow> filteredUserFollows = userFollowRepository.findByFollower(follower, pageable);
 

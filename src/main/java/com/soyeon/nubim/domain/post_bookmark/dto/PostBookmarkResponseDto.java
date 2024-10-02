@@ -10,4 +10,5 @@ import lombok.Setter;
 public class PostBookmarkResponseDto {
 	private Long postId;
 	private String message;
+	private Boolean bookmarkResult;
 }

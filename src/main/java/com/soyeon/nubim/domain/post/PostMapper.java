@@ -14,8 +14,12 @@ import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.post_bookmark.PostBookmarkRepository;
 import com.soyeon.nubim.domain.postlike.PostLike;
+import com.soyeon.nubim.domain.postlike.PostLikeRepository;
+import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.dto.UserResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,9 @@ import lombok.RequiredArgsConstructor;
 public class PostMapper {
 
 	private final AlbumMapper albumMapper;
+	private final PostBookmarkRepository postBookmarkRepository;
+	private final PostLikeRepository postLikeRepository;
+	private final LoggedInUserService loggedInUserService;
 
 	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 		return Post.builder()
@@ -79,7 +86,11 @@ public class PostMapper {
 
 		UserSimpleResponseDto user = createUserSimpleResponseDto(post.getUser());
 		AlbumResponseDto album = albumMapper.toAlbumReadResponseDto(post.getAlbum());
-		List<UserSimpleResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
+		List<UserResponseDto> postLikeUsers = createPostLikeUsers(post.getPostLikes());
+
+		User currentUser = loggedInUserService.getCurrentUser();
+		Boolean isBookmarked = postBookmarkRepository.existsByUserAndPost(currentUser, post);
+		Boolean isLiked = postLikeRepository.existsPostLikeByPostAndUser(post.getPostId(), currentUser.getUserId());
 
 		return PostMainResponseDto.builder()
 			.postId(post.getPostId())
@@ -91,6 +102,8 @@ public class PostMapper {
 			.album(album)
 			.postLikeUsers(postLikeUsers)
 			.numberOfPostLikes((long)postLikeUsers.size())
+			.isBookmarked(isBookmarked)
+			.isLiked(isLiked)
 			.representativeComment(representativeComment)
 			.numberOfComments(numberOfComments)
 			.build();
@@ -112,8 +125,8 @@ public class PostMapper {
 			.build();
 	}
 
-	private List<UserSimpleResponseDto> createPostLikeUsers(List<PostLike> postLikes) {
-		List<UserSimpleResponseDto> postLikeUsers = new ArrayList<>();
+	private List<UserResponseDto> createPostLikeUsers(List<PostLike> postLikes) {
+		List<UserResponseDto> postLikeUsers = new ArrayList<>();
 		for (PostLike postLike : postLikes) {
 			User postLikeUser = postLike.getUser();
 			postLikeUsers.add(createUserSimpleResponseDto(postLikeUser));

@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PostLikeCreateResponse {
+public class PostLikeToggleResponse implements PostLikeResponse {
 	private String message;
+	private Boolean likeResult;
 }

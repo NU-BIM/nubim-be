@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PostDetailResponseDto {
+public class PostDetailResponseDto implements PostResponseDto {
 	private Long postId;
 	private String postTitle;
 	private String postContent;

@@ -35,4 +35,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Modifying
 	@Query("UPDATE Post p SET p.isDeleted = true WHERE p.album.albumId = :albumId")
 	void deletePostByDeletedAlbumId(Long albumId);
+
+	@Modifying
+	@Query("UPDATE Post p SET p.isDeleted = true WHERE p.user.userId = :userId")
+	int deletePostByUserId(Long userId);
 }

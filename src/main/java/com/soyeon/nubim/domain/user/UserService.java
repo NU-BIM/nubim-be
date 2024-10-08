@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.soyeon.nubim.common.enums.Gender;
 import com.soyeon.nubim.common.util.aws.S3ImageUploader;
+import com.soyeon.nubim.domain.comment.CommentRepository;
+import com.soyeon.nubim.domain.post.PostRepository;
+import com.soyeon.nubim.domain.postlike.PostLikeRepository;
 import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
@@ -25,6 +28,7 @@ import com.soyeon.nubim.domain.user.exception.NicknameNullOrEmptyException;
 import com.soyeon.nubim.domain.user.exception.UnsupportedProfileImageTypeException;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.domain.user.exception.UsernameNullOrEmptyException;
+import com.soyeon.nubim.domain.userfollow.UserFollowRepository;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import jakarta.transaction.Transactional;
@@ -40,6 +44,10 @@ public class UserService {
 	private final UserMapper userMapper;
 	private final S3ImageUploader s3ImageUploader;
 	private final LoggedInUserService loggedInUserService;
+	private final CommentRepository commentRepository;
+	private final PostLikeRepository postLikeRepository;
+	private final PostRepository postRepository;
+	private final UserFollowRepository userFollowRepository;
 
 	public UserProfileResponseDto getCurrentUserProfile() {
 		User currentUser = loggedInUserService.getCurrentUser();
@@ -66,6 +74,23 @@ public class UserService {
 
 		return Map.of("status", "success",
 			"message", "your refresh token deleted");
+	}
+
+	@Transactional
+	public Map<String, String> deleteAccount() {
+		Long currentUserId = loggedInUserService.getCurrentUserId();
+
+		String anonymizedNickname = UserNicknameGenerator.generateAnonymizedNickname();
+		userRepository.deleteAccount(currentUserId, anonymizedNickname);
+		commentRepository.deleteCommentByUserId(currentUserId);
+		// post_like 는 hard delete, 그 외 soft delete
+		postLikeRepository.deletePostLikeByUserId(currentUserId);
+		postRepository.deletePostByUserId(currentUserId);
+		userFollowRepository.deleteFollowerByUserId(currentUserId);
+		userFollowRepository.deleteFolloweeByUserId(currentUserId);
+
+		return Map.of("status", "success",
+			"message", "your account deleted");
 	}
 
 	public void validateUserExists(Long userId) {

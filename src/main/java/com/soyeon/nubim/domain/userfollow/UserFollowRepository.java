@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,12 @@ public interface UserFollowRepository extends JpaRepository<UserFollow, Long> {
 	Page<UserFollow> findByFollowee(User followee, Pageable pageable);
 
 	Page<UserFollow> findByFollower(User follower, Pageable pageable);
+
+	@Modifying
+	@Query("UPDATE UserFollow uf SET uf.isDeleted = true WHERE uf.follower.userId = :userId")
+	int deleteFollowerByUserId(Long userId);
+
+	@Modifying
+	@Query("UPDATE UserFollow uf SET uf.isDeleted = true WHERE uf.followee.userId = :userId")
+	int deleteFolloweeByUserId(Long userId);
 }

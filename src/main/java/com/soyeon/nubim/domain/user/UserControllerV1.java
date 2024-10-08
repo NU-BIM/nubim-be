@@ -3,6 +3,7 @@ package com.soyeon.nubim.domain.user;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +59,13 @@ public class UserControllerV1 {
 		Map<String, String> logoutResult = userService.logout(tokenDeleteRequestDto.getRefreshToken());
 
 		return ResponseEntity.ok().body(logoutResult);
+	}
+
+	@DeleteMapping("/account")
+	public ResponseEntity<?> deleteAccount() {
+		Map<String, String> deleteAccountResult = userService.deleteAccount();
+
+		return ResponseEntity.ok().body(deleteAccountResult);
 	}
 
 	@Operation(description = "프로필 이미지 변경")

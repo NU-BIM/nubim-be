@@ -40,4 +40,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT CASE WHEN u.nickname = :nickname THEN true ELSE false END FROM User u WHERE u.userId = :userId")
 	boolean isNicknameMatchingForUser(Long userId, String nickname);
+
+	@Modifying
+	@Query("UPDATE User u SET u.username = 'deleted user', u.nickname = :anonymizedNickname, u.isDeleted = true "
+		+ "WHERE u.userId = :userId")
+	int deleteAccount(Long userId, String anonymizedNickname);
 }

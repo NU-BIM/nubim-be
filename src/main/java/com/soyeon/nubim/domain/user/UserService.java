@@ -17,7 +17,6 @@ import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
-import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.domain.user.exception.InvalidNicknameFormatException;
 import com.soyeon.nubim.domain.user.exception.MultipleProfileUpdateException;
 import com.soyeon.nubim.domain.user.exception.NicknameAlreadyExistsException;
@@ -154,9 +153,8 @@ public class UserService {
 		}
 	}
 
-	public Page<UserSimpleResponseDto> searchUserByNickname(Pageable pageable, String query) {
-		return userRepository.findByNicknameStartsWith(pageable, query)
-			.map(userMapper::toUserSimpleResponseDto);
+	public Page<User> searchUserByNickname(Pageable pageable, String query) {
+		return userRepository.findByNicknameStartsWith(pageable, query);
 	}
 
 	public User getUserByNickname(String nickname) {

@@ -14,7 +14,9 @@ import com.soyeon.nubim.domain.post.dto.PostDetailResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserFollowResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
+import com.soyeon.nubim.domain.user.dto.UserSimpleWithIsFollowedResponseDto;
 import com.soyeon.nubim.domain.userfollow.UserFollow;
+import com.soyeon.nubim.domain.userfollow.UserFollowRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,12 +26,26 @@ public class UserMapper {
 
 	private final AlbumMapper albumMapper;
 	private final PostMapper postMapper;
+	private final UserFollowRepository userFollowRepository;
+	private final LoggedInUserService loggedInUserService;
 
 	public UserSimpleResponseDto toUserSimpleResponseDto(User user) {
 		return UserSimpleResponseDto.builder()
 			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.profileImageUrl(user.getProfileImageUrl())
+			.build();
+	}
+
+	public UserSimpleWithIsFollowedResponseDto toUserSimpleWithIsFollowedResponseDto(User user) {
+		User currentUser = loggedInUserService.getCurrentUser();
+		Boolean isFollowed = userFollowRepository.existsByFollowerAndFollowee(currentUser, user);
+
+		return UserSimpleWithIsFollowedResponseDto.builder()
+			.username(user.getUsername())
+			.nickname(user.getNickname())
+			.profileImageUrl(user.getProfileImageUrl())
+			.isFollowed(isFollowed)
 			.build();
 	}
 

@@ -69,13 +69,15 @@ public class PostMapper {
 			.nickname(post.getUser().getNickname())
 			.build();
 
+		AlbumResponseDto albumResponseDto = albumMapper.toAlbumReadResponseDto(post.getAlbum());
+
 		return PostSimpleResponseDto.builder()
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
 			.numberOfComments((long)post.getComments().size())
 			.user(userSimpleResponseDto)
-			.albumId(post.getAlbum().getAlbumId())
+			.album(albumResponseDto)
 			.createdAt(post.getCreatedAt())
 			.updatedAt(post.getUpdatedAt())
 			.build();

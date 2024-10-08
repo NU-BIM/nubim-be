@@ -2,6 +2,7 @@ package com.soyeon.nubim.domain.post.dto;
 
 import java.time.LocalDateTime;
 
+import com.soyeon.nubim.domain.album.dto.AlbumResponseDto;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 
 import lombok.Builder;
@@ -19,7 +20,6 @@ public class PostSimpleResponseDto implements PostResponseDto {
 	private UserSimpleResponseDto user;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-
-	// TODO : Album 구현 완료되면 적절하게 변경되어야 함.
-	private Long albumId;
+	
+	private AlbumResponseDto album;
 }

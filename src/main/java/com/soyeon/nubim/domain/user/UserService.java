@@ -69,16 +69,17 @@ public class UserService {
 	}
 
 	@Transactional
-	public Map<String, String> logout(String token) {
-		refreshTokenService.deleteRefreshToken(token);
+	public Map<String, String> logout(String refreshToken) {
+		refreshTokenService.deleteRefreshToken(refreshToken);
 
 		return Map.of("status", "success",
 			"message", "your refresh token deleted");
 	}
 
 	@Transactional
-	public Map<String, String> deleteAccount() {
+	public Map<String, String> deleteAccount(String refreshToken) {
 		Long currentUserId = loggedInUserService.getCurrentUserId();
+		validateUserExists(currentUserId);
 
 		String anonymizedNickname = UserNicknameGenerator.generateAnonymizedNickname();
 		userRepository.deleteAccount(currentUserId, anonymizedNickname);
@@ -88,6 +89,8 @@ public class UserService {
 		postRepository.deletePostByUserId(currentUserId);
 		userFollowRepository.deleteFollowerByUserId(currentUserId);
 		userFollowRepository.deleteFolloweeByUserId(currentUserId);
+
+		refreshTokenService.deleteRefreshToken(refreshToken);
 
 		return Map.of("status", "success",
 			"message", "your account deleted");

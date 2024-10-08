@@ -62,8 +62,8 @@ public class UserControllerV1 {
 	}
 
 	@DeleteMapping("/account")
-	public ResponseEntity<?> deleteAccount() {
-		Map<String, String> deleteAccountResult = userService.deleteAccount();
+	public ResponseEntity<?> deleteAccount(@RequestBody TokenDeleteRequestDto tokenDeleteRequestDto) {
+		Map<String, String> deleteAccountResult = userService.deleteAccount(tokenDeleteRequestDto.getRefreshToken());
 
 		return ResponseEntity.ok().body(deleteAccountResult);
 	}

@@ -3,6 +3,7 @@ package com.soyeon.nubim.domain.user;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class UserNicknameGenerator {
 	private static final Random RANDOM = new Random();
@@ -19,6 +20,10 @@ public class UserNicknameGenerator {
 		String word = NICKNAME_DICTIONARY.get(RANDOM.nextInt(NICKNAME_DICTIONARY.size()));
 
 		return word + "-" + RandomCodeGenerator.generate();
+	}
+
+	public static String generateAnonymizedNickname(){
+		return "DELETED" + "-" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
 	}
 
 	private class RandomCodeGenerator {

@@ -12,6 +12,7 @@ import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
+import com.soyeon.nubim.security.oauth.exception.InvalidTokenException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,16 +42,13 @@ public class GoogleOAuthLoginService {
 
 	private static void validateOAuthAccessToken(String oauthAccessToken) {
 		if (oauthAccessToken == null) {
-			throw new IllegalArgumentException("OAuth Access Token cannot be null");
-		}
-		if (!oauthAccessToken.startsWith("Bearer ")) {
-			throw new IllegalArgumentException("OAuth Access Token must start with 'Bearer '");
+			throw new InvalidTokenException("OAuth Access Token cannot be null");
 		}
 	}
 
 	private GoogleUserInfo fetchGoogleUserInfo(String oauthAccessToken) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setBearerAuth(parseBearerToken(oauthAccessToken));
+		headers.setBearerAuth(oAuthLoginCommons.parseBearerToken(oauthAccessToken));
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
 		return restTemplate.exchange(
@@ -59,10 +57,6 @@ public class GoogleOAuthLoginService {
 			entity,
 			GoogleUserInfo.class
 		).getBody();
-	}
-
-	private static String parseBearerToken(String accessToken) {
-		return accessToken.substring(7);
 	}
 
 	private User upsertUserFromGoogleUserInfo(GoogleUserInfo userInfo) {

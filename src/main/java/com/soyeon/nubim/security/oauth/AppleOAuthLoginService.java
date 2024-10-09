@@ -30,6 +30,7 @@ public class AppleOAuthLoginService {
 	private final OAuthLoginCommons oAuthLoginCommons;
 
 	public ResponseEntity<JwtTokenResponseDto> authenticateWithAppleToken(String idToken) {
+		idToken = oAuthLoginCommons.parseBearerToken(idToken);
 		appleIdTokenValidator.validateAppleIdToken(idToken);
 		User user = fetchAppleUserInfo(idToken);
 

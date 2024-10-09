@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.post.PostService;
 import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.user.User;
+import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.UserService;
-import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
+import com.soyeon.nubim.domain.user.dto.UserSimpleWithIsFollowedResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 public class SearchService {
 	private final UserService userService;
 	private final PostService postService;
+	private final UserMapper userMapper;
 
-	public Page<UserSimpleResponseDto> searchUsers(String query, Pageable pageable) {
-		return userService.searchUserByNickname(pageable, query);
+	public Page<UserSimpleWithIsFollowedResponseDto> searchUsers(String query, Pageable pageable) {
+		Page<User> users = userService.searchUserByNickname(pageable, query);
+		return users.map(userMapper::toUserSimpleWithIsFollowedResponseDto);
 	}
 
 	public Page<PostSimpleResponseDto> searchPosts(String query, Pageable pageable) {

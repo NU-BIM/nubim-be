@@ -16,6 +16,8 @@ public interface UserFollowRepository extends JpaRepository<UserFollow, Long> {
 	@Query("SELECT a FROM UserFollow AS a WHERE (a.follower = :follower and a.followee = :followee)")
 	Optional<UserFollow> findByFollowerAndFollowee(User follower, User followee);
 
+	Boolean existsByFollowerAndFollowee(User follower, User followee);
+
 	Page<UserFollow> findByFollowee(User followee, Pageable pageable);
 
 	Page<UserFollow> findByFollower(User follower, Pageable pageable);

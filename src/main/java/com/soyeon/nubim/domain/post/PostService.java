@@ -74,15 +74,21 @@ public class PostService {
 		return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
 	}
 
-	public Page<PostSimpleResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
+	public Page<PostMainResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
 		return postRepository.findByPostTitleContainingOrPostContentContaining(query, query, pageable)
-			.map(postMapper::toPostSimpleResponseDto);
+			.map(post -> {
+				long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+				return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+			});
 	}
 
-	public Page<PostSimpleResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
+	public Page<PostMainResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
 		Page<Post> postList = postRepository.findByUser(user, pageable);
 		return postList
-			.map(postMapper::toPostSimpleResponseDto);
+			.map(post -> {
+				long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+				return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+			});
 	}
 
 	public Page<PostMainResponseDto> findRecentPostsOfFollowees(User user, Pageable pageable, int recentCriteriaDays) {

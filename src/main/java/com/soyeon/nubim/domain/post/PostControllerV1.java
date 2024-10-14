@@ -20,7 +20,6 @@ import com.soyeon.nubim.domain.post.dto.PostCreateRequestDto;
 import com.soyeon.nubim.domain.post.dto.PostCreateResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.post.dto.PostResponseDto;
-import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
@@ -71,7 +70,7 @@ public class PostControllerV1 {
 
 	@Operation(description = "nickname 을 기준으로 게시글 미리보기 리스트 시간순 정렬 응답, 기본은 내림차순, sort=asc일경우 오름차순")
 	@GetMapping("/user/{nickname}")
-	public ResponseEntity<Page<PostSimpleResponseDto>> getPostsByUserNickname(
+	public ResponseEntity<Page<PostMainResponseDto>> getPostsByUserNickname(
 		@PathVariable String nickname,
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "desc") String sort) {

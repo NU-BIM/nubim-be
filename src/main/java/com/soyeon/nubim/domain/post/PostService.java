@@ -79,10 +79,13 @@ public class PostService {
 			.map(postMapper::toPostSimpleResponseDto);
 	}
 
-	public Page<PostSimpleResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
+	public Page<PostMainResponseDto> findAllPostsByUserOrderByCreatedAt(User user, Pageable pageable) {
 		Page<Post> postList = postRepository.findByUser(user, pageable);
 		return postList
-			.map(postMapper::toPostSimpleResponseDto);
+			.map(post -> {
+				long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
+				return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
+			});
 	}
 
 	public Page<PostMainResponseDto> findRecentPostsOfFollowees(User user, Pageable pageable, int recentCriteriaDays) {

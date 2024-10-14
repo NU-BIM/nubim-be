@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.domain.post.PostService;
-import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
+import com.soyeon.nubim.domain.post.dto.PostMainResponseDto;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.UserService;
@@ -25,7 +25,7 @@ public class SearchService {
 		return users.map(userMapper::toUserSimpleWithIsFollowedResponseDto);
 	}
 
-	public Page<PostSimpleResponseDto> searchPosts(String query, Pageable pageable) {
+	public Page<PostMainResponseDto> searchPosts(String query, Pageable pageable) {
 		return postService.searchPostsByTitleOrContent(pageable, query);
 	}
 }

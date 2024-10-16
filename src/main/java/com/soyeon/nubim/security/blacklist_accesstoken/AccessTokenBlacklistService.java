@@ -21,4 +21,9 @@ public class AccessTokenBlacklistService {
 		AccessTokenBlacklist blacklistedAccessToken = new AccessTokenBlacklist(accessToken, jwtExpirationMs);
 		accessTokenBlacklistRepository.save(blacklistedAccessToken);
 	}
+
+	public boolean isBlacklisted(String accessToken) {
+		return accessTokenBlacklistRepository.existsById(accessToken);
+	}
+
 }

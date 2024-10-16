@@ -19,7 +19,7 @@ public class OAuthLoginCommons {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenService refreshTokenService;
 
-	protected String parseBearerToken(String token) {
+	public String parseBearerToken(String token) {
 		if (!token.startsWith("Bearer ")) {
 			throw new InvalidTokenException("Token must start with 'Bearer '");
 		}

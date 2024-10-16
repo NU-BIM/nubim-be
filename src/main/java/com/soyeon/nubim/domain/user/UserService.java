@@ -28,6 +28,7 @@ import com.soyeon.nubim.domain.user.exception.UnsupportedProfileImageTypeExcepti
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.domain.user.exception.UsernameNullOrEmptyException;
 import com.soyeon.nubim.domain.userfollow.UserFollowRepository;
+import com.soyeon.nubim.security.blacklist_accesstoken.AccessTokenBlacklistService;
 import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 import jakarta.transaction.Transactional;
@@ -40,6 +41,7 @@ public class UserService {
 	private static final int PROFILE_UPDATE_FAIL = 0;
 	private final UserRepository userRepository;
 	private final RefreshTokenService refreshTokenService;
+	private final AccessTokenBlacklistService accessTokenBlacklistService;
 	private final UserMapper userMapper;
 	private final S3ImageUploader s3ImageUploader;
 	private final LoggedInUserService loggedInUserService;
@@ -68,15 +70,16 @@ public class UserService {
 	}
 
 	@Transactional
-	public Map<String, String> logout(String refreshToken) {
+	public Map<String, String> logout(String accessToken, String refreshToken) {
 		refreshTokenService.deleteRefreshToken(refreshToken);
+		accessTokenBlacklistService.addToBlacklist(accessToken);
 
 		return Map.of("status", "success",
 			"message", "your refresh token deleted");
 	}
 
 	@Transactional
-	public Map<String, String> deleteAccount(String refreshToken) {
+	public Map<String, String> deleteAccount(String accessToken, String refreshToken) {
 		Long currentUserId = loggedInUserService.getCurrentUserId();
 		validateUserExists(currentUserId);
 
@@ -90,6 +93,7 @@ public class UserService {
 		userFollowRepository.deleteFolloweeByUserId(currentUserId);
 
 		refreshTokenService.deleteRefreshToken(refreshToken);
+		accessTokenBlacklistService.addToBlacklist(accessToken);
 
 		return Map.of("status", "success",
 			"message", "your account deleted");

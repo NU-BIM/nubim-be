@@ -55,15 +55,20 @@ public class UserControllerV1 {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<?> logout(@RequestBody TokenDeleteRequestDto tokenDeleteRequestDto) {
-		Map<String, String> logoutResult = userService.logout(tokenDeleteRequestDto.getRefreshToken());
+	public ResponseEntity<?> logout(
+		@RequestHeader("Authorization") String accessToken, @RequestBody TokenDeleteRequestDto tokenDeleteRequestDto
+	) {
+		Map<String, String> logoutResult = userService.logout(accessToken, tokenDeleteRequestDto.getRefreshToken());
 
 		return ResponseEntity.ok().body(logoutResult);
 	}
 
 	@DeleteMapping("/account")
-	public ResponseEntity<?> deleteAccount(@RequestBody TokenDeleteRequestDto tokenDeleteRequestDto) {
-		Map<String, String> deleteAccountResult = userService.deleteAccount(tokenDeleteRequestDto.getRefreshToken());
+	public ResponseEntity<?> deleteAccount(
+		@RequestHeader("Authorization") String accessToken, @RequestBody TokenDeleteRequestDto tokenDeleteRequestDto
+	) {
+		Map<String, String> deleteAccountResult
+			= userService.deleteAccount(accessToken, tokenDeleteRequestDto.getRefreshToken());
 
 		return ResponseEntity.ok().body(deleteAccountResult);
 	}

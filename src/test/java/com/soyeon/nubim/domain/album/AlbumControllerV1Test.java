@@ -39,8 +39,12 @@ import com.soyeon.nubim.domain.album.dto.LocationUpdateRequestDto;
 import com.soyeon.nubim.domain.album.exception.AlbumNotFoundException;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.security.SecurityConfig;
+import com.soyeon.nubim.security.blacklist_accesstoken.AccessTokenBlacklistRepository;
+import com.soyeon.nubim.security.blacklist_accesstoken.AccessTokenBlacklistService;
 import com.soyeon.nubim.security.jwt.JwtAuthenticationFilter;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
+import com.soyeon.nubim.security.oauth.OAuthLoginCommons;
+import com.soyeon.nubim.security.refreshtoken.RefreshTokenService;
 
 @WebMvcTest(controllers = AlbumControllerV1.class)
 @Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtTokenProvider.class})
@@ -61,10 +65,16 @@ class AlbumControllerV1Test {
 	private AlbumService albumService;
 	@MockBean
 	private AlbumPhotoUploadUrlService albumPhotoUploadUrlService;
-
+	@MockBean
+	private RefreshTokenService refreshTokenService;
+	@MockBean
+	private AccessTokenBlacklistRepository accessTokenBlacklistRepository;
+	@MockBean
+	private OAuthLoginCommons oAuthLoginCommons;
+	@MockBean
+	private AccessTokenBlacklistService accessTokenBlacklistService;
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
-
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -301,7 +311,8 @@ class AlbumControllerV1Test {
 
 		String content = result.getResponse().getContentAsString();
 		List<AlbumReadResponseDto> actualAlbums
-			= objectMapper.readValue(content, new TypeReference<>() {});
+			= objectMapper.readValue(content, new TypeReference<>() {
+		});
 
 		assertEquals(1, actualAlbums.size());
 		assertEquals(readResponseDto.getAlbumId(), actualAlbums.get(0).getAlbumId());

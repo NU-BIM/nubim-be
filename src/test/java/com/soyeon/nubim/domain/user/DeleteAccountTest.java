@@ -276,8 +276,8 @@ public class DeleteAccountTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(refreshTokenJson)
 			)
-			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.message").value("User not found with id " + user.getUserId()));
+			.andExpect(status().isUnauthorized())
+			.andExpect(jsonPath("$.message").value("Access denied"));
 	}
 
 	@Test

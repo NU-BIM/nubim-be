@@ -30,6 +30,8 @@ jobs:
           --health-retries 5
       redis:
         image: redis
+        ports:
+          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -79,3 +81,4 @@ jobs:
           DB_USER: ${{ secrets.DB_USER_GITHUB_ACTIONS }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD_GITHUB_ACTIONS }}
           REDIS_HOST: redis
+          REDIS_PORT: 6379

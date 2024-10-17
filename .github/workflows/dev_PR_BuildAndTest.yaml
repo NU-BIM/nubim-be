@@ -80,5 +80,3 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME_GITHUB_ACTIONS }}
           DB_USER: ${{ secrets.DB_USER_GITHUB_ACTIONS }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD_GITHUB_ACTIONS }}
-          REDIS_HOST: redis
-          REDIS_PORT: 6379

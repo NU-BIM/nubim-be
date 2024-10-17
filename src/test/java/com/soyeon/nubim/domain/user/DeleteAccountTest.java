@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.soyeon.nubim.common.enums.Provider;
 import com.soyeon.nubim.common.enums.Role;
+import com.soyeon.nubim.domain.album.Album;
+import com.soyeon.nubim.domain.album.AlbumRepository;
 import com.soyeon.nubim.domain.comment.Comment;
 import com.soyeon.nubim.domain.comment.CommentRepository;
 import com.soyeon.nubim.domain.post.Post;
@@ -69,6 +71,8 @@ public class DeleteAccountTest {
 	private String refreshToken;
 	private Post post;
 	private User anotherUser;
+	@Autowired
+	private AlbumRepository albumRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -89,7 +93,12 @@ public class DeleteAccountTest {
 		refreshTokenService.upsertRefreshTokenEntity(refreshToken, user.getEmail());
 
 		// 테스트 데이터 생성
+		Album album = new Album();
+		album.setUser(user);
+		albumRepository.save(album);
+
 		Post post = new Post();
+		post.setAlbum(album);
 		post.setUser(user);
 		post.setPostTitle("test post title");
 		this.post = postRepository.save(post);

@@ -16,6 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import net.minidev.json.JSONObject;
 
+import com.soyeon.nubim.security.blacklist_accesstoken.AccessTokenBlacklistService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,11 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
+	private final AccessTokenBlacklistService accessTokenBlacklistService;
 
 	private static final List<String> EXCLUDED = List.of(
 		"/css", "/js", "/images", "/favicon.ico", "/error",
 		"/login", "/logout", "/oauth2", "/swagger-ui", "/v3/api-docs",
-		"/v1/users/login", "/v1/users/logout", "/v1/refresh-tokens/new-access-token",
+		"/v1/users/login", "/v1/refresh-tokens/new-access-token",
 		"/actuator/health");
 
 	@Override
@@ -83,6 +86,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 		if (!jwtTokenProvider.validateToken(jwt)) {
 			log.debug("---- JWT token is invalid");
+			return false;
+		}
+		if (accessTokenBlacklistService.isBlacklisted(jwt)) {
+			log.debug("Blacklisted JWT token: {}", jwt);
 			return false;
 		}
 		return true;

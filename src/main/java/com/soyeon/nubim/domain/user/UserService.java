@@ -20,6 +20,7 @@ import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
+import com.soyeon.nubim.domain.user.exception.DeletedUserSignupAttemptException;
 import com.soyeon.nubim.domain.user.exception.InvalidNicknameFormatException;
 import com.soyeon.nubim.domain.user.exception.MultipleProfileUpdateException;
 import com.soyeon.nubim.domain.user.exception.NicknameAlreadyExistsException;
@@ -149,6 +150,12 @@ public class UserService {
 			return new ProfileUpdateResponse("profile update fail");
 		}
 		throw new MultipleProfileUpdateException();
+	}
+
+	public void checkIfUserIsDeleted(String email) {
+		if (userRepository.existsByEmailAndIsDeletedTrue(email)) {
+			throw new DeletedUserSignupAttemptException(email);
+		}
 	}
 
 	private void validateProfileImageContentType(String contentType) {

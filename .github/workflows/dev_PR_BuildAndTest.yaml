@@ -28,6 +28,14 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
 
     steps:
       # Display PR info
@@ -70,3 +78,4 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME_GITHUB_ACTIONS }}
           DB_USER: ${{ secrets.DB_USER_GITHUB_ACTIONS }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD_GITHUB_ACTIONS }}
+          REDIS_HOST: redis

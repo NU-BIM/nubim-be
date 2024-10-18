@@ -71,8 +71,9 @@ public class UserService {
 	}
 
 	@Transactional
-	public Map<String, String> logout(String accessToken, String refreshToken) {
-		refreshTokenService.deleteRefreshToken(refreshToken);
+	public Map<String, String> logout(String accessToken) {
+		String currentUserEmail = loggedInUserService.getCurrentUserEmail();
+		refreshTokenService.deleteRefreshToken(currentUserEmail);
 		accessTokenBlacklistService.addToBlacklist(accessToken);
 
 		return Map.of("status", "success",
@@ -80,7 +81,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public Map<String, String> deleteAccount(String accessToken, String refreshToken) {
+	public Map<String, String> deleteAccount(String accessToken) {
 		Long currentUserId = loggedInUserService.getCurrentUserId();
 		validateUserExists(currentUserId);
 
@@ -93,7 +94,8 @@ public class UserService {
 		userFollowRepository.deleteFollowerByUserId(currentUserId);
 		userFollowRepository.deleteFolloweeByUserId(currentUserId);
 
-		refreshTokenService.deleteRefreshToken(refreshToken);
+		String currentUserEmail = loggedInUserService.getCurrentUserEmail();
+		refreshTokenService.deleteRefreshToken(currentUserEmail);
 		accessTokenBlacklistService.addToBlacklist(accessToken);
 
 		return Map.of("status", "success",

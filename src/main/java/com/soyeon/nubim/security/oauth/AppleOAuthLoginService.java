@@ -79,6 +79,7 @@ public class AppleOAuthLoginService {
 			existingUser.updateNameFromOAuthProfile(user.getUsername());
 			return userService.saveUser(existingUser);
 		} catch (UserNotFoundException e) {
+			userService.checkIfUserIsDeleted(user.getEmail());
 			return userService.saveUser(user);
 		}
 	}

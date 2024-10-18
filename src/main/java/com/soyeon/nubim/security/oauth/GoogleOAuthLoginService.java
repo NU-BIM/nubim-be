@@ -66,6 +66,7 @@ public class GoogleOAuthLoginService {
 			oAuthLoginCommons.validateUserProvider(user, Provider.GOOGLE);
 			user = user.updateNameFromOAuthProfile(userInfo.getName());
 		} catch (UserNotFoundException e) {
+			userService.checkIfUserIsDeleted(userInfo.getEmail());
 			user = userInfo.toUserEntity();
 		}
 		return userService.saveUser(user);

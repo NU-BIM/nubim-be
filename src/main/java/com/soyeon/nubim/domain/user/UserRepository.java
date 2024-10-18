@@ -24,7 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Boolean existsByNickname(String nickname);
 
-	@Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM users WHERE email = :email", nativeQuery = true)
+	@Query(value = "SELECT EXISTS(SELECT 1 FROM users WHERE email = :email AND is_deleted = true)", nativeQuery = true)
 	Boolean existsByEmailAndIsDeletedTrue(String email);
 
 	Page<User> findByNicknameStartsWith(Pageable pageable, String query);

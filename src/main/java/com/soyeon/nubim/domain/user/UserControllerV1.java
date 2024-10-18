@@ -18,7 +18,6 @@ import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
-import com.soyeon.nubim.security.jwt.dto.TokenDeleteRequestDto;
 import com.soyeon.nubim.security.oauth.AppleOAuthLoginService;
 import com.soyeon.nubim.security.oauth.GoogleOAuthLoginService;
 
@@ -55,20 +54,15 @@ public class UserControllerV1 {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<?> logout(
-		@RequestHeader("Authorization") String accessToken, @RequestBody TokenDeleteRequestDto tokenDeleteRequestDto
-	) {
-		Map<String, String> logoutResult = userService.logout(accessToken, tokenDeleteRequestDto.getRefreshToken());
+	public ResponseEntity<?> logout(@RequestHeader("Authorization") String accessToken) {
+		Map<String, String> logoutResult = userService.logout(accessToken);
 
 		return ResponseEntity.ok().body(logoutResult);
 	}
 
 	@DeleteMapping("/account")
-	public ResponseEntity<?> deleteAccount(
-		@RequestHeader("Authorization") String accessToken, @RequestBody TokenDeleteRequestDto tokenDeleteRequestDto
-	) {
-		Map<String, String> deleteAccountResult
-			= userService.deleteAccount(accessToken, tokenDeleteRequestDto.getRefreshToken());
+	public ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String accessToken) {
+		Map<String, String> deleteAccountResult = userService.deleteAccount(accessToken);
 
 		return ResponseEntity.ok().body(deleteAccountResult);
 	}

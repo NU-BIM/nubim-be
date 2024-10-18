@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
+import com.soyeon.nubim.security.refreshtoken.exception.MultipleRefreshTokensDeletedException;
+import com.soyeon.nubim.security.refreshtoken.exception.RefreshTokenNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +34,13 @@ public class RefreshTokenService {
 		return refreshTokenRepository.save(refreshToken);
 	}
 
-	public void deleteRefreshToken(String token) {
-		refreshTokenRepository.deleteByToken(token)
-			.orElseThrow(() -> new EntityNotFoundException("Refresh Token not found, token: " + token));
+	public void deleteRefreshToken(String email) {
+		int deletedTokenCount = refreshTokenRepository.deleteByEmail(email);
+		if ( deletedTokenCount == 0 ){
+			throw new RefreshTokenNotFoundException(email);
+		} else if ( deletedTokenCount >= 2 ){
+			throw new MultipleRefreshTokensDeletedException(deletedTokenCount, email);
+		}
 	}
 
 	public ResponseEntity<JwtTokenResponseDto> renewAccessToken(String refreshToken) {

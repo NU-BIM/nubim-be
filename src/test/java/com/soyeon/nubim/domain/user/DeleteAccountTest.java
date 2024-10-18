@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -130,12 +129,9 @@ public class DeleteAccountTest {
 	}
 
 	private void performAccountDeletion() throws Exception {
-		String refreshTokenJson = "{\"refreshToken\": \"" + refreshToken + "\"}";
 
 		mockMvc.perform(delete("/v1/users/account")
-				.header("Authorization", "Bearer " + accessToken)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(refreshTokenJson))
+				.header("Authorization", "Bearer " + accessToken))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("success"))
 			.andExpect(jsonPath("$.message").value("your account deleted"));
@@ -277,13 +273,8 @@ public class DeleteAccountTest {
 		// 먼저 계정 삭제
 		performAccountDeletion();
 
-		// 다시 삭제 시도
-		String refreshTokenJson = "{\"refreshToken\": \"" + refreshToken + "\"}";
-
 		mockMvc.perform(delete("/v1/users/account")
 				.header("Authorization", "Bearer " + accessToken)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(refreshTokenJson)
 			)
 			.andExpect(status().isUnauthorized())
 			.andExpect(jsonPath("$.message").value("Access denied"));
@@ -297,14 +288,9 @@ public class DeleteAccountTest {
 		String userEmail = "nonexistent@email.com";
 		String role = "USER";
 		String nonExistUserAccessToken = jwtTokenProvider.generateAccessToken(userId, userEmail, role);
-		String nonExistUserRefreshToken = jwtTokenProvider.generateRefreshToken(userId, userEmail, role);
-
-		String refreshTokenJson = "{\"refreshToken\": \"" + nonExistUserRefreshToken + "\"}";
 
 		mockMvc.perform(delete("/v1/users/account")
 				.header("Authorization", "Bearer " + nonExistUserAccessToken)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(refreshTokenJson)
 			)
 			.andExpect(status().isNotFound())
 			.andExpect(jsonPath("$.message").value("User not found with id " + userId));

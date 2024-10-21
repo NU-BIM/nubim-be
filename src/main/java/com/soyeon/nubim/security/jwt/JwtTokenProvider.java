@@ -13,11 +13,14 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.soyeon.nubim.common.enums.TokenValidationResult;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,18 +82,19 @@ public class JwtTokenProvider {
 		return refreshToken;
 	}
 
-	public boolean validateToken(String token) {
+	public TokenValidationResult validateToken(String token) {
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-			return true;
+			return TokenValidationResult.VALID;
 		} catch (
-			SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+			SecurityException | MalformedJwtException | UnsupportedJwtException |
+			IllegalArgumentException | SignatureException e) {
 			logTokenValidationError(token, e.getMessage());
-			return false;
+			return TokenValidationResult.INVALID;
 		} catch (ExpiredJwtException e) {
 			String errorMessage = createJwtExpirationErrorMessage(e);
 			logTokenValidationError(token, errorMessage);
-			return false;
+			return TokenValidationResult.EXPIRED;
 		}
 	}
 

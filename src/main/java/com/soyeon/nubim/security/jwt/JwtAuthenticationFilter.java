@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import net.minidev.json.JSONObject;
 
+import com.soyeon.nubim.common.enums.TokenValidationResult;
 import com.soyeon.nubim.security.blacklist_accesstoken.AccessTokenBlacklistService;
 
 import jakarta.servlet.FilterChain;
@@ -84,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			log.debug("---- JWT token is empty");
 			return false;
 		}
-		if (!jwtTokenProvider.validateToken(jwt)) {
+		if ( jwtTokenProvider.validateToken(jwt) != TokenValidationResult.VALID ) {
 			log.debug("---- JWT token is invalid");
 			return false;
 		}

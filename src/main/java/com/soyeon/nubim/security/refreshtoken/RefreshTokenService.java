@@ -4,9 +4,14 @@ import java.time.LocalDateTime;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import com.soyeon.nubim.common.enums.TokenValidationResult;
 import com.soyeon.nubim.security.jwt.JwtTokenProvider;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
+import com.soyeon.nubim.security.refreshtoken.exception.ExpiredRefreshTokenException;
+import com.soyeon.nubim.security.refreshtoken.exception.InvalidRefreshTokenException;
 import com.soyeon.nubim.security.refreshtoken.exception.MultipleRefreshTokensDeletedException;
 import com.soyeon.nubim.security.refreshtoken.exception.RefreshTokenNotFoundException;
 
@@ -20,6 +25,7 @@ public class RefreshTokenService {
 	private static final int REFRESH_TOKEN_MAX_AGE_SECONDS = 604800; //60 * 60 * 24 * 7
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final TransactionTemplate transactionTemplate;
 
 	public RefreshToken findByEmail(String email) {
 		return refreshTokenRepository.findByEmail(email)
@@ -43,6 +49,7 @@ public class RefreshTokenService {
 		}
 	}
 
+	@Transactional
 	public ResponseEntity<JwtTokenResponseDto> renewAccessToken(String refreshToken) {
 		validateRefreshToken(refreshToken);
 
@@ -54,11 +61,16 @@ public class RefreshTokenService {
 	}
 
 	private void validateRefreshToken(String refreshToken) {
-		if (!jwtTokenProvider.validateToken(refreshToken)) {
-			throw new IllegalArgumentException("Refresh Token is invalid, refreshToken: " + refreshToken);
+		TokenValidationResult validationResult = jwtTokenProvider.validateToken(refreshToken);
+		if (validationResult == TokenValidationResult.INVALID) {
+			throw new InvalidRefreshTokenException(refreshToken);
+		}
+		if (validationResult == TokenValidationResult.EXPIRED) {
+			deleteExpiredRefreshToken(refreshToken);
+			throw new ExpiredRefreshTokenException(refreshToken);
 		}
 		if (!isRefreshTokenExist(refreshToken)) {
-			throw new EntityNotFoundException("Refresh Token not found in database, refreshToken: " + refreshToken);
+			throw new RefreshTokenNotFoundException(refreshToken);
 		}
 	}
 
@@ -82,5 +94,9 @@ public class RefreshTokenService {
 			refreshTokenEntity = new RefreshToken(refreshToken, userEmail, expiresAt);
 		}
 		saveRefreshToken(refreshTokenEntity);
+	}
+
+	private void deleteExpiredRefreshToken(String refreshToken) {
+		transactionTemplate.executeWithoutResult(status -> refreshTokenRepository.deleteByRefreshToken(refreshToken));
 	}
 }

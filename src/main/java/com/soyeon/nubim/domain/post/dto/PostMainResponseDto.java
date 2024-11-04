@@ -32,5 +32,6 @@ public class PostMainResponseDto implements PostResponseDto {
 
 	private CommentResponseDto representativeComment;
 	private Long numberOfComments;
+	private Boolean isReported;
 
 }

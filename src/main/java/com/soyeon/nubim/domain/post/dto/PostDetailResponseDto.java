@@ -16,4 +16,5 @@ public class PostDetailResponseDto implements PostResponseDto {
 	private String postContent;
 	private AlbumResponseDto album;
 	private UserResponseDto user;
+	private Boolean isReported;
 }

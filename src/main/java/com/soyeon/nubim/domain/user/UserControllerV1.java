@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
+import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateRequest;
+import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.security.jwt.dto.JwtTokenResponseDto;
 import com.soyeon.nubim.security.oauth.AppleOAuthLoginService;
@@ -92,5 +95,13 @@ public class UserControllerV1 {
 		String nickname) {
 		userService.validateDuplicatedNickname(nickname);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(description = "개인정보 처리 방침, 서비스 이용 약관 동의 업데이트")
+	@PatchMapping(value = "/agreement")
+	public ResponseEntity<TermsAgreementUpdateResponse> updateTermsAgreement(TermsAgreementUpdateRequest request) {
+		TermsAgreementUpdateResponse termsAgreementUpdateResponse = userService.updateTermsAgreement(request);
+
+		return ResponseEntity.ok().body(termsAgreementUpdateResponse);
 	}
 }

@@ -5,6 +5,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class UserAgreementUpdateFailException extends ResponseStatusException {
 	public UserAgreementUpdateFailException() {
-		super(HttpStatus.NOT_FOUND, "terms agreement update fail");
+		super(HttpStatus.INTERNAL_SERVER_ERROR, "terms agreement update fail");
 	}
 }

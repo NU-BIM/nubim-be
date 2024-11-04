@@ -79,6 +79,11 @@ public class User extends BaseEntity {
 	private Provider provider;
 
 	@Builder.Default
+	private Boolean privacyAgreement = false;
+	@Builder.Default
+	private Boolean serviceAgreement = false;
+
+	@Builder.Default
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private List<Album> albums = new ArrayList<>();
 

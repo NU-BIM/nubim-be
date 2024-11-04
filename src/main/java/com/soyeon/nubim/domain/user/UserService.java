@@ -19,13 +19,17 @@ import com.soyeon.nubim.domain.postlike.PostLikeRepository;
 import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
+import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateRequest;
+import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
 import com.soyeon.nubim.domain.user.exception.DeletedUserSignupAttemptException;
 import com.soyeon.nubim.domain.user.exception.InvalidNicknameFormatException;
 import com.soyeon.nubim.domain.user.exception.MultipleProfileUpdateException;
+import com.soyeon.nubim.domain.user.exception.MultipleUserAgreementUpdateException;
 import com.soyeon.nubim.domain.user.exception.NicknameAlreadyExistsException;
 import com.soyeon.nubim.domain.user.exception.NicknameNullOrEmptyException;
 import com.soyeon.nubim.domain.user.exception.UnsupportedProfileImageTypeException;
+import com.soyeon.nubim.domain.user.exception.UserAgreementUpdateFailException;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.domain.user.exception.UsernameNullOrEmptyException;
 import com.soyeon.nubim.domain.userfollow.UserFollowRepository;
@@ -38,8 +42,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-	private static final int PROFILE_UPDATE_SUCCESS = 1;
-	private static final int PROFILE_UPDATE_FAIL = 0;
+	private static final int UPDATE_SUCCESS = 1;
+	private static final int UPDATE_FAIL = 0;
 	private final UserRepository userRepository;
 	private final RefreshTokenService refreshTokenService;
 	private final AccessTokenBlacklistService accessTokenBlacklistService;
@@ -145,13 +149,30 @@ public class UserService {
 		int updateResult = userRepository.updateProfile(username, nickname, profileIntroduction,
 			phoneNumber, birthDate, gender, currentUserId);
 
-		if (updateResult == PROFILE_UPDATE_SUCCESS) {
+		if (updateResult == UPDATE_SUCCESS) {
 			return new ProfileUpdateResponse("profile update success");
 		}
-		if (updateResult == PROFILE_UPDATE_FAIL) {
+		if (updateResult == UPDATE_FAIL) {
 			return new ProfileUpdateResponse("profile update fail");
 		}
 		throw new MultipleProfileUpdateException();
+	}
+
+	@Transactional
+	public TermsAgreementUpdateResponse updateTermsAgreement(TermsAgreementUpdateRequest request){
+		Long userId = loggedInUserService.getCurrentUserId();
+		boolean privacyAgreement = request.isPrivacyAgreement();
+		boolean serviceAgreement = request.isServiceAgreement();
+
+		int updateResult = userRepository.updateTermsAgreement(userId, privacyAgreement, serviceAgreement);
+
+		if (updateResult == UPDATE_SUCCESS) {
+			return new TermsAgreementUpdateResponse("terms agreement update success");
+		}
+		if (updateResult == UPDATE_FAIL) {
+			throw new UserAgreementUpdateFailException();
+		}
+		throw new MultipleUserAgreementUpdateException(updateResult);
 	}
 
 	public void checkIfUserIsDeleted(String email) {

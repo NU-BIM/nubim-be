@@ -48,4 +48,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("UPDATE User u SET u.username = 'deleted user', u.nickname = :anonymizedNickname, u.isDeleted = true "
 		+ "WHERE u.userId = :userId")
 	int deleteAccount(Long userId, String anonymizedNickname);
+
+	@Modifying
+	@Query("UPDATE User u SET u.privacyAgreement = :privacyAgreement, u.serviceAgreement = :serviceAgreement"
+		+ " WHERE u.userId = :userId")
+	int updateTermsAgreement(Long userId, boolean privacyAgreement, boolean serviceAgreement);
 }

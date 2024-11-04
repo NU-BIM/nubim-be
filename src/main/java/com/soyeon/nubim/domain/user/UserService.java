@@ -29,6 +29,7 @@ import com.soyeon.nubim.domain.user.exception.MultipleUserAgreementUpdateExcepti
 import com.soyeon.nubim.domain.user.exception.NicknameAlreadyExistsException;
 import com.soyeon.nubim.domain.user.exception.NicknameNullOrEmptyException;
 import com.soyeon.nubim.domain.user.exception.UnsupportedProfileImageTypeException;
+import com.soyeon.nubim.domain.user.exception.UserAgreementUpdateFailException;
 import com.soyeon.nubim.domain.user.exception.UserNotFoundException;
 import com.soyeon.nubim.domain.user.exception.UsernameNullOrEmptyException;
 import com.soyeon.nubim.domain.userfollow.UserFollowRepository;
@@ -169,7 +170,7 @@ public class UserService {
 			return new TermsAgreementUpdateResponse("terms agreement update success");
 		}
 		if (updateResult == UPDATE_FAIL) {
-			return new TermsAgreementUpdateResponse("terms agreement update fail");
+			throw new UserAgreementUpdateFailException();
 		}
 		throw new MultipleUserAgreementUpdateException(updateResult);
 	}

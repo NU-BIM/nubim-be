@@ -53,4 +53,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("UPDATE User u SET u.privacyAgreement = :privacyAgreement, u.serviceAgreement = :serviceAgreement"
 		+ " WHERE u.userId = :userId")
 	int updateTermsAgreement(Long userId, boolean privacyAgreement, boolean serviceAgreement);
+
+	@Query("SELECT CASE WHEN u.privacyAgreement = true AND u.serviceAgreement = true THEN true ELSE false END"
+		+ " FROM User u WHERE u.userId = :userId ")
+	boolean isAllAgreementsAccepted(Long userId);
 }

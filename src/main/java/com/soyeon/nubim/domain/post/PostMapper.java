@@ -17,6 +17,7 @@ import com.soyeon.nubim.domain.post.dto.PostSimpleResponseDto;
 import com.soyeon.nubim.domain.post_bookmark.PostBookmarkRepository;
 import com.soyeon.nubim.domain.postlike.PostLike;
 import com.soyeon.nubim.domain.postlike.PostLikeRepository;
+import com.soyeon.nubim.domain.report.ReportRepository;
 import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.dto.UserResponseDto;
@@ -32,6 +33,7 @@ public class PostMapper {
 	private final PostBookmarkRepository postBookmarkRepository;
 	private final PostLikeRepository postLikeRepository;
 	private final LoggedInUserService loggedInUserService;
+	private final ReportRepository reportRepository;
 
 	public Post toEntity(PostCreateRequestDto postCreateRequestDto, User authorUser, Album linkedAlbum) {
 		return Post.builder()
@@ -53,12 +55,15 @@ public class PostMapper {
 	}
 
 	public PostDetailResponseDto toPostDetailResponseDto(Post post) {
+		Boolean isReported = reportRepository.isPostReportedAndPending(post.getPostId());
+
 		return PostDetailResponseDto.builder()
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
 			.postContent(post.getPostContent())
 			.user(createUserSimpleResponseDto(post.getUser()))
 			.album(albumMapper.toAlbumReadResponseDto(post.getAlbum()))
+			.isReported(isReported)
 			.build();
 	}
 
@@ -94,6 +99,8 @@ public class PostMapper {
 		Boolean isBookmarked = postBookmarkRepository.existsByUserAndPost(currentUser, post);
 		Boolean isLiked = postLikeRepository.existsPostLikeByPostAndUser(post.getPostId(), currentUser.getUserId());
 
+		Boolean isReported = reportRepository.isPostReportedAndPending(post.getPostId());
+
 		return PostMainResponseDto.builder()
 			.postId(post.getPostId())
 			.postTitle(post.getPostTitle())
@@ -108,6 +115,7 @@ public class PostMapper {
 			.isLiked(isLiked)
 			.representativeComment(representativeComment)
 			.numberOfComments(numberOfComments)
+			.isReported(isReported)
 			.build();
 	}
 

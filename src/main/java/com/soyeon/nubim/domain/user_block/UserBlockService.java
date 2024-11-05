@@ -15,6 +15,7 @@ import com.soyeon.nubim.domain.user_block.dto.UserBlockRequest;
 import com.soyeon.nubim.domain.user_block.exception.AlreadyBlockedException;
 import com.soyeon.nubim.domain.user_block.exception.BlockedUserAccessDeniedException;
 import com.soyeon.nubim.domain.user_block.exception.MultipleUserBlockDeletedException;
+import com.soyeon.nubim.domain.user_block.exception.SelfBlockException;
 import com.soyeon.nubim.domain.user_block.exception.UserBlockDeleteFailException;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class UserBlockService {
 		User blockingUser = new User(currentUserId);
 		User blockedUser = userService.findByNickname(userBlockRequest.getBlockedUserNickname());
 
+		checkSelfBlock(blockingUser, blockedUser);
 		validateUserBlockNotExists(blockingUser, blockedUser);
 
 		UserBlock userBlock = userBlockMapper.toEntity(blockingUser, blockedUser);
@@ -71,6 +73,12 @@ public class UserBlockService {
 	public void checkBlockRelation(User currentUser, User targetUser) {
 		if (userBlockRepository.existsBlockRelationBetweenUser(currentUser, targetUser)) {
 			throw new BlockedUserAccessDeniedException();
+		}
+	}
+
+	private void checkSelfBlock(User blockingUser, User blockedUser) {
+		if (blockingUser.getUserId().equals(blockedUser.getUserId())) {
+			throw new SelfBlockException();
 		}
 	}
 

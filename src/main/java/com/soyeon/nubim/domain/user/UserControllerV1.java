@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
+import com.soyeon.nubim.domain.user.dto.TermsAgreementStatusResponse;
 import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
@@ -104,4 +105,13 @@ public class UserControllerV1 {
 
 		return ResponseEntity.ok().body(termsAgreementUpdateResponse);
 	}
+
+	@Operation(description = "사용자가 모든 약관에 동의했는지 확인")
+	@GetMapping(value = "/agreement")
+	public ResponseEntity<TermsAgreementStatusResponse> getTermsAgreement() {
+		TermsAgreementStatusResponse termsAgreementAcceptedResponse = userService.checkTermsAgreement();
+
+		return ResponseEntity.ok().body(termsAgreementAcceptedResponse);
+	}
+
 }

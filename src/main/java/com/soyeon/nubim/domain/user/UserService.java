@@ -19,6 +19,7 @@ import com.soyeon.nubim.domain.postlike.PostLikeRepository;
 import com.soyeon.nubim.domain.user.dto.ProfileImageUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.ProfileUpdateResponse;
+import com.soyeon.nubim.domain.user.dto.TermsAgreementStatusResponse;
 import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateRequest;
 import com.soyeon.nubim.domain.user.dto.TermsAgreementUpdateResponse;
 import com.soyeon.nubim.domain.user.dto.UserProfileResponseDto;
@@ -159,7 +160,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public TermsAgreementUpdateResponse updateTermsAgreement(TermsAgreementUpdateRequest request){
+	public TermsAgreementUpdateResponse updateTermsAgreement(TermsAgreementUpdateRequest request) {
 		Long userId = loggedInUserService.getCurrentUserId();
 		boolean privacyAgreement = request.isPrivacyAgreement();
 		boolean serviceAgreement = request.isServiceAgreement();
@@ -173,6 +174,13 @@ public class UserService {
 			throw new UserAgreementUpdateFailException();
 		}
 		throw new MultipleUserAgreementUpdateException(updateResult);
+	}
+
+	public TermsAgreementStatusResponse checkTermsAgreement() {
+		Long currentUserId = loggedInUserService.getCurrentUserId();
+		boolean termsAgreement = userRepository.isAllAgreementsAccepted(currentUserId);
+
+		return new TermsAgreementStatusResponse(termsAgreement);
 	}
 
 	public void checkIfUserIsDeleted(String email) {

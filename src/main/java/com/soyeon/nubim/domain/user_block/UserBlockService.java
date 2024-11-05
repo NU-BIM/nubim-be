@@ -32,7 +32,7 @@ public class UserBlockService {
 	public UserBlockCreateResponse blockUser(UserBlockRequest userBlockRequest) {
 		Long currentUserId = loggedInUserService.getCurrentUserId();
 		User blockingUser = new User(currentUserId);
-		User blockedUser = userService.findUserByIdOrThrow(userBlockRequest.getBlockedUserId());
+		User blockedUser = userService.findByNickname(userBlockRequest.getBlockedUserNickname());
 
 		validateUserBlockNotExists(blockingUser, blockedUser);
 
@@ -54,7 +54,7 @@ public class UserBlockService {
 	public UserBlockDeleteResponse unblockUser(UserBlockRequest userBlockRequest) {
 		Long currentUserId = loggedInUserService.getCurrentUserId();
 		User blockingUser = new User(currentUserId);
-		User blockedUser = userService.findUserByIdOrThrow(userBlockRequest.getBlockedUserId());
+		User blockedUser = userService.findByNickname(userBlockRequest.getBlockedUserNickname());
 
 		int deleteResult = userBlockRepository.deleteByBlockingUserAndBlockedUser(blockingUser, blockedUser);
 

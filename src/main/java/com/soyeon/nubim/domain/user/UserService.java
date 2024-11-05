@@ -71,6 +71,11 @@ public class UserService {
 			.orElseThrow(() -> UserNotFoundException.forEmail(email));
 	}
 
+	public User findByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(()-> UserNotFoundException.forNickname(nickname));
+	}
+
 	public User saveUser(User user) {
 		return userRepository.save(user);
 	}

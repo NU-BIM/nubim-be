@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserBlockRequest {
-	private Long blockedUserId;
+	private String blockedUserNickname;
 }

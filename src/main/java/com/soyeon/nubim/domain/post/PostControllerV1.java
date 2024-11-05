@@ -23,6 +23,7 @@ import com.soyeon.nubim.domain.post.dto.PostResponseDto;
 import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
+import com.soyeon.nubim.domain.user_block.UserBlockService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,6 +38,7 @@ public class PostControllerV1 {
 	private final PostService postService;
 	private final UserService userService;
 	private final LoggedInUserService loggedInUserService;
+	private final UserBlockService userBlockService;
 
 	private static final int DEFAULT_SIMPLE_PAGE_SIZE = 10;
 	private static final int DEFAULT_MAIN_PAGE_SIZE = 5;
@@ -74,7 +76,9 @@ public class PostControllerV1 {
 		@PathVariable String nickname,
 		@RequestParam(defaultValue = "0") Long page,
 		@RequestParam(defaultValue = "desc") String sort) {
-		User user = userService.getUserByNickname(nickname);
+		User targetUser = userService.getUserByNickname(nickname);
+		User currentUser = new User(loggedInUserService.getCurrentUserId());
+		userBlockService.checkBlockRelation(currentUser, targetUser);
 
 		PageRequest pageRequest;
 		if (sort.equals("desc")) {
@@ -86,7 +90,7 @@ public class PostControllerV1 {
 		} else {
 			throw new InvalidQueryParameterException("sort");
 		}
-		return ResponseEntity.ok(postService.findAllPostsByUserOrderByCreatedAt(user, pageRequest));
+		return ResponseEntity.ok(postService.findAllPostsByUserOrderByCreatedAt(targetUser, pageRequest));
 	}
 
 	@DeleteMapping("{postId}")

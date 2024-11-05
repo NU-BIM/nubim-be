@@ -13,6 +13,7 @@ import com.soyeon.nubim.domain.user_block.dto.UserBlockDeleteResponse;
 import com.soyeon.nubim.domain.user_block.dto.UserBlockReadResponse;
 import com.soyeon.nubim.domain.user_block.dto.UserBlockRequest;
 import com.soyeon.nubim.domain.user_block.exception.AlreadyBlockedException;
+import com.soyeon.nubim.domain.user_block.exception.BlockedUserAccessDeniedException;
 import com.soyeon.nubim.domain.user_block.exception.MultipleUserBlockDeletedException;
 import com.soyeon.nubim.domain.user_block.exception.UserBlockDeleteFailException;
 
@@ -65,6 +66,12 @@ public class UserBlockService {
 			throw new UserBlockDeleteFailException();
 		}
 		throw new MultipleUserBlockDeletedException();
+	}
+
+	public void checkBlockRelation(User currentUser, User targetUser) {
+		if (userBlockRepository.existsBlockRelationBetweenUser(currentUser, targetUser)) {
+			throw new BlockedUserAccessDeniedException();
+		}
 	}
 
 	private void validateUserBlockNotExists(User blockingUser, User blockedUser) {

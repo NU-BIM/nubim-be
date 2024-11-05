@@ -16,6 +16,11 @@ public interface UserBlockRepository extends JpaRepository<UserBlock, Long> {
 		+ " WHERE ub.blockingUser = :blockingUser AND ub.blockedUser = :blockedUser)")
 	boolean existsByBlockingUserAndBlockedUser(User blockingUser, User blockedUser);
 
+	@Query("SELECT EXISTS( SELECT 1 FROM UserBlock ub WHERE "
+		+ "(ub.blockingUser = :user1 AND ub.blockedUser = :user2 ) OR "
+		+ "(ub.blockingUser = :user2 AND ub.blockedUser = :user1 ))")
+	boolean existsBlockRelationBetweenUser(User user1, User user2);
+
 	@Query("SELECT ub FROM UserBlock ub WHERE ub.blockingUser = :blockingUser")
 	List<UserBlock> findBlockedUsersByBlockingUser(User blockingUser);
 

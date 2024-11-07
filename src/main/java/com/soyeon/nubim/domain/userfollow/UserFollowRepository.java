@@ -30,4 +30,9 @@ public interface UserFollowRepository extends JpaRepository<UserFollow, Long> {
 	@Modifying
 	@Query("UPDATE UserFollow uf SET uf.isDeleted = true WHERE uf.followee.userId = :userId")
 	int deleteFolloweeByUserId(Long userId);
+
+	@Modifying
+	@Query("UPDATE UserFollow uf SET uf.isDeleted = true " +
+		"WHERE uf.follower.userId = :userId OR uf.followee.userId = :userId")
+	int deleteFollowByUserId(Long userId);
 }

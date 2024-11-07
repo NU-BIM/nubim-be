@@ -76,6 +76,14 @@ public class UserFollowService {
 			.build();
 	}
 
+	public void deleteFollowBetweenUsers(User blockingUser, User blockedUser) {
+		Long blockingUserId = blockingUser.getUserId();
+		Long blockedUserId = blockedUser.getUserId();
+
+		userFollowRepository.deleteFollowByUserId(blockingUserId);
+		userFollowRepository.deleteFollowByUserId(blockedUserId);
+	}
+
 	public Page<UserSimpleResponseDto> getFollowers(Pageable pageable) {
 		User followee = loggedInUserService.getCurrentUser();
 

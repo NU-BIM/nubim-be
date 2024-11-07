@@ -83,8 +83,7 @@ public class UserFollowService {
 		Long blockingUserId = blockingUser.getUserId();
 		Long blockedUserId = blockedUser.getUserId();
 
-		userFollowRepository.deleteFollowByUserId(blockingUserId);
-		userFollowRepository.deleteFollowByUserId(blockedUserId);
+		userFollowRepository.deleteFollowByUserId(blockingUserId, blockedUserId);
 	}
 
 	public Page<UserSimpleResponseDto> getFollowers(Pageable pageable) {

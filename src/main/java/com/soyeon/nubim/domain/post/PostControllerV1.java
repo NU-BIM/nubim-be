@@ -23,7 +23,7 @@ import com.soyeon.nubim.domain.post.dto.PostResponseDto;
 import com.soyeon.nubim.domain.user.LoggedInUserService;
 import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserService;
-import com.soyeon.nubim.domain.user_block.UserBlockService;
+import com.soyeon.nubim.domain.user_block.UserBlockValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,7 +38,7 @@ public class PostControllerV1 {
 	private final PostService postService;
 	private final UserService userService;
 	private final LoggedInUserService loggedInUserService;
-	private final UserBlockService userBlockService;
+	private final UserBlockValidator userBlockValidator;
 
 	private static final int DEFAULT_SIMPLE_PAGE_SIZE = 10;
 	private static final int DEFAULT_MAIN_PAGE_SIZE = 5;
@@ -78,7 +78,7 @@ public class PostControllerV1 {
 		@RequestParam(defaultValue = "desc") String sort) {
 		User targetUser = userService.getUserByNickname(nickname);
 		User currentUser = new User(loggedInUserService.getCurrentUserId());
-		userBlockService.checkBlockRelation(currentUser, targetUser);
+		userBlockValidator.checkBlockRelation(currentUser, targetUser);
 
 		PageRequest pageRequest;
 		if (sort.equals("desc")) {

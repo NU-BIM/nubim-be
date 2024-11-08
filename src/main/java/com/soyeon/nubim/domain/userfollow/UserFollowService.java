@@ -9,7 +9,9 @@ import com.soyeon.nubim.domain.user.User;
 import com.soyeon.nubim.domain.user.UserMapper;
 import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
+import com.soyeon.nubim.domain.user_block.UserBlockValidator;
 import com.soyeon.nubim.domain.userfollow.dto.FollowUserResponseDto;
+import com.soyeon.nubim.domain.userfollow.dto.IsFollowingResponse;
 import com.soyeon.nubim.domain.userfollow.exception.FollowingStatusException;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,18 @@ public class UserFollowService {
 	private final UserService userService;
 	private final UserMapper userMapper;
 	private final LoggedInUserService loggedInUserService;
+	private final UserBlockValidator userBlockValidator;
+
+	public IsFollowingResponse checkIsFollowing(String nickname) {
+		User followee = userService.getUserByNickname(nickname);
+		User follower = loggedInUserService.getCurrentUser();
+
+		return IsFollowingResponse.builder()
+			.followerId(follower.getUserId())
+			.followeeId(followee.getUserId())
+			.isFollowing(isFollowing(follower, followee))
+			.build();
+	}
 
 	public FollowUserResponseDto createFollow(String nickname) {
 		User followee = userService.getUserByNickname(nickname);
@@ -33,6 +47,7 @@ public class UserFollowService {
 		if (this.isFollowing(follower, followee)) {
 			throw FollowingStatusException.alreadyFollowing(nickname);
 		}
+		userBlockValidator.checkBlockRelation(follower, followee);
 
 		UserFollow userFollow = UserFollow.builder()
 			.follower(follower)
@@ -74,6 +89,13 @@ public class UserFollowService {
 			.followeeId(followee.getUserId())
 			.message("Successfully unfollowed")
 			.build();
+	}
+
+	public void deleteFollowBetweenUsers(User blockingUser, User blockedUser) {
+		Long blockingUserId = blockingUser.getUserId();
+		Long blockedUserId = blockedUser.getUserId();
+
+		userFollowRepository.deleteFollowByUserId(blockingUserId, blockedUserId);
 	}
 
 	public Page<UserSimpleResponseDto> getFollowers(Pageable pageable) {

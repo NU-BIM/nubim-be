@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.soyeon.nubim.common.exception_handler.InvalidQueryParameterException;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.domain.userfollow.dto.FollowUserResponseDto;
+import com.soyeon.nubim.domain.userfollow.dto.IsFollowingResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,14 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1")
 public class UserFollowControllerV1 {
 	final UserFollowService userFollowService;
+
+	@Operation(description = "해당 nickname을 팔로우 했는지 조회")
+	@GetMapping("follows/{nickname}")
+	public ResponseEntity<IsFollowingResponse> isFollowing(@PathVariable String nickname) {
+		IsFollowingResponse isFollowingResponse = userFollowService.checkIsFollowing(nickname);
+
+		return ResponseEntity.ok(isFollowingResponse);
+	}
 
 	@Operation(description = "로그인된 유저가 해당 nickname 팔로우")
 	@PostMapping("/follows/{nickname}")

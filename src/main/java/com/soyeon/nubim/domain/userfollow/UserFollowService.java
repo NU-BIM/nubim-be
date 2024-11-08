@@ -11,6 +11,7 @@ import com.soyeon.nubim.domain.user.UserService;
 import com.soyeon.nubim.domain.user.dto.UserSimpleResponseDto;
 import com.soyeon.nubim.domain.user_block.UserBlockValidator;
 import com.soyeon.nubim.domain.userfollow.dto.FollowUserResponseDto;
+import com.soyeon.nubim.domain.userfollow.dto.IsFollowingResponse;
 import com.soyeon.nubim.domain.userfollow.exception.FollowingStatusException;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,17 @@ public class UserFollowService {
 	private final UserMapper userMapper;
 	private final LoggedInUserService loggedInUserService;
 	private final UserBlockValidator userBlockValidator;
+
+	public IsFollowingResponse checkIsFollowing(String nickname) {
+		User followee = userService.getUserByNickname(nickname);
+		User follower = loggedInUserService.getCurrentUser();
+
+		return IsFollowingResponse.builder()
+			.followerId(follower.getUserId())
+			.followeeId(followee.getUserId())
+			.isFollowing(isFollowing(follower, followee))
+			.build();
+	}
 
 	public FollowUserResponseDto createFollow(String nickname) {
 		User followee = userService.getUserByNickname(nickname);

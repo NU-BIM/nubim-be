@@ -26,7 +26,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Query(value = "SELECT SETSEED(:seed)", nativeQuery = true)
 	void setSeed(Float seed);
 
-	@Query(value = "SELECT p FROM Post p WHERE p.user != :user ORDER BY function('RANDOM')")
+	@Query(value = "SELECT p FROM Post p WHERE p.user != :user "
+		+ "AND NOT EXISTS (SELECT ub FROM UserBlock ub WHERE ub.blockingUser = :user AND ub.blockedUser = p.user) "
+		+ "AND NOT EXISTS (SELECT ub FROM UserBlock ub WHERE ub.blockingUser = p.user AND ub.blockedUser = :user) "
+		+ "ORDER BY function('RANDOM')")
 	Page<Post> findRandomPostsExceptMine(Pageable pageable, User user);
 
 	Page<Post> findByPostTitleContainingOrPostContentContaining(

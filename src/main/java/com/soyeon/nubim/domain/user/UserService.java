@@ -3,6 +3,7 @@ package com.soyeon.nubim.domain.user;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.util.aws.S3AndCdnUrlConverter;
 import com.soyeon.nubim.common.util.aws.S3ImageUploader;
 import com.soyeon.nubim.domain.comment.CommentRepository;
 import com.soyeon.nubim.domain.post.PostRepository;
@@ -45,6 +47,12 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private static final int UPDATE_SUCCESS = 1;
 	private static final int UPDATE_FAIL = 0;
+	private static final Set<String> SUPPORTED_IMAGE_TYPES = Set.of(
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/webp"
+	);
 	private final UserRepository userRepository;
 	private final RefreshTokenService refreshTokenService;
 	private final AccessTokenBlacklistService accessTokenBlacklistService;
@@ -55,6 +63,7 @@ public class UserService {
 	private final PostLikeRepository postLikeRepository;
 	private final PostRepository postRepository;
 	private final UserFollowRepository userFollowRepository;
+	private final S3AndCdnUrlConverter s3AndCdnUrlConverter;
 
 	public UserProfileResponseDto getCurrentUserProfile() {
 		User currentUser = loggedInUserService.getCurrentUser();
@@ -127,7 +136,7 @@ public class UserService {
 	public ProfileImageUpdateResponse updateProfileImage(MultipartFile profileImage) {
 		validateProfileImageContentType(profileImage.getContentType());
 
-		String uploadPath = "users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
+		String uploadPath = "/users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
 			.toString()
 			.substring(0, 4);
 		String uploadResponse = s3ImageUploader.uploadImage(uploadPath, profileImage);
@@ -135,7 +144,8 @@ public class UserService {
 		if (uploadResponse.contains("fail")) {
 			return new ProfileImageUpdateResponse("profile image update fail", null);
 		}
-		userRepository.updateProfileImage(uploadResponse, loggedInUserService.getCurrentUserId());
+		String cdnUrl = s3AndCdnUrlConverter.convertPathToCdnUrl(uploadPath);
+		userRepository.updateProfileImage(cdnUrl, loggedInUserService.getCurrentUserId());
 		return new ProfileImageUpdateResponse("profile image update success", uploadResponse);
 	}
 
@@ -195,7 +205,7 @@ public class UserService {
 	}
 
 	private void validateProfileImageContentType(String contentType) {
-		if (contentType == null || !contentType.equals("image/png")) {
+		if (contentType == null || !SUPPORTED_IMAGE_TYPES.contains(contentType.toLowerCase())) {
 			throw new UnsupportedProfileImageTypeException(contentType);
 		}
 	}

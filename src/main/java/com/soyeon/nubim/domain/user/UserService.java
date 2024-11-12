@@ -136,7 +136,7 @@ public class UserService {
 	public ProfileImageUpdateResponse updateProfileImage(MultipartFile profileImage) {
 		validateProfileImageContentType(profileImage.getContentType());
 
-		String uploadPath = "/users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
+		String uploadPath = "users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
 			.toString()
 			.substring(0, 4);
 		String uploadResponse = s3ImageUploader.uploadImage(uploadPath, profileImage);
@@ -144,7 +144,7 @@ public class UserService {
 		if (uploadResponse.contains("fail")) {
 			return new ProfileImageUpdateResponse("profile image update fail", null);
 		}
-		String cdnUrl = s3AndCdnUrlConverter.convertPathToCdnUrl(uploadPath);
+		String cdnUrl = s3AndCdnUrlConverter.convertPathToCdnUrl("/"+uploadPath);
 		userRepository.updateProfileImage(cdnUrl, loggedInUserService.getCurrentUserId());
 		return new ProfileImageUpdateResponse("profile image update success", uploadResponse);
 	}

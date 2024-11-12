@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.soyeon.nubim.common.enums.Gender;
+import com.soyeon.nubim.common.util.aws.S3AndCdnUrlConverter;
 import com.soyeon.nubim.common.util.aws.S3ImageUploader;
 import com.soyeon.nubim.domain.comment.CommentRepository;
 import com.soyeon.nubim.domain.post.PostRepository;
@@ -62,6 +63,7 @@ public class UserService {
 	private final PostLikeRepository postLikeRepository;
 	private final PostRepository postRepository;
 	private final UserFollowRepository userFollowRepository;
+	private final S3AndCdnUrlConverter s3AndCdnUrlConverter;
 
 	public UserProfileResponseDto getCurrentUserProfile() {
 		User currentUser = loggedInUserService.getCurrentUser();
@@ -134,7 +136,7 @@ public class UserService {
 	public ProfileImageUpdateResponse updateProfileImage(MultipartFile profileImage) {
 		validateProfileImageContentType(profileImage.getContentType());
 
-		String uploadPath = "users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
+		String uploadPath = "/users/" + loggedInUserService.getCurrentUserId() + "/profile/" + UUID.randomUUID()
 			.toString()
 			.substring(0, 4);
 		String uploadResponse = s3ImageUploader.uploadImage(uploadPath, profileImage);
@@ -142,7 +144,8 @@ public class UserService {
 		if (uploadResponse.contains("fail")) {
 			return new ProfileImageUpdateResponse("profile image update fail", null);
 		}
-		userRepository.updateProfileImage(uploadResponse, loggedInUserService.getCurrentUserId());
+		String cdnUrl = s3AndCdnUrlConverter.convertPathToCdnUrl(uploadPath);
+		userRepository.updateProfileImage(cdnUrl, loggedInUserService.getCurrentUserId());
 		return new ProfileImageUpdateResponse("profile image update success", uploadResponse);
 	}
 

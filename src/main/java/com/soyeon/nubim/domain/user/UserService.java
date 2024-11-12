@@ -3,6 +3,7 @@ package com.soyeon.nubim.domain.user;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -45,6 +46,12 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private static final int UPDATE_SUCCESS = 1;
 	private static final int UPDATE_FAIL = 0;
+	private static final Set<String> SUPPORTED_IMAGE_TYPES = Set.of(
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/webp"
+	);
 	private final UserRepository userRepository;
 	private final RefreshTokenService refreshTokenService;
 	private final AccessTokenBlacklistService accessTokenBlacklistService;
@@ -195,7 +202,7 @@ public class UserService {
 	}
 
 	private void validateProfileImageContentType(String contentType) {
-		if (contentType == null || !contentType.equals("image/png")) {
+		if (contentType == null || !SUPPORTED_IMAGE_TYPES.contains(contentType.toLowerCase())) {
 			throw new UnsupportedProfileImageTypeException(contentType);
 		}
 	}

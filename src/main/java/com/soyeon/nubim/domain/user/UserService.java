@@ -68,7 +68,17 @@ public class UserService {
 	public UserProfileResponseDto getCurrentUserProfile() {
 		User currentUser = loggedInUserService.getCurrentUser();
 
-		return userMapper.toUserProfileResponseDto(currentUser);
+		return userMapper.toUserProfileResponseDto(currentUser, true);
+	}
+
+	public UserProfileResponseDto getUserProfile(String nickname) {
+		User user = findByNickname(nickname);
+		Long currentUserId = loggedInUserService.getCurrentUserId();
+
+		if (user.getUserId().equals(currentUserId)) {
+			return userMapper.toUserProfileResponseDto(user, true);
+		}
+		return userMapper.toUserProfileResponseDto(user, false);
 	}
 
 	public Optional<User> findById(Long userId) {
@@ -82,7 +92,7 @@ public class UserService {
 
 	public User findByNickname(String nickname) {
 		return userRepository.findByNickname(nickname)
-			.orElseThrow(()-> UserNotFoundException.forNickname(nickname));
+			.orElseThrow(() -> UserNotFoundException.forNickname(nickname));
 	}
 
 	public User saveUser(User user) {
@@ -144,7 +154,7 @@ public class UserService {
 		if (uploadResponse.contains("fail")) {
 			return new ProfileImageUpdateResponse("profile image update fail", null);
 		}
-		String cdnUrl = s3AndCdnUrlConverter.convertPathToCdnUrl("/"+uploadPath);
+		String cdnUrl = s3AndCdnUrlConverter.convertPathToCdnUrl("/" + uploadPath);
 		userRepository.updateProfileImage(cdnUrl, loggedInUserService.getCurrentUserId());
 		return new ProfileImageUpdateResponse("profile image update success", uploadResponse);
 	}

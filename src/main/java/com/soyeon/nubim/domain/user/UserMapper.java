@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.soyeon.nubim.domain.album.Album;
 import com.soyeon.nubim.domain.album.dto.AlbumReadResponseDto;
 import com.soyeon.nubim.domain.album.mapper.AlbumMapper;
 import com.soyeon.nubim.domain.post.Post;
@@ -49,9 +48,13 @@ public class UserMapper {
 			.build();
 	}
 
-	public UserProfileResponseDto toUserProfileResponseDto(User user) {
-		List<Album> albums = user.getAlbums();
-		List<AlbumReadResponseDto> albumReadResponseDtos = albumMapper.toAlbumReadResponseDtoList(albums);
+	public UserProfileResponseDto toUserProfileResponseDto(User user, boolean isCurrentUser) {
+		List<AlbumReadResponseDto> albumReadResponseDtos;
+		if (isCurrentUser) {
+			albumReadResponseDtos = albumMapper.toAlbumReadResponseDtoList(user.getAlbums());
+		} else {
+			albumReadResponseDtos = null;
+		}
 
 		List<Post> posts = user.getPosts();
 		List<PostDetailResponseDto> postDetailResponseDtos = postMapper.toPostDetailResponseDtos(posts);

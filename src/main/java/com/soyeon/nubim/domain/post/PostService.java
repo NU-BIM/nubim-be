@@ -74,8 +74,8 @@ public class PostService {
 		return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);
 	}
 
-	public Page<PostMainResponseDto> searchPostsByTitleOrContent(Pageable pageable, String query) {
-		return postRepository.findByPostTitleContainingOrPostContentContaining(query, query, pageable)
+	public Page<PostMainResponseDto> searchPosts(Pageable pageable, String query) {
+		return postRepository.findByAlbumLocationPlaceNameOrPostTitleOrPostContent(query, pageable)
 			.map(post -> {
 				long numberOfComments = commentService.getCommentCountByPostId(post.getPostId());
 				return postMapper.toPostMainResponseDto(post, findRecentCommentByPostOrNull(post), numberOfComments);

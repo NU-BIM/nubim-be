@@ -35,6 +35,6 @@ public class SearchService {
 	}
 
 	public Page<PostMainResponseDto> searchPosts(String query, Pageable pageable) {
-		return postService.searchPostsByTitleOrContent(pageable, query);
+		return postService.searchPosts(pageable, query);
 	}
 }
